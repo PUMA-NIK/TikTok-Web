@@ -2,102 +2,128 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="资源名称">
-          <a-input v-model="searchData.name" placeholder="资源名称" allow-clear />
+        <a-form-item :label="$t('admin.resource')">
+          <a-input v-model="searchData.name" :placeholder="$t('admin.resource')" allow-clear />
         </a-form-item>
-        <a-form-item label="资源类型">
-          <a-select v-model="searchData.type" placeholder="选择私信类型" style="width:150px" @change="init">
-            <a-select-option :value="1">文本</a-select-option>
-            <a-select-option :value="2">富文本</a-select-option>
-            <a-select-option :value="3">视频</a-select-option>
+        <a-form-item :label="$t('admin.resourceType')">
+          <a-select v-model="searchData.type" style="width:150px" @change="init">
+            <a-select-option :value="1">{{$t('admin.text')}}</a-select-option>
+            <!-- <a-select-option :value="2">富文本</a-select-option> -->
+            <a-select-option :value="3">{{$t('admin.video')}}</a-select-option>
             <!-- <a-select-option :value="4">语音</a-select-option> -->
             <!-- <a-select-option :value="5">图片</a-select-option> -->
-            <a-select-option :value="6">名片</a-select-option>
-            <a-select-option :value="7">个签</a-select-option>
+            <a-select-option :value="6">{{$t('admin.businessCard')}}</a-select-option>
+            <a-select-option :value="7">{{$t('admin.signature')}}</a-select-option>
+            <a-select-option :value="8">{{$t('admin.textLink')}}</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" @click="init()">查询</a-button>
-          <a-button type="primary" style="margin-left:10px;" @click="add">新增</a-button>
+          <a-button type="primary" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
+          <a-button type="primary" style="margin-left:10px;" @click="add">{{this.$t('admin.Add')}}</a-button>
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
-      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :bordered="true" :pagination="false">
+      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" :scroll="{ x: 1200}" class="tableLimit" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="created_at" slot-scope="text, row">
           {{ new Date(row.created_at) | getTime }}
         </span>
         <span slot="status" slot-scope="text, row">
-          {{ row.status === 1 ?'未审核':'已审核'}}
+          {{ row.status === 1 ? $t('admin.pendingReview') : $t('admin.audited')}}
         </span>
         <span slot="action" slot-scope="text, row">
-          <a-button style="margin-left: 8px" type="primary" @click="view(row)">预览</a-button>
-          <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="handleDelete(row.id)">
-            <a-button style="margin-left: 8px" type="danger">删除</a-button>
+          <a-button style="margin-left: 8px" type="primary" @click="view(row)">{{$t('admin.preview')}}</a-button>
+          <a-popconfirm :title="$t('admin.deleteOrNot')" :ok-text="$t('admin.Yes')" :cancel-text="$t('admin.No')" @confirm="handleDelete(row.id)">
+            <a-button style="margin-left: 8px" type="danger">{{$t('admin.delete')}}</a-button>
           </a-popconfirm>
         </span>
       </a-table>
 
-      <a-modal v-model="dialogVisible" title="新增资源" width="500px" ok-text="确认" cancel-text="取消" @ok="handleAdd">
+      <a-modal v-model="dialogVisible" :title="$t('user.addResources')" width="500px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="handleAdd">
         <a-form :model="form" :label-col="{ span: 4 }" :rules="form_rule" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="私信类型">
-            <a-select v-model="searchData.type" placeholder="选择私信类型">
+          <a-form-model-item :label="$t('user.privateMessageType')">
+            <a-select v-model="searchData.type">
               <a-select-option v-for="(item, index) in resourceType" :key="index" :value="item.value">{{ item.label }}</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-item label="资源名称" prop='fileName'>
+          <a-form-item :label="$t('admin.resource')" prop='fileName'>
             <a-input v-model="form.fileName" />
           </a-form-item>
-          <a-form-item label="资源内容" v-if="searchData.type != 3 && searchData.type != 6 ">
+          <a-form-item :label="$t('admin.resourceContent')" v-if="searchData.type != 3 && searchData.type != 6">
             <a-upload :file-list="fileList" :remove="handleRemove" :before-upload="beforeUpload">
               <a-button>
-                <a-icon type="upload"/> 上传
+                <a-icon type="upload"/> {{$t('user.upload')}}
               </a-button>
             </a-upload>
           </a-form-item>
-          <a-form-item label="资源内容" v-if="searchData.type === 3">
+          <a-form-item :label="$t('admin.resourceContent')" v-if="searchData.type === 3">
             <a-input v-model="fileList" @click="parsingClick" readOnly/>
           </a-form-item>
-          <a-form-item label="资源内容" v-if="searchData.type === 6 ">
+          <a-form-item :label="$t('admin.resourceContent')" v-if="searchData.type === 6 ">
             <a-input v-if="!fileListVisible" v-model="fileList" @click="parsingClick" readOnly/>
-            <p v-if="fileListVisible">解析成功</p>
+            <p v-if="fileListVisible">{{$t('user.parsedSuccessfully')}}</p>
           </a-form-item>
         </a-form>
+        <span slot="footer">
+          <a-button style="margin-left:10px;" class="add-btn" type="success" @click="dialogVisible = false">{{$t('admin.cancel')}}</a-button>
+          <a-button style="margin-left:10px;" type="primary" :loading="dialogLoading" @click="handleAdd">{{$t('admin.confirm')}}</a-button>
+        </span>
       </a-modal>
       
-      <a-modal v-model="nameCardVisible" title="解析名片" ok-text="确认" cancel-text="取消" width="550px" @ok="handleNameCard">
+      <a-modal v-model="nameCardVisible" :title="$t('user.analyzeBusinessCards')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="550px" @ok="handleNameCard">
         <a-form-model ref="nameCardFrom" :model="nameCardFrom" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="输入网址:" prop="url">
+          <a-form-model-item :label="$t('user.enterURL')" prop="url">
             <a-spin :spinning="nameCardSpinning" tip="Loading..."/>
-            <a-input v-if="!nameCardSpinning" v-model="nameCardFrom.url" />
+            <a-input v-model="nameCardFrom.url" />
           </a-form-model-item>
-          <a-form-model-item label="输入地址:" prop="send_url">
-            <a-input v-model="nameCardFrom.send_url" />
+          <a-form-model-item :label="$t('user.pictureURL')+'1:'">
+            <a-spin :spinning="nameCardSpinning" tip="Loading..."/>
+            <a-input v-model="nameCardFrom.pictureUrl1" />
           </a-form-model-item>
-          <a-form-model-item label="输入文字:" prop="send_text">
-            <a-textarea
-              v-model="nameCardFrom.send_text"
-              placeholder="请输入文字"
-              :auto-size="{ minRows: 3, maxRows: 5 }"
-            />
+          <a-form-model-item :label="$t('user.pictureURL')+'2:'" >
+            <a-spin :spinning="nameCardSpinning" tip="Loading..."/>
+            <a-input v-model="nameCardFrom.pictureUrl2" />
+          </a-form-model-item>
+          <a-form-model-item :label="$t('user.pictureURL')+'3:'">
+            <a-spin :spinning="nameCardSpinning" tip="Loading..."/>
+            <a-input v-model="nameCardFrom.pictureUrl3" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
-      <a-modal v-model="videoVisible" title="解析视频" ok-text="确认" cancel-text="取消" width="550px" @ok="handleVideo">
+      <a-modal v-model="videoVisible" :title="$t('user.videoAnalysis')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="550px" @ok="handleVideo">
         <a-form-model ref="videoFrom" :model="videoFrom" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="输入网址" prop="avatar">
+          <a-form-model-item :label="$t('user.enterURL')" prop="avatar">
             <a-spin :spinning="videoSpinning" tip="Loading..."/>
             <a-input v-if="!videoSpinning" v-model="videoFrom.url" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
-      <a-modal v-model="dialogView" title="预览" width="500px" ok-text="确认" cancel-text="取消" @ok="handleEdit">
+
+      <a-modal v-model="bookTextVisible" title="外链文本新增" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="550px" @ok="handleBookText">
+        <a-form-model ref="bookTextFrom" :model="bookTextFrom" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+          <a-form-model-item label="输入地址" prop="url">
+            <a-input v-model="bookTextFrom.url" />
+          </a-form-model-item>
+          <a-form-model-item label="输入文字" prop="text">
+            <a-textarea
+              v-model="bookTextFrom.text"
+              placeholder="请输入文字"
+              :auto-size="{ minRows: 3, maxRows: 15 }"
+            />
+            <!-- <a-input v-model="bookTextFrom.text" /> -->
+          </a-form-model-item>
+        </a-form-model>
+      </a-modal>
+      <a-modal v-model="dialogView" :title="$t('admin.preview')" width="500px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="handleEdit">
         <div style="height:200px; overflow-y:auto;">
           <p v-for="(item, index) in dataInfo" :key="index">{{ item }}</p>
         </div>
       </a-modal>
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
@@ -109,31 +135,37 @@
 
 <script>
 const columns = [{
-  title: '创建时间',
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
   dataIndex: 'created_at',
   width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
 },
 {
-  title: '资源名称',
+  // title: '资源名称',
+  slotName: 'admin.resource',
   dataIndex: 'name',
   width: '100',
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'name', title:'admin.resource' }
 },
 {
-  title: '审核状态',
+  // title: '审核状态',
+  slotName: 'admin.state',
   dataIndex: 'status',
   width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'status' }
+  scopedSlots: { customRender: 'status', title:'admin.state' }
 },
 {
-  title: '操作',
+  // title: '操作',
+  slotName: 'admin.operate',
   dataIndex: 'action',
-  width: '100',
+  width: '300px',
+  fixed: 'right',
   align: 'center',
-  scopedSlots: { customRender: 'action' }
+  scopedSlots: { customRender: 'action', title:'admin.operate' }
 }]
 import * as api from '@/api/index'
 import axios from 'axios'
@@ -155,12 +187,13 @@ export default {
         Authorization: ('Bearer ' + window.sessionStorage.getItem('token'))
       },
       resourceType: [
-        { label: '文本', value: 1 },
-        { label: '富文本', value: 2 },
-        { label: '视频', value: 3 },
+        { label: this.$t('admin.text'), value: 1 },
+        // { label: '富文本', value: 2 },
+        { label: this.$t('admin.video'), value: 3 },
         // { label: '图片', value: 5 },
-        { label: '名片', value: 6 },
-        { label: '个签', value: 7 }],
+        { label: this.$t('admin.businessCard'), value: 6 },
+        { label: this.$t('admin.signature'), value: 7 },
+        { label: this.$t('admin.textLink'), value: 8 }],
       action: process.env.VUE_APP_UPLOAD_RESOURCE_ADDRESS,
       columns: columns,
       tableData: [],
@@ -177,11 +210,24 @@ export default {
         send_text: [
           { required: true, message: '请输入文字', trigger: 'blur' }
         ],
+        /* pictureUrl1: [
+          { required: true, message: '请输入地址', trigger: 'blur' },
+          { required: true, pattern: /^(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/, message: '请输入正确地址', trigger: 'blur' }
+        ],
+        pictureUrl2: [
+          { required: true, message: '请输入地址', trigger: 'blur' },
+          { required: true, pattern: /^(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/, message: '请输入正确地址', trigger: 'blur' }
+        ],
+        pictureUrl3: [
+          { required: true, message: '请输入地址', trigger: 'blur' },
+          { required: true, pattern: /^(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/, message: '请输入正确地址', trigger: 'blur' }
+        ], */
       },
       total: 0,
       size: 10,
       user_id: 0,
       dialogVisible: false,
+      dialogLoading: false, // 新增资源 确定按钮
       dialogView: false,
       dataInfo: [],
       modifyDialogVisible: false,
@@ -192,16 +238,27 @@ export default {
       modifyForm: {},
       videoVisible:false,
       nameCardVisible: false,
+      bookTextVisible: false,
       nameCardSpinning: false,
       videoSpinning: false,
       fileListVisible: false,
       videoFrom: {
         url: ''
       },
+      bookTextFrom: {
+        url: '',
+        text: ''
+      },
+      bookTextData: [],
       nameCardFrom: {
         url: '',
-        send_url: '',
-        send_text:''
+        send_image: '',
+        pictureUrl1: '',
+        pictureUrl2: '',
+        pictureUrl3:''
+        // 名片添加文字
+/*         send_url: '',
+        send_text:'' */
       }
     }
   },
@@ -215,7 +272,15 @@ export default {
       this.form.fileName = ''
       this.searchData.name = this.searchData.name || null
       this.searchData.page = 1
+      this.resourceTypeData()
       this.getTableData()
+    },
+    resourceTypeData() {
+      api.getEnum().then(res => {
+        if(res.code === 0) {
+          console.log(res)
+        }
+      })
     },
     async getTableData() {
       const res = await api.getResourceUser(this.searchData)
@@ -230,6 +295,7 @@ export default {
     },
     add() {
       this.dialogVisible = true
+      this.bookTextData = []
     },
     async handleAdd() {
       const { fileList } = this
@@ -241,6 +307,7 @@ export default {
         this.$message.error('请先添加资源名称')
         return
       }
+      this.dialogLoading = true
       const formData = new FormData()
       fileList.forEach(file => {
         formData.append('file', file)
@@ -262,6 +329,7 @@ export default {
         this.nameCardSpinning = false
         this.videoSpinning = false
         this.fileListVisible = false
+        this.dialogLoading = false
         this.getTableData()
       }).catch((err) => {
         this.$message.error(res.msg)
@@ -296,12 +364,14 @@ export default {
       }
     },
     handleRemove(file) {
+      // console.log(file)
       const index = this.fileList.indexOf(file)
       const newFileList = this.fileList.slice()
       newFileList.splice(index, 1)
       this.fileList = newFileList
     },
     beforeUpload(file) {
+      // console.log(file)
       // this.fileList = [...this.fileList, file]
       this.fileList = [file]
       return false
@@ -317,6 +387,9 @@ export default {
       } else if (this.searchData.type === 6) {
         this.tiktokParseNameCard()
       }
+      /* if (this.searchData.type === 8) {
+        this.tiktokParseBookText()
+      } */
     },
     // 解析视频
     tiktokParseVideo() {
@@ -336,9 +409,10 @@ export default {
           this.fileListVisible = true
         } else {
           this.videoSpinning = false
-          message.error('链接解析失败')
+          this.$message.error(res.msg)
         }
       }).catch(err => {
+        this.$message.error(err.msg)
         this.videoSpinning = false
       })
     },
@@ -346,15 +420,49 @@ export default {
     tiktokParseNameCard() {
       this.nameCardVisible = true
       this.nameCardFrom.url = ''
-      this.nameCardFrom.send_url = ''
-      this.nameCardFrom.send_text = ''
+      this.nameCardFrom.send_image = ''
+      this.nameCardFrom.pictureUrl1 = ''
+      this.nameCardFrom.pictureUrl2 = ''
+      this.nameCardFrom.pictureUrl3 = ''
+      /* this.nameCardFrom.send_url = ''
+      this.nameCardFrom.send_text = '' */
     },
     handleNameCard() {
-      this.nameCardSpinning = true
+      // this.nameCardSpinning = true
+      console.log(this.nameCardFrom)
+      let list = []
+      let URL =  /^(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/
+      // URL.test(this.nameCardFrom.pictureUrl1)
+      console.log(URL.test(this.nameCardFrom.pictureUrl1))
+      if(this.nameCardFrom.pictureUrl1 != '' || this.nameCardFrom.pictureUrl2 != '' || this.nameCardFrom.pictureUrl3 != '') {
+        if(URL.test(this.nameCardFrom.pictureUrl1)) {
+        // 成功
+        } else {
+          // 失败
+          this.$message.error('请填写正确的图片地址1的地址')
+        }
+        if(URL.test(this.nameCardFrom.pictureUrl2)) {
+        // 成功
+        } else {
+          // 失败
+          this.$message.error('请填写正确的图片地址2的地址')
+        }
+        if(URL.test(this.nameCardFrom.pictureUrl3)) {
+        // 成功
+        } else {
+          // 失败
+          this.$message.error('请填写正确的图片地址3的地址')
+        }
+      }
+      list.push(this.nameCardFrom.pictureUrl1,this.nameCardFrom.pictureUrl2,this.nameCardFrom.pictureUrl2)
+      if (this.nameCardFrom.pictureUrl1 === '' || this.nameCardFrom.pictureUrl2 === '' || this.nameCardFrom.pictureUrl3 === '') {
+        list = []
+      }
       let form = {}
       form.url = this.nameCardFrom.url
-      form.send_url = this.nameCardFrom.send_url
-      form.send_text = this.nameCardFrom.send_text
+      form.send_image = list
+      // form.send_url = this.nameCardFrom.send_url
+      // form.send_text = this.nameCardFrom.send_text
       api.postTiktokParseNameCardUser(form).then((res) => {
         if (res.code === 0) {
           this.nameCardSpinning = false
@@ -366,12 +474,28 @@ export default {
           this.fileListVisible = true
         } else {
           this.nameCardSpinning = false
-          message.error('链接解析失败')
+          this.$message.error(res.msg)
         }
       }).catch(err => {
+        this.$message.error(err.msg)
         this.nameCardSpinning = false
       })
+    },
+    tiktokParseBookText() {
+      this.bookTextVisible = true
+    },
+    handleBookText() {
+      this.fileList = []
+      let bookTextItem = this.bookTextFrom
+      let bookTextData = this.bookTextData
+      bookTextData.push(bookTextItem)
+      let bookTextDataList = JSON.stringify(bookTextData)
+      let fileData = new File([bookTextDataList], "bookText.txt", { type: "text/plain",})
+      this.fileList.push(fileData)
+      this.bookTextVisible = false
+
     }
+    
   }
 }
 </script>

@@ -1,15 +1,19 @@
 <template>
-    <a-layout-content>
+    <a-layout-content >
         <MessgeBox></MessgeBox>
         <SendMessge></SendMessge>
     </a-layout-content>
 </template>
 
 <script>
+
+import bus from "../utils/brotherBus";
 import MessgeBox from './messgeBox/index.vue'
 import SendMessge from './sendMessge/index.vue'
 export default {
-    name:'main',
+    
+
+    name:'mains',
     components:{
         MessgeBox,
         SendMessge
@@ -18,6 +22,14 @@ export default {
         return {
             
         }
+    },
+    mounted(){
+      bus.$on("setScroll", (res) => {
+            var that = this;
+            // that.$forceUpdate();
+      // that.$store.commit('formatting')
+      // that.scroolSetBottom();
+    })
     }
 }
 </script>

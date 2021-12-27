@@ -1,14 +1,14 @@
 <template>
   <div>
-    <a-modal v-model="childDialogVisible" title="新增关注" width="400px" ok-text="确认" cancel-text="取消" @ok="handleAdd" @cancel="closeForm">
+    <a-modal v-model="childDialogVisible" :title="this.$t('user.newAttention')" width="400px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="handleAdd" @cancel="closeForm">
       <a-form ref="form" :model="form" :label-col="{ span: 7 }" :wrapper-col="{ span: 17 }">
-        <a-form-item label="执行任务的组">
-          <a-input v-model="executive_group_name" @click="dialogGroupId = true" />
+        <a-form-item :label="$t('user.taskPort')">
+          <a-input v-model="executive_group_name" @click="dialogGroupVisible" readOnly/>
         </a-form-item>
-        <a-form-item label="任务间隔时间">
+        <a-form-item :label="$t('user.intervals')">
           <a-input v-model="form.intervals"/>
         </a-form-item>
-        <a-form-item label="备注">
+        <a-form-item :label="$t('admin.remark')">
           <a-input v-model="form.remark"/>
         </a-form-item>
       </a-form>
@@ -85,45 +85,27 @@ export default {
     }
   },
   methods: {
-    /* getGroupId(id, name) {
-      console.log(id)
-      console.log(name)
-      this.dialogGroupId = false
-      this.executive_group_name = name
-      this.form.executive_group = id
-      this.form.executive_group.push(id)
-      this.executive_group_name.push(name)
-      if (this.form.executives !== '') {
-        this.form.executives = this.form.executives + ',' + ids
-      } else {
-        this.form.executives = ids
-      }
-    }, */
     getGroupId(ids, name) {
       console.log(ids)
-      console.log(name)
-      if (this.form.executive_group !== '') {
-        this.form.executive_group = this.form.executive_group + ',' + ids
-        // this.executive_group_name = this.executive_group_name + ',' + name
-        this.executive_group_name = this.executive_group_name + ',' + ids
-      } else {
-        this.form.executive_group = ids
-        // this.executive_group_name = name
-        this.executive_group_name = ids
-      }
+      this.form.executive_group = ids
+      this.executive_group_name = ids
+    },
+    dialogGroupVisible() {
+      this.dialogGroupId = true
+      this.form.executive_group = []
+      this.executive_group_name = []
     },
     async handleAdd() {
       if (this.validateForm()) return
       let form = {}
-      let executive = []
-      if(typeof this.form.executive_group === 'number') {
-        executive.push(this.form.executive_group)
-      } else if(typeof this.form.executive_group === 'string') {
-        executive = this.form.executive_group.split(",").map(Number)
-      }
       form.type = 3
       form.belong = Number(this.userInfo.data.i)
-      form.executive = executive
+      if(this.form.executive_group != []) {
+        form.executive = this.form.executive_group
+      } else if(this.form.executive_group = []) {
+        this.$message.error('请选择端口')
+      }
+      // tik tok 不许要
       form.follow_user = this.tiktokUser
       form.remark = this.form.remark
       form.intervals = Number(this.form.intervals)

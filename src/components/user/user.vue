@@ -1,13 +1,13 @@
 <template>
   <div>
-    <a-modal v-model="dialogGroupId" title="获取用户" width="600px" ok-text="确认" cancel-text="取消" @cancel="dialogGroupId = false" @ok="handRowOk">
+    <a-modal v-model="dialogGroupId" :title="$t('agent.userInfo')" width="600px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @cancel="dialogGroupId = false" @ok="handRowOk">
       <div class="search-box">
         <a-form layout="inline" :model="searchData" class="demo-form-inline">
-          <a-form-item label="用户名">
-            <a-input v-model="searchData._like_r_username" style="150px" placeholder="用户名" allow-clear />
+          <a-form-item :label="$t('admin.username')">
+            <a-input v-model="searchData._like_r_username" style="150px" :placeholder="$t('admin.username')" allow-clear />
           </a-form-item>
           <a-form-item>
-            <a-button type="primary" icon="search" @click="init()">查询</a-button>
+            <a-button type="primary" icon="search" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
           </a-form-item>
         </a-form>
       </div>
@@ -20,11 +20,15 @@
         style="margin-top:20px;"
         :row-selection="{onChange:onSelectChange,type:'radio'}"
       >
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="status" slot-scope="text, row ">
-          {{ row.status == 0 ? '正常' : '封禁' }}
+          {{ row.status == 0 ? $t('admin.normal') : $t('admin.Ban') }}
         </span>
         <span slot="role" slot-scope="text, row ">
-          {{ row.role | getRole }}
+          <!-- {{ row.role | getRole }} -->
+          {{ row.role == 0 ? $t('admin.user') : null }}
         </span>
       </a-table>
       <!-- <el-table :data="tableData" class="tableLimit" style="width: 100%">
@@ -48,34 +52,42 @@
         </el-table-column>
       </el-table> -->
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
         </a-pagination>
       </div>
+      <span slot="footer">
+        <a-button style="margin-left:10px;" class="add-btn" type="success" @click="dialogGroupId = false">{{$t('admin.cancel')}}</a-button>
+        <a-button style="margin-left:10px;" type="primary" :loading="assignLoading" @click="handRowOk">{{$t('admin.confirm')}}</a-button>
+      </span>
     </a-modal>
   </div>
 </template>
 
 <script>
 const columns = [{
-  title: '用户名',
+  // title: '用户名',
+  slotName: 'admin.username',
   dataIndex: 'username',
   ellipsis: true,
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'username', title:'admin.username' }
 }, {
-  title: '用户状态',
+  // title: '用户状态',
+  slotName: 'admin.state',
   dataIndex: 'status',
   ellipsis: true,
   align: 'center',
-  scopedSlots: { customRender: 'status' }
+  scopedSlots: { customRender: 'status', title:'admin.state' }
 }, {
-  title: '角色',
+  // title: '角色',
+  slotName: 'admin.role',
   dataIndex: 'role',
   ellipsis: true,
   align: 'center',
-  scopedSlots: { customRender: 'role' }
+  scopedSlots: { customRender: 'role', title:'admin.role' }
 }]
 import * as api from '@/api/index'
 import { message } from 'ant-design-vue'
@@ -83,7 +95,11 @@ export default {
   props: {
     role: {
       type: Number,
-      default: null
+      required: true
+    },
+    assignLoading: {
+      type: Boolean,
+      required: true
     }
   },
   data() {
@@ -118,7 +134,7 @@ export default {
       if (!newValue) {
         this.$emit('cancelGetGroupId')
       }
-    }
+    },
   },
   mounted() {
     this.searchData.role = this.role
@@ -148,19 +164,6 @@ export default {
           this.total = res.data.count
         }
       }
-      const res = await api.getUser(this.searchData)
-        if (res && res.code === 0 && res.data) {
-          this.tableData = res.data.data
-          this.radioArr = []
-          this.tableData.forEach((item, index) => {
-            this.radioArr.push({
-              index,
-              value: false
-            })
-          })
-          this.total = res.data.count
-        }
-      
     },
     onSelectChange(selectedRowKeys, values) {
       this.selectUserId = values[0].id
@@ -171,7 +174,7 @@ export default {
     },
     getCurrentRow(index) {
       const id = this.tableData[index].id
-      console.log(id)
+      // console.log(id)
       this.$emit('getGroupId', id)
       this.dialogGroupId = false
     },

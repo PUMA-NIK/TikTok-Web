@@ -5,17 +5,29 @@
         <!-- <a-form-item label="号商ID">
           <a-input v-model="searchData.user_id" style="100px" placeholder="请输入号商ID" allow-clear />
         </a-form-item> -->
-        <a-form-item label="自营">
-          <a-input v-model="searchData.contact" style="150px" placeholder="请输入联系方式" allow-clear />
+        <a-form-item :label="this.$t('agent.selfSupport')">
+          <a-input v-model="searchData.contact" style="150px" :placeholder="this.$t('agent.enterInformation')" allow-clear />
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" icon="search" @click="init()">查询</a-button>
-          <a-button type="primary" icon="search" style="margin-left: 10px" @click="buyRecord()">购买记录</a-button>
+          <a-button type="primary" icon="search" @click="init()">{{ $t('agent.inquire') }}</a-button>
+          <a-button type="primary" icon="search" style="margin-left: 10px" @click="buyRecord()">{{ $t('agent.purchaseHistory') }}</a-button>
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
-      <a-table :columns="columns" :data-source="tableData" :rowClassName='tableClass' :row-key="record => record.id" class="tableLimit" :scroll="{ x: 1500}" :bordered="true" :pagination="false">
+      <a-table
+        :columns="columns"
+        :data-source="tableData"
+        :row-class-name="tableClass"
+        :row-key="record => record.id"
+        class="tableLimit"
+        :scroll="{ x: 1200}"
+        :bordered="true"
+        :pagination="false"
+      >
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{ $t(item.slotName) }}</span>
+        </templete>
         <span slot="avatar" slot-scope="text, row ">
           <a-badge v-if="row.id == bundle_id" color="#87d068">
             <a-avatar :src="row.avatar" />
@@ -26,29 +38,29 @@
           {{ row.role | getRole }}
         </span>
         <span slot="is_official" slot-scope="text, row">
-          {{ row.is_official === false ?'否':'是'}}
+          {{ row.is_official === false ?'否':'是' }}
         </span>
         <span slot="action" slot-scope="text, row">
-          <a-button style="margin-left: 10px" type="primary" v-if="row.is_official === true" @click="buyAccount(row)">购买</a-button>
-          <a-button style="margin-left: 10px" v-else-if="row.is_official === false" disabled type="primary" >购买</a-button>
-          <a-button style="margin-left: 10px" type="primary" @click="inventoryAccount(row)">库存数量</a-button>
+          <a-button v-if="row.is_official === true" style="margin-left: 10px" type="primary" @click="buyAccount(row)">{{ $t('agent.buy') }}</a-button>
+          <a-button v-else-if="row.is_official === false " style="margin-left: 10px" disabled type="primary">{{ $t('agent.buy') }}</a-button>
+          <a-button style="margin-left: 10px" type="primary" @click="inventoryAccount(row)">{{ $t('agent.quantityStock') }}</a-button>
         </span>
       </a-table>
 
-      <a-modal v-model="buyVisible" title="购买账号" ok-text="确认" width="400px"  cancel-text="取消" @ok="buyAccountSubmit">
-        <a-form-model ref="form" layout="horizontal" :model="accountForm" :rules="form_rule" :label-col="{ span: 3 }" :wrapper-col="{ span: 21 }">
+      <a-modal v-model="buyVisible" :title="$t('agent.PurchaseAccount')" :ok-text="this.$t('agent.confirm')" width="400px" :cancel-text="this.$t('agent.cancel')" @ok="buyAccountSubmit">
+        <a-form-model ref="form" layout="horizontal" :model="accountForm" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
           <!-- <a-form-model-item label="商品ID">
             <a-input v-model="accountForm.commodity_id" readOnly/>
           </a-form-model-item> -->
-          <a-form-model-item label="数量：">
+          <a-form-model-item :label="this.$t('agent.quantity')">
             <a-input v-model="accountForm.quantity" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
 
       <!-- 库存信息 -->
-      <a-modal v-model="inventoryVisible" title="库存记录" width="400px" ok-text="确认" :footer="null" cancel-text="取消" >
-        <span>现有库存账号数量：{{inventory.stock}}个</span>
+      <a-modal v-model="inventoryVisible" :title="this.$t('agent.inventory')" width="400px" :ok-text="this.$t('agent.confirm')" :footer="null" :cancel-text="this.$t('agent.cancel')">
+        <span>{{ $t('agent.quantityStock') + '：' }}{{ inventory.stock }}个</span>
         <!-- <a-form-model layout="horizontal" :model="inventory" :label-col="{ span: 0 }" :wrapper-col="{ span: 20 }">
           <a-form-model-item prop="stock">
             <a-input v-model="inventory.stock" readOnly/>
@@ -57,27 +69,30 @@
       </a-modal>
 
       <!-- 购买记录 -->
-      <a-modal v-model="buyRecordVisible" title="购买记录" width="900px" :footer="null"  ok-text="确认" cancel-text="取消" >
-        <a-table :columns="columnSrecord" :data-source="srecordTableData" :row-key="record => record.id"  class="tableLimit" :bordered="true" >
-        <span slot="created_at" slot-scope="text, row">
-          {{ new Date(row.created_at) | getTime }}
-        </span>
+      <a-modal v-model="buyRecordVisible" :title="$t('agent.purchaseHistory')" width="900px" :footer="null" :ok-text="this.$t('agent.confirm')" :cancel-text="this.$t('agent.cancel')">
+        <a-table :columns="columnSrecord" :data-source="srecordTableData" :row-key="record => record.id" class="tableLimit" :bordered="true">
+          <templete v-for="(item, index) in columnSrecord" :key="index" :slot="item.slotName">
+            <span>{{ $t(item.slotName) }}</span>
+          </templete>
+          <span slot="created_at" slot-scope="text, row">
+            {{ new Date(row.created_at) | getTime }}
+          </span>
         </a-table>
       </a-modal>
 
       <!-- 选择账号 -->
-      <a-modal v-model="chooseAccountVisible" title="选择账号" width="800px" ok-text="确认" cancel-text="取消" @ok="buyAccountSubmit">
+      <a-modal v-model="chooseAccountVisible" title="选择账号" width="800px" :ok-text="this.$t('agent.confirm')" :cancel-text="this.$t('agent.cancel')" @ok="buyAccountSubmit">
         <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" :scroll="{ x: 1500}" class="tableLimit" :bordered="true" :pagination="false">
           <span slot="role" slot-scope="text, row ">
             {{ row.role | getRole }}
           </span>
           <span slot="is_official" slot-scope="text, row">
-            {{ row.is_official === false ?'否':'是'}}
+            {{ row.is_official === false ?'否':'是' }}
           </span>
         </a-table>
       </a-modal>
 
-      <a-modal v-model="dialogVisible" title="新增用户" ok-text="确认" cancel-text="取消" @ok="addUser">
+      <a-modal v-model="dialogVisible" title="新增用户" :ok-text="this.$t('agent.confirm')" :cancel-text="this.$t('agent.cancel')" @ok="addUser">
         <a-form-model ref="form" layout="horizontal" :model="form" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
           <a-form-model-item label="选择角色" prop="role">
             <a-select v-model="form.role" placeholder="请选择角色">
@@ -87,17 +102,17 @@
             </a-select>
           </a-form-model-item>
           <a-form-model-item label="用户名" prop="username">
-            <a-input v-model="form.username" />
+            <a-input v-model="form.username" oninput="value=value.replace(/[^\w\/]/ig,'')" />
           </a-form-model-item>
           <a-form-model-item label="密码" prop="password">
-            <a-input v-model="form.password" />
+            <a-input-password v-model="form.password" type="password" oninput="value=value.replace(/[^\w\/]/ig,'')" />
           </a-form-model-item>
           <a-form-model-item label="邮箱">
             <a-input v-model="form.email" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
-      <a-modal v-model="modifyDialogVisible" title="修改用户" ok-text="确认" cancel-text="取消" @ok="editUser">
+      <a-modal v-model="modifyDialogVisible" title="修改用户" :ok-text="this.$t('agent.confirm')" :cancel-text="this.$t('agent.cancel')" @ok="editUser">
         <a-form-model ref="edit_form" layout="horizontal" :model="modifyForm" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
           <a-form-model-item label="选择角色">
             <a-select v-model="modifyForm.role" placeholder="请选择角色">
@@ -106,18 +121,18 @@
               <a-select-option v-if="role == 1" :value="2">代理商</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="选择状态">
+          <a-form-model-item :label="this.$t('agent.state')">
             <a-select v-model="modifyForm.status" placeholder="请选择状态">
-              <a-select-option :value="1">封禁</a-select-option>
-              <a-select-option :value="0">正常</a-select-option>
+              <a-select-option :value="1">{{ $t('agent.banned') }}</a-select-option>
+              <a-select-option :value="0">{{ $t('agent.normal') }}</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="重置密码">
-            <a-input v-model="modifyForm.password" />
+          <a-form-model-item :label="this.$t('agent.resetPasswrod')">
+            <a-input-password v-model="modifyForm.password" type="password" oninput="value=value.replace(/[^\w\/]/ig,'')" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
-      <a-modal v-model="dialogAdv" title="配置广告" ok-text="确认" cancel-text="取消" @ok="addAdv">
+      <a-modal v-model="dialogAdv" title="配置广告" :ok-text="this.$t('agent.confirm')" :cancel-text="this.$t('agent.cancel')" @ok="addAdv">
         <a-form-model ref="adv_form" layout="horizontal" :model="advForm" :label-col="{ span: 8 }" :wrapper-col="{ span: 14 }">
           <a-form-model-item label="api_key">
             <a-input v-model="advForm.api_key" />
@@ -142,11 +157,11 @@
     <div>
       <el-dialog title="收益记录" :visible.sync="dialogTableVisible">
         <el-table :data="earningsRecordData">
-          <el-table-column property="totalMoney" label="总收入" width="150"></el-table-column>
-          <el-table-column property="adRecordTotal" label="广告收入" width="200"></el-table-column>
-          <el-table-column property="rewardTotal" label="返利收入"></el-table-column>
-          <el-table-column property="cashAmount" label="已提现总金额"></el-table-column>
-          <el-table-column property="notCashAmount" label="未提现金额"></el-table-column>
+          <el-table-column property="totalMoney" label="总收入" width="150" />
+          <el-table-column property="adRecordTotal" label="广告收入" width="200" />
+          <el-table-column property="rewardTotal" label="返利收入" />
+          <el-table-column property="cashAmount" label="已提现总金额" />
+          <el-table-column property="notCashAmount" label="未提现金额" />
         </el-table>
       </el-dialog>
     </div>
@@ -163,105 +178,117 @@ const columns = [
   align: 'center',
   scopedSlots: { customRender: 'username' }
 }, */
-/* {
+  /* {
   title: '账号ID',
   dataIndex: 'id',
   width: '180px',
   align: 'center',
   scopedSlots: { customRender: 'username' }
 }, */
-{
-  title: '头像',
-  dataIndex: 'avatar',
-  align: 'center',
-  width: '100px',
-  scopedSlots: { customRender: 'avatar' }
-},
-{
-  title: '标题',
-  dataIndex: 'title',
-  width: '300px',
-  align: 'center',
-  scopedSlots: { customRender: 'title' }
-},
-{
-  title: '描述',
-  dataIndex: 'describe',
-  width: '100',
-  align: 'center',
-  scopedSlots: { customRender: 'describe' }
-},
-{
-  title: '联系信息',
-  dataIndex: 'contact',
-  width: '100',
-  align: 'center',
-  scopedSlots: { customRender: 'contact' }
-},
-{
-  title: '价格',
-  dataIndex: 'price',
-  width: '100px',
-  align: 'center',
-  scopedSlots: { customRender: 'price' }
-},
-{
-  title: '自营账号',
-  dataIndex: 'is_official',
-  width: '100px',
-  align: 'center',
-  scopedSlots: { customRender: 'is_official' }
-},
-{
-  title: '操作',
-  dataIndex: 'action',
-  width: '300px',
-  align: 'center',
-  scopedSlots: { customRender: 'action' }
-}
+  {
+    // title: '头像',
+    slotName: 'agent.profilePhoto',
+    dataIndex: 'avatar',
+    align: 'center',
+    width: '200px',
+    scopedSlots: { customRender: 'avatar', title: 'agent.profilePhoto' }
+  },
+  {
+    // title: '标题',
+    slotName: 'agent.title',
+    dataIndex: 'title',
+    width: '300px',
+    align: 'center',
+    scopedSlots: { customRender: 'title', title: 'agent.title' }
+  },
+  {
+    slotName: 'agent.describe',
+    dataIndex: 'describe',
+    width: '100',
+    align: 'center',
+    scopedSlots: { customRender: 'describe', title: 'agent.describe' }
+  },
+  {
+    // title: '联系信息',
+    slotName: 'agent.contactInformation',
+    dataIndex: 'contact',
+    width: '100',
+    align: 'center',
+    scopedSlots: { customRender: 'contact', title: 'agent.contactInformation' }
+  },
+  {
+    // title: '价格',
+    slotName: 'agent.price',
+    dataIndex: 'price',
+    width: '100px',
+    align: 'center',
+    scopedSlots: { customRender: 'price', title: 'agent.price' }
+  },
+  {
+    // title: '自营账号',
+    slotName: 'agent.ProprietaryAccount',
+    dataIndex: 'is_official',
+    width: '100px',
+    align: 'center',
+    scopedSlots: { customRender: 'is_official', title: 'agent.ProprietaryAccount' }
+  },
+  {
+    // title: '操作',
+    slotName: 'agent.operation',
+    dataIndex: 'action',
+    width: '300px',
+    align: 'center',
+    fixed: 'right',
+    scopedSlots: { customRender: 'action', title: 'agent.operation' }
+  }
 ]
 const columnSrecord = [
   {
-  title: '出售人',
-  dataIndex: 'sell_username',
-  width: '180px',
-  align: 'center',
-  scopedSlots: { customRender: 'sell_username' }
- },
-/* {
+    // title: '出售人',
+    slotName: 'agent.vendor',
+    dataIndex: 'sell_username',
+    width: '180px',
+    align: 'center',
+    scopedSlots: { customRender: 'sell_username', title: 'agent.vendor' }
+  },
+  /* {
   title: '出售账号ID',
   dataIndex: 'sell_id',
   width: '180px',
   align: 'center',
   scopedSlots: { customRender: 'sell_id' }
 }, */
-{
-  title: '数量',
-  dataIndex: 'quantity',
-  width: '100px',
-  align: 'center',
-  scopedSlots: { customRender: 'quantity' }
-}, {
-  title: '总计价格',
-  dataIndex: 'total_price',
-  width: '100px',
-  align: 'center',
-  scopedSlots: { customRender: 'total_price' }
-},
-{
-  title: '单个价格',
-  dataIndex: 'unit_price',
-  width: '100px',
-  align: 'center',
-  scopedSlots: { customRender: 'unit_price' }
-},
-{
-  title: '购买时间',
-  dataIndex: 'created_at',
-  width: '100',
-  align: 'center',
-  scopedSlots: { customRender: 'created_at' }
-}
+  {
+    // title: '数量',
+    slotName: 'agent.quantity',
+    dataIndex: 'quantity',
+    width: '100px',
+    align: 'center',
+    scopedSlots: { customRender: 'quantity', title: 'agent.quantity' }
+  }, {
+    // title: '总计价格',
+    slotName: 'agent.totalPrices',
+    dataIndex: 'total_price',
+    width: '100px',
+    align: 'center',
+    scopedSlots: { customRender: 'total_price', title: 'agent.totalPrices' }
+  },
+  {
+    // title: '单个价格',
+    slotName: 'agent.unitPrice',
+    dataIndex: 'unit_price',
+    width: '100px',
+    align: 'center',
+    scopedSlots: { customRender: 'unit_price', title: 'agent.unitPrice' }
+  },
+  {
+    // title: '购买时间',
+    slotName: 'agent.timeBuying',
+    dataIndex: 'created_at',
+    width: '100',
+    align: 'center',
+    scopedSlots: { customRender: 'created_at', title: 'agent.timeBuying' }
+  }
 ]
 export default {
   components: {
@@ -315,8 +342,8 @@ export default {
         affiliate_id: '',
         form_public_api_key: ''
       },
-      inventory:{
-        stock:0
+      inventory: {
+        stock: 0
       },
       form_rule: {
         role: [
@@ -370,10 +397,10 @@ export default {
       }
       this.searchData.contact = this.searchData.contact || null
       this.searchData.user_id = this.searchData.user_id || null
-      
+
       this.searchData.page = 1
       this.getTableData()
-      //await api.getAdConfig()
+      // await api.getAdConfig()
     },
     async getTableData() {
       const res = await api.getAgentCommodityAccount(this.searchData)
@@ -383,10 +410,10 @@ export default {
       }
     },
     onSubmit() {
-      console.log('submit!')
+      // console.log('submit!')
     },
-    tableClass(record , index) {
-      if(record.is_official === false) {
+    tableClass(record, index) {
+      if (record.is_official === false) {
         return 'backClass'
       }
     },
@@ -409,14 +436,14 @@ export default {
     // 查看库存
     inventoryAccount(row) {
       this.inventoryVisible = true
-      let form = {}
+      const form = {}
       form.id = row.id
       api.postAgentCommodityAccountStock(form).then((res) => {
-        if(res.code === 0) {
+        if (res.code === 0) {
           this.inventory.stock = res.data.stock
         }
       })
-      console.log(this.inventory.stock)
+      // console.log(this.inventory.stock)
     },
     check(row) {
       this.dialogGroupId = true
@@ -442,13 +469,13 @@ export default {
     },
     buyRecord() {
       this.buyRecordVisible = true
-      let id = this.userInfo.data.i
-      let formas = {
-        buy_id : id
+      const id = this.userInfo.data.i
+      const formas = {
+        buy_id: id
       }
-      
+
       api.getAgentCommodityAccountOrder(formas).then((res) => {
-        if(res.code === 0) {
+        if (res.code === 0) {
           this.srecordTableData = res.data.data
         }
       })
@@ -457,7 +484,7 @@ export default {
       this.chooseAccountVisible = true
     },
     buyAccountSubmit() {
-      let accountForm = {}
+      const accountForm = {}
       accountForm.commodity_id = this.accountForm.commodity_id
       accountForm.quantity = Number(this.accountForm.quantity)
       api.postAgentCommodityAccountBuy(accountForm).then((res) => {
@@ -465,7 +492,7 @@ export default {
         this.init()
       })
     },
-    
+
     async configAdv(row) {
       const res = await api.getAdConfig({ user_id: row.id })
       this.nowData = row
@@ -516,7 +543,7 @@ export default {
         }
       })
     },
-    
+
     handleCurrentChange(page) {
       this.searchData.page = page
       this.getTableData()
@@ -544,7 +571,7 @@ export default {
           'notCashAmount': (res.data.total - res.data.complete) / 100
         }
         this.earningsRecordData = [recordData]
-        console.log(res.data)
+        // console.log(res.data)
       }
     }
   }

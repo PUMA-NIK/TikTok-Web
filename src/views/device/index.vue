@@ -5,18 +5,18 @@
         <a-form-item label="ID">
           <a-input v-model="searchData.port_no" placeholder="ID" allow-clear />
         </a-form-item>
-        <a-form-item label="唯一串码">
-          <a-input v-model="searchData.port_no" placeholder="唯一串码" allow-clear />
+        <a-form-item :label="$t('user.uniqueString')">
+          <a-input v-model="searchData.port_no" :placeholder="$t('user.uniqueString')" allow-clear />
         </a-form-item>
-        <a-form-item v-if="role == 1" label="用户">
-          <a-input v-model="searchData.belong" placeholder="用户" allow-clear />
+        <a-form-item v-if="role == 1" :label="$t('admin.user')">
+          <a-input v-model="searchData.belong" :placeholder="$t('admin.user')" allow-clear />
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" style="margin-left:10px;width:88px" @click="init()">查询</a-button>
-          <a-button v-if="role == 1" style="margin-left:10px;" type="primary" @click="batchRenewal()">批量端口续费</a-button>
+          <a-button type="primary" style="margin-left:10px;width:88px" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
+          <a-button v-if="role == 1" style="margin-left:10px;" type="primary" @click="batchRenewal()">{{this.$t('user.batchPortRenewal')}}</a-button>
           <!-- <a-button v-if="role === 0" type="primary" style="margin-left: 10px" @click="checkAgency()">查看代理</a-button> -->
 
-          <!-- <a-button v-if="role === 0" type="primary" style="margin-left: 10px" @click="binding()">绑定到客服</a-button>  -->
+          <a-button v-if="role === 0" type="primary" style="margin-left: 10px" @click="binding()">{{this.$t('user.chooseCustomerService')}}</a-button> 
 
           <!-- <a-button v-if="role === 1" style="margin-left:10px;" type="primary" @click="batchBind">批量绑定代理商</a-button>
           <a-button v-if="role == 1" style="margin-left:10px;" type="primary" @click="batchBind2">批量绑定用户</a-button>
@@ -28,10 +28,10 @@
           <a-button type="primary" style="margin-left: 10px;width:88px" @click="create('Account')">账号</a-button> -->
         </a-form-item>
       </a-form>
-      <span v-if="selectDataId.length != 0">已选中端口：{{selectDataId.length}}</span>
+      <span v-if="selectDataId.length != 0">{{this.$t('user.chosen')}}：{{selectDataId.length}}</span>
     </div>
     <div class="table-box">
-      <a-table v-if="role == 1" :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :row-selection="{selectedRowKeys: selectDataId ,onChange: rowSelection}" :bordered="true" :pagination="false" :scroll="{ x: 1500}">
+      <a-table v-if="role == 1" :columns="columns" :data-source="tableData" :row-key="record => record.id" :scroll="{ x: 1200}" class="tableLimit" :row-selection="{selectedRowKeys: selectDataId ,onChange: rowSelection}" :bordered="true" :pagination="false">
         <span slot="created_at" slot-scope="text, row">
           {{ new Date(row.created_at) | getTime }} -- {{ new Date(row.expire_time) | getTime }}
         </span>
@@ -50,16 +50,19 @@
           {{ new Date(row.expire_time) | getTime }}
         </div> -->
         <span slot="action" slot-scope="text, row">
-          <a-button v-if="role === 0 || role === 1" style="margin-left: 10px" @click="view(row)">查看账号</a-button>
+          <a-button v-if="role === 0 || role === 1" style="margin-left: 10px" @click="view(row)">{{$t('user.viewAccount')}}</a-button>
           <!-- <span  v-if="role == 1" @click="view(row)" style="margin-left: 10px">价格设置</span> -->
-          <a-button v-if="role === 1 || role === 2" style="margin-left: 8px" type="warning" @click="edit(row)">{{ row.available ? '封禁端口' : '解禁端口' }}</a-button>
-          <a-button v-if="role === 1" style="margin-left: 10px" @click="renewDevice(row)">端口续费</a-button>
-          <a-popconfirm v-if="role === 1" title="是否删除?" ok-text="是" cancel-text="否" @confirm="handleDelete(row.id)">
+          <!-- <a-button v-if="role === 1 || role === 2" style="margin-left: 8px" type="warning" @click="edit(row)">{{ row.available ? '封禁端口' : '解禁端口' }}</a-button> -->
+          <a-button v-if="role === 1" style="margin-left: 10px" @click="renewDevice(row)">{{$t('user.portRenewal')}}</a-button>
+          <!-- <a-popconfirm v-if="role === 1" title="是否删除?" ok-text="是" cancel-text="否" @confirm="handleDelete(row.id)">
             <a-button style="margin-left:10px" type="danger">删除</a-button>
-          </a-popconfirm>
+          </a-popconfirm> -->
         </span>
       </a-table>
-      <a-table v-else :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :row-selection="{selectedRowKeys: selectDataId ,onChange: rowSelection}" :bordered="true" :pagination="false">
+      <a-table v-else :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x: 1200}" :row-selection="{selectedRowKeys: selectDataId ,onChange: rowSelection}" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="created_at" slot-scope="text, row">
           {{ new Date(row.created_at) | getTime }} -- {{ new Date(row.expire_time) | getTime }}
         </span>
@@ -73,9 +76,7 @@
           {{ new Date(row.expire_time) | getTime }}
         </div> -->
         <span slot="action" slot-scope="text, row">
-          <a-button v-if="role == 0 || role == 1" type="primary" style="margin-left: 10px" @click="view(row)">查看账号</a-button>
-          <!-- 临时 -->
-          <!-- <a-button style="margin-left: 10px" @click="renewDevice(row)">端口续费</a-button> -->
+          <a-button v-if="role == 0 || role == 1" type="primary" style="margin-left: 10px" @click="view(row)">{{$t('user.viewAccount')}}</a-button>
           <a-button v-if="role == 1 || role == 2" style="margin-left: 8px" type="warning" @click="edit(row)">{{ row.available ? '封禁' : '解禁' }}</a-button>
           <a-popconfirm v-if="role == 1" title="是否删除?" ok-text="是" cancel-text="否" @confirm="handleDelete(row.id)">
             <a-button style="margin-left:10px" type="danger">删除</a-button>
@@ -99,23 +100,23 @@
       </a-modal>
 
       <!-- 绑定客服 -->
-      <a-modal v-model="bindingVisible" title="绑定客服" width="450px" ok-text="确认" cancel-text="取消" @ok="handleBinding">
+      <a-modal v-model="bindingVisible" :title="$t('user.chooseCustomerService')" width="450px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="handleBinding">
         <a-form-model ref="form" :model="bindingForm" label-width="100px" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-          <a-form-item label="端口ID">
+          <a-form-item :label="$t('user.portID')">
             <a-input v-model="bindingForm.portId" readOnly/>
           </a-form-item>
-          <a-form-item label="客服ID">
+          <a-form-item :label="$t('user.customerServiceID')">
             <a-input v-model="bindingForm.bindingId" @click="bindingData" readOnly/>
           </a-form-item>
         </a-form-model>
       </a-modal>
 
       <!-- 客服信息 -->
-      <a-modal v-model="bindingDataVisible" title="客服信息" width="450px" ok-text="确认" cancel-text="取消" @ok="handleRenewBinding">
+      <a-modal v-model="bindingDataVisible" :title="$t('admin.customerService')" width="450px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="handleRenewBinding">
         <a-table :columns="columnsBinding" :data-source="bindingListData" :row-key="record => record.id" class="tableLimit" :row-selection="{selectedRowKeys: selectBindingId ,onChange: rowSelectionBinding,type: 'radio'}" :bordered="true" :pagination="false">
         </a-table>
         <div class="page">
-          <a-pagination :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :show-total="(bindingTotal, range) => `${range[0]}-${range[1]} 条，总数:${bindingTotal} 条`" :default-current="1" :current="bindingForm.page" :total="bindingTotal" @change="handleCurrentBinding" @showSizeChange="handleSizeBinding">
+          <a-pagination :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :show-total="(bindingTotal, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${bindingTotal} 条`" :default-current="1" :current="bindingForm.page" :total="bindingTotal" @change="handleCurrentBinding" @showSizeChange="handleSizeBinding">
             <template slot="buildOptionText" slot-scope="props">
               <span>{{ props.value }}条/页</span>
             </template>
@@ -167,43 +168,50 @@ const locale = {
 const columns = [{
   title: 'ID',
   dataIndex: 'id',
-  width: '60px',
+  width: '150px',
   align: 'center',
   scopedSlots: { customRender: 'id' }
 },
 {
-  title: '唯一串码',
+  // title: '唯一串码',
+  slotName: 'user.uniqueString',
   dataIndex: 'port_no',
-  width: '220px',
-  align: 'center'
+  width: '100',
+  align: 'center',
+  scopedSlots: { customRender: 'port_no', title:'user.uniqueString' }
 },
 {
-  title: '有效时间',
+  // title: '有效时间',
+  slotName: 'user.effectiveTime',
   dataIndex: 'created_at',
-  width: '220px',
+  width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'created_at', title:'user.effectiveTime' }
 },
 {
-  title: '绑定客服',
+  // title: '绑定客服',
+  slotName: 'user.chooseCustomerService',
   dataIndex: 'kf_name',
-  width: '150px',
+  width: '200px',
   align: 'center',
-  scopedSlots: { customRender: 'kf_name' }
+  scopedSlots: { customRender: 'kf_name', title:'user.chooseCustomerService' }
 },
 {
-  title: '备注',
+  // title: '备注',
+  slotName: 'admin.remark',
   dataIndex: 'remark',
-  width: '150px',
+  width: '300px',
   align: 'center',
-  scopedSlots: { customRender: 'remark' }
+  scopedSlots: { customRender: 'remark', title:'admin.remark' }
 },
 {
-  title: '操作',
+  // title: '操作',
+  slotName: 'admin.operate',
   dataIndex: 'action',
   width: '300px',
   align: 'center',
-  scopedSlots: { customRender: 'action' }
+  fixed: 'right',
+  scopedSlots: { customRender: 'action', title:'admin.operate' }
 }]
 const columnsAgency = [
 {
@@ -229,13 +237,13 @@ const columnsAgency = [
 },
 ]
 const columnsBinding = [
-  {
+  /* {
     title: '客服ID',
     dataIndex: 'id',
     width: '80px',
     align: 'center',
     scopedSlots: { customRender: 'username' }
-  },
+  }, */
   {
     title: '客服名称',
     dataIndex: 'username',

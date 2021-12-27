@@ -10,10 +10,10 @@
           @click="getUserType(item, i)"
           :class="['item-list', { typeactive: codeActive == i }]"
         >
-         <a-tooltip :title="item.name">
+          <a-tooltip :title="item.name">
             <img :src="item.typeImg" alt="" />
           </a-tooltip>
-          <p>{{ item.name }}</p>
+          <p >{{ item.name }}</p>
         </div>
       </div>
     </div>
@@ -24,23 +24,30 @@
       leave-active-class="bounceOut"
       :duration="200"
     >
-      <div class="news-type" v-if="userListKey.length > 0">
-       <a-input-search placeholder="搜索账号" @search="onSearch" />
+    <!-- <div class="news-type" v-if="userListKey.length > 0" ref="news-type" @scroll="scrollEvent"> -->
+      <div class="news-type" v-if="userListKey.length > 0" ref="news-type">
+        <a-input-search placeholder="搜索账号" @search="onSearch" />
         <div style="padding: 10px 5px">
           <div
             v-for="(item2, index2) in userListKey"
-            @click="getFriendList(item2, item2.id)"
+            @click="getFriendList(item2, item2.userInfo.id)"
             :key="index2"
-            :class="['my-img', { userctive: userActive == item2.id }]"
+            :class="['my-img', { userctive: userActive == item2.userInfo.id }]"
           >
-            <img v-if="item2.avatar" :src="item2.avatar" alt="" />
-            <a-avatar v-if="!item2.avatar" shape="square" :size="40" icon="user" />
-           <a-tooltip :title="item2.nickname">
-          
-              <p>{{ item2.nickname }}</p>
+            <a-avatar
+              :src="item2.userInfo.avatar"
+              shape="square"
+              :size="40"
+              icon="user"
+            />
+            <a-tooltip :title="item2.userInfo.nickname">
+              <p>{{ item2.userInfo.nickname }}</p>
             </a-tooltip>
+            <span v-if="item2.noReadNum != 0" style="width: 18px; height: 18px;border-radius: 20px; background: orangered; text-align: center;margin:-10px -10px 0px 0px; padding: 3px 1px 0px 0px; color: #fff;">{{item2.noReadNum }}</span>
           </div>
+          <!-- <a-pagination simple :default-current="2" :total="50" /> -->
         </div>
+        <p v-if="textData" style="color: #fff; margin: 0px 0px 0px 40px">没有更多了。。。</p>
       </div>
     </transition>
 
@@ -52,14 +59,14 @@
     >
       <div class="user-list" v-if="friendList.length > 0">
         <div class="user-list-seach">
-         <a-input-search placeholder="搜索粉丝" @search="onSearch" />
+          <a-input-search placeholder="搜索粉丝" @search="onSearch" />
         </div>
         <div class="user-list-box">
           <div
             v-for="(item, index) in friendList"
             :key="index"
             @contextmenu.prevent="contextmenu(item, index)"
-            @click="getUserDetial(item), (friendActive = index)"
+            @click="getUserDetial(item.userInfo), (friendActive = index)"
             ref="userdiglog"
             :class="['user-detail', { codeactive: friendActive == index }]"
           >
@@ -75,17 +82,24 @@
               </ul>
             </div>
             <div class="user-avatar-img">
-              <a-badge
-                class="item"
-              >
-                <a-avatar v-if="!item.avatar" shape="square" :size="50" icon="user" />
-                <img v-if="item.avatar" :src=" item.avatar" alt="" />
+              <a-badge class="item">
+                <a-avatar
+                  shape="square"
+                  :size="50"
+                  icon="user"
+                  :src="item.userInfo.avatar"
+                />
               </a-badge>
             </div>
             <div class="user-name">
               <div class="user-time">
-                <p>{{ item.nickname }}</p>
-                <p>{{ computedMoment(item.created_at)  }}</p>
+                 <a-tooltip :title="item.userInfo.nickname">
+                <p v-if="item.userInfo.remarks == ''">{{ item.userInfo.nickname }}</p>
+                <p v-if="item.userInfo.remarks != ''">{{ item.userInfo.remarks}}</p>
+                <p style="color: #000;margin-top: 3px;">国家：{{ item.userInfo.region}}</p>
+                 </a-tooltip>
+                <p>{{ computedMoment(item.userInfo.created_at) }}</p>
+                <span v-if="item.noReadNum != 0" style="width: 18px; height: 18px;border-radius: 20px; background: orangered; text-align: center;margin:-10px -10px 0px 0px; padding: 3px 1px 0px 0px; color: #fff;">{{item.noReadNum }}</span>
               </div>
               <!-- <p
                 class="user-centent"
@@ -115,7 +129,7 @@
 <script>
 import bus from "../utils/brotherBus";
 import * as api from "@/api/index";
-import moment from 'moment'
+import moment from "moment";
 export default {
   data() {
     return {
@@ -125,79 +139,161 @@ export default {
       seachValue: "",
       userListKey: [],
       friendList: [],
+      skList: [],
       menuIndex: null,
-      keyBoolin:false,
-      fansId:null,
+      keyBoolin: false,
+      accountId: null,
+      textData: false,
+      total: 0,
       parame: {
         page: 1,
-        page_size: 10,
+        page_size: 100,
         order_created_at: true,
       },
     };
   },
   computed: {
-      computedMoment() {
-        return function(value) {
-          return moment(value).format('HH:mm')
-        }
-        }
-  },
-  mounted() {},
-  methods: {
-
-    onSearch(){
-
+    computedMoment() {
+      return function (value) {
+        return moment(value).format("HH:mm");
+      };
     },
+    setDataKey: function() {
+      return this.$store.state.setDataKey;
+    },
+  },
+  watch: {
+    /* setDataKey: {
+      handler: function (oldVal, newVal) {
+        console.log(oldVal)
+        console.log(newVal)
+        this.setDataKey = this.$store.state.setDataKey
+      }, 
+      immediate: true
+    } */
+  },
+  mounted() {
+    this.$store.commit("getUserInfo", {})
+    document.addEventListener('scroll',this.Scroll)
+    window.addEventListener('storage',event => {
+      if(event.key === 'accountList') {
+        // console.log(event.newValue)
+      }
+    })
+    window.addEventListener('storage',event => {
+      if(event.key === 'fansList') {
+        // console.log(event.newValue)
+      }
+    })
+  },
+  methods: {
+    manageDataList() {
+      localStorage.setItem('skList',JSON.stringify(this.skList))
+    },
+    scrollEvent(e){
+      if(e.srcElement.scrollTop+e.srcElement.offsetHeight>e.srcElement.scrollHeight-100){ 
+        //加载更多
+        if(this.parame.page_size <= this.total) {
+          this.parame.page_size = this.parame.page_size+10
+          this.getChumList()
+        } else {
+          this.textData = true
+        }
+      }
+    },
+    onSearch() {},
     // 获取好友列表
     getChumList() {
-      let form = this.parame;
+      this.$store.commit("getUserInfo", {})
+      let form = {}
+      form.page = this.parame.page
+      form.page_size = this.parame.page_size
+      form.order_created_at = this.parame.order_created_at
       api.getChatRoom(form).then((res) => {
-        console.log(res);
-        this.userListKey = res.data.data;
+        if(res.code === 0) {
+          this.total = res.data.count
+          this.textData = false
+          // this.userListKey = res.data.data;
+          localStorage.setItem('accountId',0)
+          this.getChumCountList()
+        }
       });
     },
-
+    // 获取所有好友列表
+    getChumCountList() {
+      let form = {}
+      form.page = this.parame.page
+      form.page_size = this.total
+      form.order_created_at = this.parame.order_created_at
+      api.getChatRoom(form).then((res) => {
+        if(res.code === 0) {
+          this.textData = false
+          let dataList = res.data.data
+          if(dataList != null || dataList != undefined || dataList != []) {
+            this.$store.commit("accountListData", dataList)
+          } else {
+            dataList = []
+            this.$store.commit("accountListData", dataList)
+          }
+          // this.userListKey = JSON.parse(localStorage.getItem('accountList'))
+          this.userListKey = this.$store.state.accountList
+        }
+      })
+    },
+    checkStoreMsgData(){
+      var that = this
+      if (!that.$store.state.msgObj){
+        return false
+      }
+      if (!that.$store.state.msgObj["tiktok"]){
+        return false
+      }
+      return true
+    },
     // 数据右击事件
     contextmenu(item, index) {
       this.menuIndex = index;
     },
     // 选择平台
     getUserType(item, index) {
-      this.$store.commit("getUserInfo", {});
+      // this.$store.commit("getUserInfo", {})
       (this.codeActive = index), (this.userListKey = []);
-      this.friendList = [];
-      this.getChumList();      
+      this.friendList = []
+      this.getChumList()
       //   this.userListKey = item.myUserinfoList;
-
     },
-
     //选择账号获取粉丝列表
     getFriendList(item, index) {
       var that = this
-      this.userActive = index;
-      console.log()
-      this.$store.commit("getUserInfo", {});
+      this.userActive = index
+      this.$store.commit("getUserInfo", {})
       // this.$store.commit("getMyInfo", item);
       this.friendList = []
-      localStorage.setItem('fansId',index)
-      this.fansId = index
-      let parame = this.parame;
-      parame.account_id = index;
-     
+      localStorage.setItem("accountId", index)
+      localStorage.setItem("userId", 0)
+      this.accountId = index
+      let parame = this.parame
+      parame.account_id = index
       api.getFansList(parame).then((res) => {
-        console.log(res.data.data);
-        that.friendList = res.data.data;
-      });
+        // console.log(res.data.data)
+        // forEach
+        let dataList = res.data.data
+          if(dataList != null && dataList != undefined && dataList != []) {
+            this.$store.commit("fansListData", dataList)
+          }
+          if(dataList === []) {
+            dataList = []
+            this.$store.commit("fansListData", [])
+          }
+          // that.friendList = JSON.parse(localStorage.getItem('fansList'))
+          that.friendList = this.$store.state.fansList
+      })
     },
     // 获取粉丝聊天记录
     getUserDetial(item) {
-       localStorage.setItem('userId' , item.id)
-        bus.$emit('tabs','11111')
-       let parame = {...this.parame , account_id:localStorage.getItem('fansId'),account_follower_id:item.id};
-       api.getFansMessge(parame).then((res) => {
-         this.$store.commit("getUserInfo", item);
-      });
-      bus.$emit("setScroll", "切换好友");
+      localStorage.setItem("userId", item.id)
+      this.$store.commit("getUserInfo", item)
+      bus.$emit("setScroll")
     },
   },
 };
@@ -211,18 +307,17 @@ export default {
   margin: 0 1px;
   overflow: auto;
   background: #304156;
-  
 }
 .userctive {
-  background: #EEEEEE !important;
+  background: #eeeeee !important;
   border-radius: 4px !important;
 }
 .typeactive {
-  background: #A2A2A2 !important;
+  background: #a2a2a2 !important;
   border-radius: 4px !important;
 }
 .codeactive {
-  background: #A2A2A2 !important;
+  background: #a2a2a2 !important;
   border-radius: 4px !important;
 }
 .user-type {
@@ -274,6 +369,10 @@ export default {
     .type-list {
       flex-wrap: wrap;
       margin-top: 33px;
+      p{
+        font-weight: 600;
+        color: #fff;
+      }
     }
     .item-list {
       display: flex;
@@ -338,6 +437,8 @@ export default {
       margin: 10px 0;
       display: flex;
       position: relative;
+      background: #fff;
+      border-radius: 5px;
       .user-menu {
         ul {
           li {
@@ -363,7 +464,7 @@ export default {
       }
       .user-time {
         flex: 0.5;
-        text-align: right;
+        // text-align: right;
         font-size: 10px;
         display: flex;
         justify-content: space-between;
@@ -375,16 +476,20 @@ export default {
         flex-direction: column;
         justify-content: space-between;
         padding: 2px;
+        background: #fff;
         .user-centent {
           display: -webkit-box;
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 2;
-
           overflow: hidden;
         }
         p:nth-child(1) {
           font-weight: 700;
-          font-size: 16px;
+          font-size: 14px;
+          width: 100px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
         }
         p:nth-child(2) {
           font-size: 12px;
@@ -396,7 +501,7 @@ export default {
         height: 50px;
         border-radius: 5px;
         img {
-           width: 50px;
+          width: 50px;
           height: 50px;
           border-radius: 5px;
         }

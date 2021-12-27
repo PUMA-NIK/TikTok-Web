@@ -16,7 +16,7 @@
                 </div>
                 <div class="head-left-message-role">
                   <img src="../../assets/代理.svg"> 
-                  <span v-if="this.agentList.role === 3">号商</span>
+                  <span v-if="this.agentList.role === 3">{{$t('admin.supplier')}}</span>
                 </div>
                 <!-- <div class="head-left-message-level">
                   <img src="../../assets/VIP.svg">
@@ -26,7 +26,7 @@
                   <span v-if="this.agentList.agent_level === 4">四级VIP</span>
                 </div> -->
                 <div class="head-left-message-email">
-                  邮箱：<span >{{this.agentList.email === '' ? '未设置':this.agentList.email}}</span>
+                  {{$t('admin.Mail')}}：<span >{{this.agentList.email === '' ? $t('admin.notSet'):this.agentList.email}}</span>
                 </div>
               </div>
               <!-- <div class="head-left-flow" @click="purchaseFlow">
@@ -38,13 +38,13 @@
             <div class="head-right">
               <a-row>
                 <a-col :span="24">
-                  <p class="sell">今日出售：<span class="amount">{{this.dealerList.today_sale}}</span></p>
+                  <p class="sell">{{this.$t('dealer.soldToday')}}：<span class="amount">{{this.dealerList.today_sale}}</span></p>
                 </a-col>
                 <a-col :span="24">
-                  <p class="sell">上月出售：<span>{{this.dealerList.time_slice_count}}</span></p>
+                  <p class="sell">{{this.$t('dealer.soldLastMonth')}}：<span>{{this.dealerList.time_slice_count}}</span></p>
                 </a-col>
                 <a-col :span="24">
-                  <p class="sell">总计出售：<span>{{this.dealerList.count_sale}}</span></p>
+                  <p class="sell">{{this.$t('dealer.totalSold')}}：<span>{{this.dealerList.count_sale}}</span></p>
                 </a-col>
               </a-row>
             </div>
@@ -53,13 +53,13 @@
             <div class="head-right">
               <a-col :span="12">
                 <div class="head-right-flow">
-                  <a-col :span="10">账号库存：</a-col>
+                  <a-col :span="10">{{this.$t('dealer.accountInventory')}}：</a-col>
                   <a-col :span="13"><div ref="account" class="account" style="width: 100%; height: 16vh;"></div></a-col>
                 </div>
               </a-col>
               <a-col :span="12">
                 <div class="head-right-points">
-                  <a-col :span="10">积分剩余：</a-col>
+                  <a-col :span="10">{{this.$t('dealer.remainingPoints')}}：</a-col>
                   <a-col :span="13"><div ref="integral" class="integral" style="width: 100%; height: 16vh;"></div></a-col>
                 </div>
               </a-col>
@@ -68,8 +68,9 @@
         </a-row>
       </div>
     </div>
+    <!-- 公告 -->
     <div class="table-box">
-      <a-modal v-model="afficheVisible" width="50%" :title="title" ok-text="确认" cancel-text="取消" @cancel="handleCancel" @ok="handleOk">
+      <a-modal v-model="afficheVisible" width="50%" :title="title" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @cancel="handleCancel" @ok="handleOk">
       <div class="affiche">
         {{this.affiche}}
       </div>
@@ -77,14 +78,17 @@
     <a-row>
       <a-col :span="24">
         <a-tabs default-active-key="1" type="card" @change="callbackTabs">
-          <a-tab-pane key="1" tab="积分记录">
+          <a-tab-pane key="1" :tab="this.$t('admin.pointsRecord')">
             <a-table :columns="columns" :row-key="record => record.id" :data-source="tableData" :bordered="true" :pagination="false">
+              <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+                <span>{{$t(item.slotName)}}</span>
+              </templete>
               <span slot="type" slot-scope="text, row">
-                <span v-if="row.type === 0">充值</span>
-                <span v-if="row.type === 1">消费 端口购买/续费</span>
-                <span v-if="row.type === 2">消费 账号购买</span>
-                <span v-if="row.type === 3">消费 流量购买</span>
-                <span v-if="row.type === 4">消费 拨号</span>
+                <span v-if="row.type === 0">{{$t('admin.recharge')}}</span>
+                <span v-if="row.type === 1">{{$t('admin.consumptionPortPurchase')}}</span>
+                <span v-if="row.type === 2">{{$t('admin.consumptionAccountPurchase')}}</span>
+                <span v-if="row.type === 3">{{$t('admin.consumptionTrafficPurchase')}}</span>
+                <span v-if="row.type === 4">{{$t('admin.consumptionDial')}}</span>
               </span>
             </a-table>
           </a-tab-pane>
@@ -104,7 +108,7 @@
     </a-row>
       
       <div class="page">
-        <a-pagination :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
@@ -116,46 +120,53 @@
       <a-table :columns="columnsIntegral" :row-key="record => record.userid" :data-source="getIntegralData" :row-selection="{ selectedRowKeys: selectDataId, onChange: rowSelection }">
       </a-table>
     </a-modal>
-
+    <statement-duty/>
   </div>
 </template>
 
 <script>
 import * as api from '@/api/index'
+import statementDuty from '../../components/statement/index.vue'
 const columns =  [
 {
-  title: '操作类型',
+  // title: '操作类型',
+  slotName: 'admin.type',
   dataIndex: 'type',
   width: '220px',
   align: 'center',
-  scopedSlots: { customRender: 'type' }
+  scopedSlots: { customRender: 'type', title:'admin.type' }
 },
 {
-  title: '操作用户',
+  // title: '操作用户',
+  slotName: 'admin.operator',
   dataIndex: 'target_username',
   width: '150px',
   align: 'center',
-  scopedSlots: { customRender: 'target_username' }
+  scopedSlots: { customRender: 'target_username', title:'admin.operator' }
 },
 {
-  title: '操作内容',
+  // title: '操作内容',
+  slotName: 'admin.operationContent',
   dataIndex: 'content',
   width: '300px',
   align: 'center',
-  scopedSlots: { customRender: 'content' }
+  scopedSlots: { customRender: 'content', title:'admin.operationContent' }
 },
 {
-  title: '积分',
+  // title: '积分',
+  slotName: 'admin.integral',
   dataIndex: 'quantity',
   width: '80px',
-  align: 'center'
+  align: 'center',
+   scopedSlots: { customRender: 'content', title:'admin.integral' }
 },
 {
-  title: '备注',
+  // title: '备注',
+  slotName: 'admin.remark',
   dataIndex: 'remarks',
   width: '200px',
   align: 'center',
-  scopedSlots: { customRender: 'remarks' }
+  scopedSlots: { customRender: 'remarks', title:'admin.remark' }
 }
 ]
 const columnsFlow =  [
@@ -218,6 +229,9 @@ const columnsIntegral = [
   }
 ]
 export default {
+  components: {
+    statementDuty
+  },
   data() {
     return {
       userInfo: JSON.parse(window.sessionStorage.getItem('userInfo')),

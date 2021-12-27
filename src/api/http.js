@@ -29,6 +29,9 @@ axios.interceptors.request.use(
 
 axios.interceptors.response.use(
   response => {
+    if (response.data && response.data.code === 401) { // 401, token失效
+      this.$router.push(`/login`)
+    }
     return response
   },
   error => {
@@ -197,7 +200,7 @@ function prompt(type, url) {
 
 function convertRes2Blob(response) {
 
-  console.log(response)
+  // console.log(response)
   // 提取文件名
 
   const fileName = response.headers['content-disposition'].match(

@@ -1,5 +1,5 @@
-<template class='searcahss'>
-  <div >
+<template class="searcahss">
+  <div>
     <div class="search-box">
       <div class="head">
         <a-row :gutter="30">
@@ -12,21 +12,21 @@
               </a-col>
               <div class="head-left-message">
                 <div class="head-left-message-username">
-                  <span>{{this.agentList.username}}</span>
+                  <span>{{ this.agentList.username }}</span>
                 </div>
                 <div class="head-left-message-role">
-                  <img src="../../assets/代理.svg"> 
-                  <span v-if="this.agentList.role === 2">代理商</span>
+                  <img src="../../assets/代理.svg">
+                  <span v-if="this.agentList.role === 2">{{ $t('agent.agent') }}</span>
                 </div>
                 <div class="head-left-message-level">
                   <img src="../../assets/VIP.svg">
-                  <span v-if="this.agentList.agent_level === 1">一级VIP</span>
-                  <span v-if="this.agentList.agent_level === 2">二级VIP</span>
-                  <span v-if="this.agentList.agent_level === 3">三级VIP</span>
-                  <span v-if="this.agentList.agent_level === 4">四级VIP</span>
+                  <span v-if="this.agentList.agent_level === 1">{{ $t('agent.Level1VIP') }}</span>
+                  <span v-if="this.agentList.agent_level === 2">{{ $t('agent.Leve12VIP') }}</span>
+                  <span v-if="this.agentList.agent_level === 3">{{ $t('agent.Level3VIP') }}</span>
+                  <span v-if="this.agentList.agent_level === 4">{{ $t('agent.Level4VIP') }}</span>
                 </div>
                 <div class="head-left-message-email">
-                  邮箱：<span >{{this.agentList.email === '' ? '未设置':this.agentList.email}}</span>
+                  {{ $t('agent.mailbox') }}：<span>{{ this.agentList.email === '' ? this.$t('agent.notSet') :this.agentList.email }}</span>
                 </div>
               </div>
               <div class="head-left-flow" @click="purchaseFlow">
@@ -37,8 +37,8 @@
           <a-col>
             <a-col :span="12">
               <div class="head-right">
-                <div class="head-right-flow">流量剩余 ：<span>{{this.agentList.flow}}M</span></div>
-                <div class="head-right-points">积分剩余 ：<span>{{this.agentList.points}}</span></div>
+                <div class="head-right-flow">{{ $t('agent.surplusFlow') }} ：<span>{{ this.agentList.flow }}M</span></div>
+                <div class="head-right-points">{{ $t('agent.IntegralRemaining') }} ：<span>{{ this.agentList.points }}</span></div>
               </div>
             </a-col>
           </a-col>
@@ -46,228 +46,293 @@
       </div>
     </div>
     <div class="table-box">
-      <a-modal v-model="afficheVisible" width="50%" :title="title" ok-text="确认" cancel-text="取消" @cancel="handleCancel" @ok="handleOk">
-      <div class="affiche">
-        {{this.affiche}}
-      </div>
-    </a-modal>
-    <a-row>
-      <a-col :span="24">
-        <a-tabs default-active-key="1" type="card" @change="callbackTabs">
-          <a-tab-pane key="1" tab="积分记录">
-            <a-table :columns="columns" :row-key="record => record.id" :data-source="tableData" :bordered="true" :pagination="false">
-              <span slot="type" slot-scope="text, row">
-                <span v-if="row.type === 0">充值</span>
-                <span v-if="row.type === 1">消费 端口购买/续费</span>
-                <span v-if="row.type === 2">消费 账号购买</span>
-                <span v-if="row.type === 3">消费 流量购买</span>
-                <span v-if="row.type === 4">消费 拨号</span>
-              </span>
-            </a-table>
-            <div class="page">
-              <a-pagination :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
-                <template slot="buildOptionText" slot-scope="props">
-                  <span>{{ props.value }}条/页</span>
-                </template>
-              </a-pagination>
-            </div>
-          </a-tab-pane>
-          <a-tab-pane key="2" tab="流量记录">
-            <a-table :columns="columnsFlow" :row-key="record => record.id" :data-source="tableData" :bordered="true" :pagination="false">
-              <span slot="type" slot-scope="text, row">
-                <span v-if="row.type === 0">充值</span>
-                <span v-if="row.type === 1">消费 端口购买/续费</span>
-                <span v-if="row.type === 2">消费 账号购买</span>
-                <span v-if="row.type === 3">消费 流量购买</span>
-                <span v-if="row.type === 4">消费 拨号</span>
-              </span>
-            </a-table>
-            <div class="page">
-              <a-pagination :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :show-total="(trafficTotal, range) => `${range[0]}-${range[1]} 条，总数:${trafficTotal} 条`" :default-current="1" :current="trafficData.page" :total="trafficTotal" @change="handleCurrentChangeTraffic" @showSizeChange="handleSizeChangeTraffic">
-                <template slot="buildOptionText" slot-scope="props">
-                  <span>{{ props.value }}条/页</span>
-                </template>
-              </a-pagination>
-            </div>
-          </a-tab-pane>
-        </a-tabs>
-      </a-col>
-    </a-row>
-      
-      
+      <a-modal v-model="afficheVisible" width="50%" :title="title" :ok-text="this.$t('agent.confirm')" :cancel-text="this.$t('agent.cancel')" @cancel="handleCancel" @ok="handleOk">
+        <div class="affiche">
+          {{ this.affiche }}
+        </div>
+      </a-modal>
+      <a-row>
+        <a-col :span="24">
+          <a-tabs default-active-key="1" type="card" @change="callbackTabs">
+            <a-tab-pane key="1" :tab=" this.$t('agent.IntegralRecord') ">
+              <a-table :columns="columns" :row-key="record => record.id" :data-source="tableData" :bordered="true" :pagination="false">
+                <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+                  <span>{{ $t(item.slotName) }}</span>
+                </templete>
+                <span slot="type" slot-scope="text, row">
+                  <span v-if="row.type === 0">{{ $t('agent.topUp') }}</span>
+                  <span v-if="row.type === 1">{{ $t('agent.consumption') }}</span>
+                  <span v-if="row.type === 2">{{ $t('agent.purchase') }}</span>
+                  <span v-if="row.type === 3">{{ $t('agent.ConsumerPurchase') }}</span>
+                  <span v-if="row.type === 4">{{ $t('agent.ConsumerDialing') }}</span>
+                </span>
+                <span slot="created_at" slot-scope="text, row">
+                  {{ new Date(row.created_at) | getTime }}
+                </span>
+              </a-table>
+              <div class="page">
+                <a-pagination v-if="IntegralVisible" v-model="IntegralVisible" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+                  <template slot="buildOptionText" slot-scope="props">
+                    <span>{{ props.value }}条/页</span>
+                  </template>
+                </a-pagination>
+              </div>
+            </a-tab-pane>
+            <a-tab-pane key="2" :tab=" this.$t('agent.TrafficRecords') ">
+              <a-table :columns="columnsFlow" :row-key="record => record.id" :data-source="tableData" :bordered="true" :pagination="false">
+                <templete v-for="(item, index) in columnsFlow" :key="index" :slot="item.slotName">
+                  <span>{{ $t(item.slotName) }}</span>
+                </templete>
+                <span slot="type" slot-scope="text, row">
+                  <span v-if="row.type === 0">{{ $t('agent.topUp') }}</span>
+                  <span v-if="row.type === 1">{{ $t('agent.consumption') }}</span>
+                  <span v-if="row.type === 2">{{ $t('agent.purchase') }}</span>
+                  <span v-if="row.type === 3">{{ $t('agent.ConsumerPurchase') }}</span>
+                  <span v-if="row.type === 4">{{ $t('agent.ConsumerDialing') }}</span>
+                </span>
+                <span slot="created_at" slot-scope="text, row">
+                  {{ new Date(row.created_at) | getTime }}
+                </span>
+              </a-table>
+              <div class="page">
+                <a-pagination v-if="flowVisible" v-model="flowVisible" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :show-total="(trafficTotal, range) => `${range[0]}-${range[1]} 条，总数:${trafficTotal} 条`" :default-current="1" :current="trafficData.page" :total="trafficTotal" @change="handleCurrentChangeTraffic" @showSizeChange="handleSizeChangeTraffic">
+                  <template slot="buildOptionText" slot-scope="props">
+                    <span>{{ props.value }}条/页</span>
+                  </template>
+                </a-pagination>
+              </div>
+            </a-tab-pane>
+            <a-tab-pane key="3" :tab=" this.$t('agent.RowNumberRecord') ">
+              <a-table :columns="columnsIntegral" :row-key="record => record.id" :data-source="tableData" :bordered="true" :pagination="false">
+                <templete v-for="(item, index) in columnsIntegral" :key="index" :slot="item.slotName">
+                  <span>{{ $t(item.slotName) }}</span>
+                </templete>
+                <span slot="created_at" slot-scope="text, row">
+                  {{ new Date(row.created_at) | getTime }}
+                </span>
+              </a-table>
+              <div class="page">
+                <a-pagination v-if="divisionVisible" v-model="divisionVisible" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :show-total="(divisionTotal, range) => `${range[0]}-${range[1]} 条，总数:${divisionTotal} 条`" :default-current="1" :current="divisionForm.page" :total="divisionTotal" @change="handleCurrentChangeDivision" @showSizeChange="handleSizeChangeDivision">
+                  <template slot="buildOptionText" slot-scope="props">
+                    <span>{{ props.value }}条/页</span>
+                  </template>
+                </a-pagination>
+              </div>
+            </a-tab-pane>
+          <!-- <a-tab-pane key="4" tab="数据下载" >
+            <a-button type="primary" style="margin-left:10px;" @click="downloadPort()">端口信息下载</a-button>
+            <a-button type="primary" style="margin-left:10px;" @click="downloadFlow()">流量信息下载</a-button>
+          </a-tab-pane> -->
+          </a-tabs>
+        </a-col>
+      </a-row>
+
     </div>
-    
-    <a-modal v-model="checkIntegralVisible" title="积分信息" width="600px" ok-text="确认" cancel-text="取消" @ok="init" @cancel='init' >
-      <a-table :columns="columnsIntegral" :row-key="record => record.userid" :data-source="getIntegralData" :row-selection="{ selectedRowKeys: selectDataId, onChange: rowSelection }">
-      </a-table>
-    </a-modal>
     <!-- 购买流量 -->
-    <a-modal v-model="purchaseFlowVisible" title="购买流量" ok-text="确认" cancel-text="取消" @ok="purchaseFlowApi">
+    <a-modal v-model="purchaseFlowVisible" :title="$t('agent.BuyTraffic')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="purchaseFlowApi">
       <a-form-model ref="form" layout="horizontal" :model="FlowForm" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-        <a-form-model-item label="流量(G)：" prop="flow">
+        <a-form-model-item :label="$t('agent.flow')" prop="flow">
           <a-input v-model="FlowForm.flow" />
         </a-form-model-item>
       </a-form-model>
+      <span slot="footer">
+        <a-button style="margin-left:10px;" class="add-btn" type="success" @click="purchaseFlowVisible = false">{{$t('admin.cancel')}}</a-button>
+        <a-button style="margin-left:10px;" type="primary" :loading="purchaseLoading" @click="purchaseFlowApi">{{$t('admin.confirm')}}</a-button>
+      </span>
     </a-modal>
 
     <a-modal v-model="topUpVisible" title="积分充值" width="600px" ok-text="确认" cancel-text="取消" @ok="topUpsubmit()">
       <a-form :model="form" :label-col="{ span: 7 }" :wrapper-col="{ span: 17 }">
         <a-form-item label="积分余额">
-          <a-input readOnly v-model="form.allowance"/>
+          <a-input v-model="form.allowance" read-only />
         </a-form-item>
         <a-form-item label="账号ID">
-          <a-input v-model="form.accountId"/>
+          <a-input v-model="form.accountId" />
         </a-form-item>
         <a-form-item label="积分数量">
-          <a-input v-model="form.amount"/>
+          <a-input v-model="form.amount" />
         </a-form-item>
         <a-form-item label="备注">
-          <a-input v-model="form.remarks"/>
+          <a-input v-model="form.remarks" />
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <a-modal v-model="downloadVisible" title="端口信息下载" width="500px" ok-text="确认" cancel-text="取消" @ok="downloadPortList">
+      <a-form layout="inline" :model="searchData" class="demo-form-inline">
+        <a-form-item label="时间">
+          <a-range-picker type="date" :placeholder="['开始时间', '结束时间']" format="YYYY-MM-DD" @change="onChangeDownloadPort" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <a-modal v-model="downloadFlowVisible" title="流量信息下载" width="500px" ok-text="确认" cancel-text="取消" @ok="downloadFlowList">
+      <a-form layout="inline" :model="searchData" class="demo-form-inline">
+        <a-form-item label="时间">
+          <a-range-picker type="date" :placeholder="['开始时间', '结束时间']" format="YYYY-MM-DD" @change="onChangeDownloadFlow" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+    <statement-duty />
   </div>
 </template>
 
 <script>
 import * as api from '@/api/index'
-const columns =  [
-{
-  title: '操作类型',
-  dataIndex: 'type',
-  width: '220px',
-  align: 'center',
-  scopedSlots: { customRender: 'type' }
-},
-{
-  title: '被操作用户',
-  dataIndex: 'target_username',
-  width: '150px',
-  align: 'center',
-  scopedSlots: { customRender: 'target_username' }
-},
-{
-  title: '操作内容',
-  dataIndex: 'content',
-  width: '300px',
-  align: 'center',
-  scopedSlots: { customRender: 'content' }
-},
-{
-  title: '积分',
-  dataIndex: 'quantity',
-  width: '80px',
-  align: 'center'
-},
-{
-  title: '备注',
-  dataIndex: 'remarks',
-  width: '200px',
-  align: 'center',
-  scopedSlots: { customRender: 'remarks' }
-}
+import statementDuty from '../../components/statement/index.vue'
+import axios from 'axios' // 引入axios
+const columns = [
+  {
+    // title: '操作类型',
+    slotName: 'agent.handleType',
+    dataIndex: 'type',
+    width: '220px',
+    align: 'center',
+    scopedSlots: { customRender: 'type', title: 'agent.handleType' }
+  },
+  {
+    // title: '被操作用户',
+    slotName: 'agent.OperatedUser',
+    dataIndex: 'target_username',
+    width: '150px',
+    align: 'center',
+    scopedSlots: { customRender: 'target_username', title: 'agent.OperatedUser' }
+  },
+  {
+    // title: '操作内容',
+    slotName: 'agent.OperationalContext',
+    dataIndex: 'content',
+    width: '300px',
+    align: 'center',
+    scopedSlots: { customRender: 'content', title: 'agent.OperationalContext' }
+  },
+  {
+    // title: '积分',
+    slotName: 'agent.integral',
+    dataIndex: 'quantity',
+    width: '80px',
+    align: 'center',
+    scopedSlots: { customRender: 'content', title: 'agent.integral' }
+  },
+  {
+    // title: '时间',
+    slotName: 'agent.time',
+    dataIndex: 'created_at',
+    width: '200px',
+    align: 'center',
+    scopedSlots: { customRender: 'created_at', title: 'agent.time' }
+  },
+  {
+    // title: '备注',
+    slotName: 'agent.remark',
+    dataIndex: 'remarks',
+    width: '200px',
+    align: 'center',
+    scopedSlots: { customRender: 'remarks', title: 'agent.remark' }
+  }
 ]
-const columnsFlow =  [
-{
-  title: '操作类型',
-  dataIndex: 'type',
-  width: '220px',
-  align: 'center',
-  scopedSlots: { customRender: 'type' }
-},
-{
-  title: '被操作用户',
-  dataIndex: 'username',
-  width: '150px',
-  align: 'center',
-  scopedSlots: { customRender: 'username' }
-},
-{
-  title: '操作内容',
-  dataIndex: 'content',
-  width: '300px',
-  align: 'center',
-  scopedSlots: { customRender: 'content' }
-},
-{
-  title: '流量',
-  dataIndex: 'quantity',
-  width: '80px',
-  align: 'center'
-},
-{
-  title: '备注',
-  dataIndex: 'remarks',
-  width: '200px',
-  align: 'center',
-  scopedSlots: { customRender: 'remarks' }
-}
+const columnsFlow = [
+  {
+    // title: '操作类型',
+    slotName: 'agent.handleType',
+    dataIndex: 'type',
+    width: '220px',
+    align: 'center',
+    scopedSlots: { customRender: 'type', title: 'agent.handleType' }
+  },
+  {
+    // title: '被操作用户',
+    slotName: 'agent.OperatedUser',
+    dataIndex: 'username',
+    width: '150px',
+    align: 'center',
+    scopedSlots: { customRender: 'username', title: 'agent.OperatedUser' }
+  },
+  {
+    // title: '操作内容',
+    slotName: 'agent.OperationalContext',
+    dataIndex: 'content',
+    width: '300px',
+    align: 'center',
+    scopedSlots: { customRender: 'content', title: 'agent.OperationalContext' }
+  },
+  {
+    // title: '流量',
+    slotName: 'agent.flow',
+    dataIndex: 'quantity',
+    width: '100px',
+    align: 'center',
+    scopedSlots: { customRender: 'quantity', title: 'agent.flow' }
+  },
+  {
+    slotName: 'agent.time',
+    dataIndex: 'created_at',
+    width: '200px',
+    align: 'center',
+    scopedSlots: { customRender: 'created_at', title: 'agent.time' }
+  },
+  {
+    // title: '备注',
+    slotName: 'agent.remark',
+    dataIndex: 'remarks',
+    width: '100px',
+    align: 'center',
+    scopedSlots: { customRender: 'remarks', title: 'agent.remark' }
+  }
 ]
 const columnsIntegral = [
   {
-    title: '项目名称',
-    dataIndex: 'Integral_name',
-    width: '60px',
+    // title: '目标用户',
+    slotName: 'agent.targetUser',
+    dataIndex: 'target_username',
+    width: '200px',
     align: 'center',
-    scopedSlots: { customRender: 'Integral_name' }
+    scopedSlots: { customRender: 'target_username', title: 'agent.targetUser' }
   },
   {
-    title: '积分明细',
-    dataIndex: 'account_details',
-    width: '60px',
+    // title: '账号数量',
+    slotName: 'agent.AccountNumber',
+    dataIndex: 'quantity',
+    width: '150px',
     align: 'center',
-    scopedSlots: { customRender: 'account_details' }
+    scopedSlots: { customRender: 'quantity', title: 'agent.AccountNumber' }
   },
   {
-    title: '时间',
-    dataIndex: 'account_time',
-    width: '60px',
+    // title: '备注',
+    slotName: 'agent.remark',
+    dataIndex: 'remarks',
+    width: '200px',
     align: 'center',
-    scopedSlots: { customRender: 'account_time' }
+    scopedSlots: { customRender: 'remarks', title: 'agent.AccountNumber' }
+  },
+  {
+    // title: '时间',
+    slotName: 'agent.time',
+    dataIndex: 'created_at',
+    width: '200px',
+    align: 'center',
+    scopedSlots: { customRender: 'created_at', title: 'agent.time' }
   }
 ]
 export default {
+  components: {
+    statementDuty
+  },
   data() {
     return {
       userInfo: JSON.parse(window.sessionStorage.getItem('userInfo')),
       columns: [],
       columnsIntegral: [],
       tableData: [],
-      getIntegralData: [
-        {
-          userid: 0,
-          account_id: 0,
-          Integral_name: '端口新开扣除',
-          account_details: 3000,
-          account_time: '2021-10-13 19:25:49'
-        },
-        {
-          userid: 1,
-          account_id: 1,
-          Integral_name: '端口续费扣除',
-          account_details: 1000,
-          account_time: '2021-10-10 19:25:49'
-        },
-        {
-          userid: 2,
-          account_id: 2,
-          Integral_name: '端口续费扣除',
-          account_details: 2000,
-          account_time: '2021-09-25 19:25:49'
-        },
-        {
-          userid: 3,
-          account_id: 3,
-          Integral_name: '端口新开扣除',
-          account_details: 1000,
-          account_time: '2021-08-26 19:25:49'
-        }
-      ],
       agentList: {
         agent_level: 0,
         points: 0
       },
       columnsFlow: columnsFlow,
+      IntegralVisible: false,
+      flowVisible: false,
+      divisionVisible: false,
+      purchaseLoading: false,
       searchData: {
         _like_r_username: null,
         username: null,
@@ -285,6 +350,11 @@ export default {
         page_size: 10,
         order_created_at: true
       },
+      divisionForm: {
+        page: 1,
+        page_size: 10,
+        order_created_at: true
+      },
       user_id: null,
       form: {
         allowance: 3000,
@@ -297,6 +367,7 @@ export default {
       },
       total: 0,
       trafficTotal: 0,
+      divisionTotal: 0,
       query: {
         account_name: '',
         account_number: null,
@@ -305,11 +376,17 @@ export default {
       selectDataId: [],
       selectData: [],
       purchaseFlowVisible: false,
-      checkIntegralVisible: false, //查看积分记录
-      topUpVisible: false, //充值积分
+      checkIntegralVisible: false, // 查看积分记录
+      topUpVisible: false, // 充值积分
       afficheVisible: false,
       affiche: null,
-      title: null
+      title: null,
+      start_time: '',
+      end_time: '',
+      flow_start_time: '',
+      flow_end_time: '',
+      downloadVisible: false,
+      downloadFlowVisible: false
     }
   },
   mounted() {
@@ -324,12 +401,20 @@ export default {
       columns.forEach(item => {
         this.columns.push(item)
       })
-      
+      this.columnsIntegral = []
+      columnsIntegral.forEach(item => {
+        this.columnsIntegral.push(item)
+      })
+
       this.getTableData()
       this.getUserData()
     },
+    // 积分记录
     getTableData() {
-      let searchData = {}
+      this.IntegralVisible = true
+      this.flowVisible = false
+      this.divisionVisible = false
+      const searchData = {}
       searchData.page = this.searchData.page
       searchData.page_size = this.searchData.page_size
       searchData.order_created_at = this.searchData.order_created_at
@@ -343,9 +428,18 @@ export default {
         }
       })
     },
+    handleCurrentChange(page) {
+      this.searchData.page = page
+      this.getTableData()
+    },
+    handleSizeChange(p, s) {
+      this.searchData.page_size = s
+      this.init()
+    },
+
     getPublish() {
       api.getPublish().then(res => {
-        if(res.code === 0 && res.data.data.length > 0) {
+        if (res.code === 0 && res.data.data.length > 0) {
           this.affiche = res.data.data[0].content
           this.title = res.data.data[0].title
           this.afficheVisible = JSON.parse(window.sessionStorage.getItem('visible'))
@@ -360,8 +454,9 @@ export default {
       this.afficheVisible = false
       window.sessionStorage.setItem('visible', this.afficheVisible)
     },
+    // 流量记录
     getTableTrafficData() {
-      let trafficData = {}
+      const trafficData = {}
       trafficData.type = this.trafficData.type
       trafficData.page = this.trafficData.page
       trafficData.username = this.trafficData.username
@@ -370,7 +465,7 @@ export default {
       trafficData.admin_target = this.user_id
       api.getAgentRecordGet(trafficData).then((res) => {
         if (res.code === 0) {
-          console.log(res)
+          // console.log(res)
           this.tableData = res.data.Data
           this.trafficTotal = res.data.count
         } else {
@@ -378,8 +473,18 @@ export default {
         }
       })
     },
+    handleCurrentChangeTraffic(page) {
+      this.trafficData.page = page
+      this.getTableTrafficData()
+    },
+    handleSizeChangeTraffic(p, s) {
+      this.trafficData.page = 1
+      this.trafficData.page_size = s
+      this.getTableTrafficData()
+    },
+    // 用户信息
     getUserData() {
-      let searchData = {}
+      const searchData = {}
       searchData.id = this.user_id
       api.getAgent(searchData).then((res) => {
         if (res.code === 0) {
@@ -389,18 +494,125 @@ export default {
         }
       })
     },
+    // 划号记录
+    divisionTableData() {
+      const form = {}
+      form.page = this.divisionForm.page
+      form.page_size = this.divisionForm.page_size
+      form.order_created_at = this.divisionForm.order_created_at
+      form.admin_target = this.user_id
+      api.getAgentAssignAccountRecord(form).then(res => {
+        if (res.code === 0) {
+          this.tableData = res.data.data
+          this.divisionTotal = res.data.count
+        }
+      }).catch(err => {
+        this.$message.error('请重新刷新页面')
+      })
+    },
+    handleCurrentChangeDivision(page) {
+      this.divisionForm.page = page
+      this.divisionTableData()
+    },
+    handleSizeChangeDivision(p, s) {
+      this.divisionForm.page = 1
+      this.divisionForm.page_size = s
+      this.divisionTableData()
+    },
+
+    // 下载端口信息
+    downloadPort() {
+      this.downloadVisible = true
+    },
+    onChangeDownloadPort(date, dateString) {
+      let start_time = ''
+      let end_time = ''
+      start_time = dateString[0]
+      end_time = dateString[1]
+      this.start_time = new Date(start_time).toISOString()
+      this.end_time = new Date(end_time).toISOString()
+    },
+    downloadPortList() {
+      axios({
+        url: `${process.env.VUE_APP_BASE_API}/api/v1/agent/pointsRecord/exportPort`,
+        method: 'post',
+        data: {
+          start_time: this.start_time,
+          end_time: this.end_time
+        }
+      }).then(res => {
+        const blob = new Blob(['\ufeff' + res.data])
+        const fileName = 'export_data.csv'
+        const link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href)
+        document.body.removeChild(link)
+        this.downloadVisible = false
+      })
+    },
+
+    // 下载流量信息
+    downloadFlow() {
+      this.downloadFlowVisible = true
+    },
+    onChangeDownloadFlow(date, dateString) {
+      let start_time = ''
+      let end_time = ''
+      start_time = dateString[0]
+      end_time = dateString[1]
+      this.flow_start_time = new Date(start_time).toISOString()
+      this.flow_end_time = new Date(end_time).toISOString()
+    },
+    downloadFlowList() {
+      axios({
+        url: `${process.env.VUE_APP_BASE_API}/api/v1/agent/pointsRecord/exportFlow`,
+        method: 'post',
+        data: {
+          start_time: this.flow_start_time,
+          end_time: this.flow_end_time
+        }
+      }).then(res => {
+        const blob = new Blob(['\ufeff' + res.data])
+        const fileName = 'export_flow_data.csv'
+        const link = document.createElement('a')
+        link.download = fileName
+        link.style.display = 'none'
+        link.href = URL.createObjectURL(blob)
+        document.body.appendChild(link)
+        link.click()
+        URL.revokeObjectURL(link.href)
+        document.body.removeChild(link)
+        this.downloadFlowVisible = false
+      })
+    },
     // 记录切换
     callbackTabs(key) {
-      if(key === '1') {
+      if (key === '1') {
+        this.IntegralVisible = true
+        this.flowVisible = false
+        this.divisionVisible = false
         this.searchData.page = 1
         this.searchData.page_size = 10
         this.getTableData()
-      } else {
+      } else if (key === '2') {
+        this.IntegralVisible = false
+        this.flowVisible = true
+        this.divisionVisible = false
         this.trafficData.page = 1
         this.trafficData.page_size = 10
         this.getTableTrafficData()
+      } else {
+        this.IntegralVisible = false
+        this.flowVisible = false
+        this.divisionVisible = true
+        this.divisionForm.page = 1
+        this.divisionForm.page_size = 10
+        this.divisionTableData()
       }
-      console.log(key)
     },
     rowSelection(selectedRowKeys, values) {
       this.selectDataId = []
@@ -416,43 +628,21 @@ export default {
       this.purchaseFlowVisible = true
     },
     purchaseFlowApi() {
+      this.purchaseLoading = true
       const data = {
         flow: Number(this.FlowForm.flow)
       }
       api.postAgencyBuy(data).then((res) => {
         if (res.code === 0) {
           this.purchaseFlowVisible = false
+          this.purchaseLoading = false
           this.init()
         } else {
           message.error(res.data.message)
         }
       })
     },
-    handleCurrentChange(page) {
-      this.searchData.page = page
-      this.getTableData()
-    },
-    handleSizeChange(p, s) {
-      this.searchData.page_size = s
-      this.init()
-    },
-    handleCurrentChangeTraffic(page) {
-      this.trafficData.page = page
-      this.getTableTrafficData()
-    },
-    handleSizeChangeTraffic(p, s) {
-      this.trafficData.page = 1
-      this.trafficData.page_size = s
-      this.getTableTrafficData()
-    },
-    // 查看积分记录
-    checkIntegralView() {
-      this.checkIntegralVisible = true
-      this.columnsIntegral = []
-      columnsIntegral.forEach(item => {
-        this.columnsIntegral.push(item)
-      })
-    },
+
     // 充值积分 显示
     topUpView() {
       this.topUpVisible = true
@@ -462,7 +652,7 @@ export default {
       this.topUpVisible = false
     }
   }
- }
+}
 </script>
 
 <style lang="scss">
@@ -491,7 +681,7 @@ export default {
         color: #000;
         font-weight: 600;
       }
-      
+
     }
     .head-left-message-role{
       background: #f1f1f1;
@@ -532,6 +722,7 @@ export default {
     height: 3vw;
     margin-left: 3vw;
     margin-top: 3vh;
+    cursor: pointer;
     img{
       width: 100%;
       height: 100%;

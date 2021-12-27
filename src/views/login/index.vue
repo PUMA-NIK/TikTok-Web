@@ -100,14 +100,16 @@ export default {
               window.sessionStorage.setItem('token', res.data.token)
               window.sessionStorage.setItem('userToken', res.data.token)
               window.sessionStorage.setItem('userName', this.loginForm.username)
+              localStorage.removeItem('accountList')
+              localStorage.removeItem('fansList')
               const Base64 = require('js-base64').Base64
-              window.sessionStorage.setItem(
-                'userInfo',
+              window.sessionStorage.setItem('userInfo',
                 Base64.decode(
                   window.sessionStorage.getItem('token').split('.')[1]
                 )
               )
               let userInfo = JSON.parse(Base64.decode(window.sessionStorage.getItem('token').split('.')[1]))
+              localStorage.setItem('locale', 'zh')
               let role = userInfo.data.r
               if (role === 0) {
                 this.$router.push({ name: 'userHome' })
@@ -116,13 +118,15 @@ export default {
               } else if (role === 2) {
                 this.$router.push({ name: 'agency' })
               } else if (role === 3) {
-                this.$router.push({ name: 'accountControl' })
-              }else if(role === 4){
+                this.$router.push({ name: 'operatorHome' })
+              } else if(role === 4){
                 this.$router.push({ name: 'Chatroom' })
-              }else {
+              } else if(role === 5){
+                this.$router.push({ name: 'resourceAudit' })
+              } else {
                 this.$router.push({ name: 'userHome' })
               }
-              
+              localStorage.setItem('promptVisible', 'true')
             }
           } catch (err) {
             if (err && err.code && err.code === -400) {
@@ -145,7 +149,7 @@ export default {
   align-items: center;
   background: url('../../assets/bg.png');
   /* 以上为登录背景,可以自己更换成自己喜欢的 */
-  background-size: 100%;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   display: flex;
   font-family: Lato, Helvetica, sans-serif;

@@ -23,8 +23,14 @@
           <!-- <el-dropdown-item v-if="role === 1" @click.native="changeDetermine">
               绑定IP
           </el-dropdown-item> -->
-          <el-dropdown-item v-if="role === 0" @click.native="changePassword">
+          <el-dropdown-item v-if="role === 0 || role === 2" @click.native="changePassword">
               修改密码
+          </el-dropdown-item>
+          <el-dropdown-item @click.native="languageZh">
+            中文
+          </el-dropdown-item>
+          <el-dropdown-item @click.native="languageEn">
+            English
           </el-dropdown-item>
           <el-dropdown-item divided @click.native="logout">
             <span style="display:block;">退出</span>
@@ -45,7 +51,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="showDetermineIp = false" style="margin-left: 10px">取 消</el-button>
-        <el-button type="primary" @click="submitPassword">绑定</el-button>
+        <el-button type="primary" @click="submitDetermineIp">绑定</el-button>
       </span>
     </el-dialog>
 
@@ -56,7 +62,7 @@
       width="25%">
       <el-form label-width="80px" :model="modifyForm" label-position="left" :rules="form_rule">
         <el-form-item label="用户名:">
-          <el-input v-model="userName" readonly></el-input>
+          <el-input v-model="userName" readOnly></el-input>
         </el-form-item>
         <el-form-item label="密码:" prop="passwordOne">
           <el-input placeholder="请输入密码" v-model="modifyForm.passwordOne" show-password></el-input>
@@ -67,7 +73,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="passwordVisible = false" style="margin-left: 10px">取 消</el-button>
-        <el-button type="primary" @click="submitDetermineIp">绑定</el-button>
+        <el-button type="primary" @click="submitPassword">确定</el-button>
       </span>
     </el-dialog>
 
@@ -161,6 +167,16 @@ export default {
     changePassword() {
       this.passwordVisible = true
     },
+    // 文本翻译 中文
+    languageZh() {
+      localStorage.setItem('locale', 'zh')
+      window.location.reload()
+    },
+    // 文本翻译 英文
+    languageEn() {
+      localStorage.setItem('locale', 'en')
+      window.location.reload()
+    },
     async getTableData() {
       const res = await api.getUser(this.searchData)
       if (res && res.code === 0 && res.data) {
@@ -172,15 +188,26 @@ export default {
       let searchData = {}
       searchData.id = this.searchData.id
       searchData.password = this.modifyForm.passwordTwo
+      if(this.modifyForm.passwordOne != this.modifyForm.passwordTwo) {
+        this.$message.error('两次输入密码不一致，请重新确定')
+      }
       if(this.modifyForm.passwordOne === this.modifyForm.passwordTwo) {
-        api.putUser(searchData).then((res) => {
-          if(res.code === 0) {
-            this.passwordVisible = false
-            this.logout()
-          }
-        })
-      } else if(this.modifyForm.passwordOne != this.modifyForm.passwordTwo) {
-        this.$message.error('两次输入密码不一致，请重新确定');
+        if(this.role === 0) {
+          api.putUser(searchData).then((res) => {
+            if(res.code === 0) {
+              this.passwordVisible = false
+              this.logout()
+            }
+          })
+        } else if(this.role === 2) {
+          api.putAgent(searchData).then((res) => {
+            if(res.code === 0) {
+              this.passwordVisible = false
+              this.logout()
+            }
+          })
+        }
+        
       }
       /* api.putUserBinding(this.modifyForm).then(res => {
         console.log(res)
@@ -193,7 +220,7 @@ export default {
       let modifyForm = {}
       modifyForm.proxy_url = this.modifyForm.proxy_url
       api.putUserBinding(modifyForm).then(res => {
-        console.log(res)
+        // console.log(res)
         if (res.code === 0) {
           this.showDetermineIp = false
         }

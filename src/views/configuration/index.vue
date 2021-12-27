@@ -2,97 +2,79 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <!-- <a-form-item label="用户名">
-          <a-input v-model="searchData._like_r_username" style="150px" placeholder="用户名" allow-clear />
-        </a-form-item> -->
-        <a-form-item v-if="role == 1" label="请选择">
-          <a-select v-model="keyValue" placeholder="选择内容" style="width:213px" allow-clear>
-            <a-select-option :value="'port_price'"> 端口价格</a-select-option>
-            <a-select-option :value="'flow_price'">流量单价</a-select-option>
-            <a-select-option :value="'bh_price'">号商手续费</a-select-option>
+        <a-form-item v-if="role == 1" :label="this.$t('admin.pleaseChoose')">
+          <a-select v-model="keyValue" :placeholder="this.$t('admin.pleaseChoose')" style="width:213px" allow-clear>
+            <a-select-option :value="'port_price'">{{$t('admin.portPrice')}}</a-select-option>
+            <a-select-option :value="'flow_price'">{{$t('admin.trafficPrice')}}</a-select-option>
+            <a-select-option :value="'bh_price'">{{$t('admin.dealerFee')}}</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" icon="search" @click="init()">查询</a-button>
-          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="addPort">端口价格</a-button>
-          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="addFlow">流量价格</a-button>
-          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="addPoundage">号商手续费</a-button>
+          <a-button type="primary" icon="search" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
+          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="addPort">{{this.$t('admin.portPrice')}}</a-button>
+          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="addFlow">{{this.$t('admin.trafficPrice')}}</a-button>
+          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="addPoundage">{{this.$t('admin.dealerFee')}}</a-button>
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
       <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x: 1500}" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="key" v-if="row.key === 'port_price'" slot-scope="text, row">
-          端口价格
+          <!-- 端口价格 -->
+          {{$t('admin.portPrice')}}
         </span>
         <span slot="key" v-else-if="row.key === 'flow_price'"  slot-scope="text, row">
-          流量价格
+          <!-- 流量价格 -->
+          {{$t('admin.trafficPrice')}}
         </span>
         <span slot="key" v-else-if="row.key === 'bh_price'" slot-scope="text, row">
-          号商手续费
+          <!-- 号商手续费 -->
+          {{$t('admin.dealerFee')}}
         </span>
         <span slot="created_at" slot-scope="text, row ">
            {{ new Date(row.created_at) | getTime }}
         </span>
         <span slot="action" slot-scope="text, row">
-<!--      <a-button style="margin-left:10px" @click="view(row.id)">查看设备</a-button>
-          <a-button style="margin-left:10px" type="primary" @click="edit(row)">编辑</a-button>
-          <a-button v-if="role == 1" :disabled="row.role != 0" style="margin-left:10px" type="primary" @click="check(row)">绑定代理商</a-button>-->
           <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="del(row.id)">
             <a-button style="margin-left:10px" type="danger">删除</a-button>
           </a-popconfirm>
         </span>
       </a-table>
-
-      <a-modal v-model="dialogVisible" title="端口价格" ok-text="确认" cancel-text="取消" @ok="addPortprice">
+      <!-- 端口价格 -->
+      <a-modal v-model="dialogVisible" :title="this.$t('admin.portPrice')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="addPortprice">
         <a-form-model ref="form" layout="horizontal" :model="form" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="端口价格">
+          <a-form-model-item :label="this.$t('admin.portPrice')">
             <a-input v-model="form.portPriceValue" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
-      <a-modal v-model="flowVisible" title="流量价格" ok-text="确认" cancel-text="取消" @ok="addFlowprice">
+      <!-- 流量价格 -->
+      <a-modal v-model="flowVisible" :title="this.$t('admin.trafficPrice')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="addFlowprice">
         <a-form-model ref="form" layout="horizontal" :model="form" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="流量价格">
+          <a-form-model-item :label="this.$t('admin.trafficPrice')">
             <a-input v-model="form.flowPriceValue" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
-      <a-modal v-model="poundageVisible" title="号商手续费" ok-text="确认" cancel-text="取消" @ok="addPoundagePrice">
+      <!-- 号商手续费 -->
+      <a-modal v-model="poundageVisible" :title="this.$t('admin.dealerFee')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="addPoundagePrice">
         <a-form-model ref="form" layout="horizontal" :model="form" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="手续费">
+          <a-form-model-item :label="this.$t('admin.dealerFee')">
             <a-input v-model="form.bhPriceValue" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
-      <a-modal v-model="modifyDialogVisible" title="修改用户" ok-text="确认" cancel-text="取消" @ok="editUser">
-        <a-form-model ref="edit_form" layout="horizontal" :model="modifyForm" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="选择角色">
-            <a-select v-model="modifyForm.role" placeholder="请选择角色">
-              <a-select-option v-if="role == 1" :value="1">管理员</a-select-option>
-              <a-select-option :value="0">用户</a-select-option>
-              <a-select-option v-if="role == 1" :value="2">代理商</a-select-option>
-            </a-select>
-          </a-form-model-item>
-          <a-form-model-item label="选择状态">
-            <a-select v-model="modifyForm.status" placeholder="请选择状态">
-              <a-select-option :value="1">封禁</a-select-option>
-              <a-select-option :value="0">正常</a-select-option>
-            </a-select>
-          </a-form-model-item>
-          <a-form-model-item label="重置密码">
-            <a-input v-model="modifyForm.password" />
-          </a-form-model-item>
-        </a-form-model>
-      </a-modal>
 
-      <div class="page">
+      <!-- <div class="page">
         <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
         </a-pagination>
-      </div>
+      </div> -->
       <user v-if="dialogGroupId" :role="searchRole" @getGroupId="getUserId" @cancelGetGroupId="dialogGroupId = false" />
     </div>
   </div>
@@ -101,17 +83,19 @@
 import * as api from '@/api/index'
 import user from '@/components/user/user'
 const columns = [{
-  title: '名称',
+  // title: '名称',
+  slotName: 'admin.projectName',
   dataIndex: 'key',
   width: '180px',
   align: 'center',
-  scopedSlots: { customRender: 'key' }
+  scopedSlots: { customRender: 'key', title:'admin.projectName' }
 }, {
-  title: '价格',
+  // title: '价格',
+  slotName: 'admin.price',
   dataIndex: 'val',
   width: '100px',
   align: 'center',
-  scopedSlots: { customRender: 'val' }
+  scopedSlots: { customRender: 'val', title:'admin.price' }
 }]
 export default {
   components: {
@@ -131,7 +115,6 @@ export default {
       nowData: {},
       keyValue: 'port_price',
       searchData: {
-        _like_r_username: null,
         username: null,
         role: null,
         page: 1,
@@ -277,43 +260,11 @@ export default {
       })
 
     },
-    check(row) {
-      this.dialogGroupId = true
-      this.nowData = row
-    },
     async getUserId(id) {
       const uid = this.nowData.id
       const superiors_id = id
       await api.putUserInter({ id: uid, superiors_id })
       this.getTableData()
-    },
-    edit(row) {
-      // 修改  角色和状态 状态封禁1正常0
-      this.modifyDialogVisible = true
-      this.modifyForm = row
-      this.modifyForm.password = null
-    },
-    editUser() {
-      this.modifyForm.password = this.modifyForm.password === '' ? null : this.modifyForm.password
-      if (this.modifyForm.password !== '' && this.modifyForm.password != null) {
-        if (this.modifyForm.password.length < 6) {
-          this.$message.error('密码不低于六位数')
-          return
-        }
-      }
-      api.putUserInter(this.modifyForm).then(res => {
-        if (res.code === 0) {
-          this.modifyDialogVisible = false
-        }
-      })
-    },
-    view(id) {
-      this.$router.push({
-        name: 'Device',
-        query: {
-          belong: id
-        }
-      })
     },
     handleCurrentChange(page) {
       this.searchData.page = page

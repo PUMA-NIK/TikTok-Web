@@ -2,21 +2,26 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="昵称">
-          <a-input v-model="searchData.nickname" placeholder="请输入昵称" allow-clear />
+        <a-form-item :label="this.$t('dealer.userNickname')">
+          <a-input v-model="searchData.nickname" :placeholder="this.$t('dealer.userNickname')" allow-clear />
         </a-form-item>
         <!-- <a-form-item label="ID">
           <a-input v-model="searchData.id" placeholder="请输入ID" allow-clear />
         </a-form-item> -->
         <a-form-item>
-          <a-button type="primary" @click="init()">查询</a-button>
+          <a-button type="primary" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
           <!-- <a-button type="primary" style="margin-left:10px;" @click="SellingAccount">账号出售</a-button> -->
-          <a-button type="primary" style="margin-left:10px;" @click="divisionAccoun">划分至用户</a-button>
+          <a-button type="primary" style="margin-left:10px;" @click="divisionAccoun">{{this.$t('dealer.assignAccount')}}</a-button>
+          <a-button type="danger" style="margin-left:10px;" @click="deleteUpdate">{{this.$t('dealer.batchDeletion')}}</a-button>
         </a-form-item>
       </a-form>
     </div>
+    <p v-if="this.selectPortDataId.length > 0">{{this.$t('dealer.accountSelected')}}：{{this.selectPortDataId.length}}</p>
     <div class="table-box">
-      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" :row-selection="{ selectedRowKeys: selectPortDataId, onChange: rowSelectionPort }" class="tableLimit" :bordered="true" :pagination="false">
+      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" :scroll="{ x: 1200}" :row-selection="{ selectedRowKeys: selectPortDataId, onChange: rowSelectionPort }" class="tableLimit" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="avatar" slot-scope="text, row ">
           <a-avatar :src="row.avatar" />
           <p>{{ row.nickname }}</p>
@@ -24,56 +29,48 @@
         <span slot="created_at" slot-scope="text, row">
           {{ new Date(row.created_at) | getTime }}
         </span>
-        <!-- <span slot="action">
-          <a-button style="margin-left: 10px" @click="view(row)">查看账号</a-button>
-          <a-button style="margin-left: 10px" @click="divisionAccoun(row)" type="primary">划分账号</a-button>
-          <a-button style="margin-left: 10px" @click="integralView(row)">运行记录</a-button>
-          <a-button style="margin-left: 10px" type="danger">删除</a-button>
-        </span> -->
+        <span slot="action" slot-scope="text, row">
+          <a-button style="margin-left:10px" type="danger" @click="accountDelete(row.id)">{{$t('admin.delete')}}</a-button>
+        </span>
       </a-table>
       <!-- 公告 -->
-      <a-modal v-model="afficheVisible" width="50%" :title="title" ok-text="确认" cancel-text="取消" @cancel="handleCancel" @ok="handleOk">
+      <a-modal v-model="afficheVisible" width="50%" :title="title" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @cancel="handleCancel" @ok="handleOk">
       <div class="affiche">
         {{this.affiche}}
       </div>
     </a-modal>
-
-      <!-- 账号出售 -->
-      <a-modal v-model="sellVisible" title="出售" width="500px" ok-text="确认" cancel-text="取消" @ok="sell">
-        <a-form ref="form" :model="form" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-          <a-form-item label="出售人">
-            <a-input v-model="form.username" />
-          </a-form-item>
-          <a-form-item label="价格">
-            <a-input v-model="form.price" />
-          </a-form-item>
-          <a-form-item label="账号">
-            <a-input v-model="form.quantity" />
-          </a-form-item>
-        </a-form>
-      </a-modal>
       <!-- 划分账号 -->
-      <a-modal v-model="divisionVisible" title="划分账号" width="500px" ok-text="确认" cancel-text="取消" @ok="divisionAccounSubmit">
+      <a-modal v-model="divisionVisible" :title="this.$t('dealer.assignAccount')" width="500px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="divisionAccounSubmit">
         <a-form ref="form" :model="form" :label-col="{ span: 2 }" :wrapper-col="{ span: 22 }">
-          <a-form-item label="用户">
+          <a-form-item :label="$t('admin.user')">
             <a-input v-model="form.username"  @click="divisionView" readOnly/>
           </a-form-item>
         </a-form>
-      </a-modal>
-      <!-- 用户信息 -->
-      <a-modal v-model="informationVisible" title="用户信息" width="400px" ok-text="确认" cancel-text="取消" @ok="informationSubmit">
-        <a-table :columns="columnsSelect" :row-key="record => record.id" :data-source="tableSelectData" :row-selection="{ selectedRowKeys: selectDataId, onChange: rowSelection }" :bordered="true" :pagination="false">
-        <span slot="status" slot-scope="text, row">
-          {{ row.status == 0 ? '正常' : '封禁' }}
+        <span slot="footer">
+          <a-button style="margin-left:10px;" class="add-btn" type="success" @click="divisionVisible = false">{{this.$t('admin.cancel')}}</a-button>
+          <a-button style="margin-left:10px;" type="primary" :loading="divisionLoading" @click="divisionAccounSubmit">{{this.$t('admin.confirm')}}</a-button>
         </span>
+      </a-modal>
+      <!-- 代理商信息 -->
+      <a-modal v-if="informationVisible" v-model="informationVisible" :title="this.$t('admin.agent')" width="600px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="informationSubmit">
+        <a-table :columns="columnsSelect" :row-key="record => record.id" :data-source="tableSelectData" :row-selection="{ selectedRowKeys: selectDataId, onChange: rowSelection }" :bordered="true" :pagination="false">
+          <templete v-for="(item, index) in columnsSelect" :key="index" :slot="item.slotName">
+            <span>{{$t(item.slotName)}}</span>
+          </templete>
+          <span slot="status" slot-scope="text, row">
+            {{ row.status == 0 ? $t('admin.normal') : $t('admin.Ban') }}
+          </span>
         </a-table>
-    </a-modal>
-      <!-- 运行记录 -->
-      <a-modal v-model="integralVisible"   title="运行记录" width="60%" ok-text="确认" cancel-text="取消">
-        <a-table :columns="runInfocolumns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :bordered="true" :pagination="false"></a-table>
+        <div class="page">
+        <a-pagination :show-total="(agencyTotal, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${agencyTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="page" :total="agencyTotal" @change="agencyHandleCurrentChange" @showSizeChange="agencyHandleSizeChange">
+          <template slot="buildOptionText" slot-scope="props">
+            <span>{{ props.value }}条/页</span>
+          </template>
+        </a-pagination>
+      </div>
       </a-modal>
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
@@ -85,11 +82,12 @@
 
 <script>
 const columns = [{
-  title: '头像',
+  // title: '头像',
+  slotName: 'dealer.account',
   dataIndex: 'avatar',
   align: 'center',
-  width: '80px',
-  scopedSlots: { customRender: 'avatar' }
+  width: '100px',
+  scopedSlots: { customRender: 'avatar', title:'dealer.account' }
 },
 /* {
   title: 'ID',
@@ -99,54 +97,75 @@ const columns = [{
   align: 'center',
 }, */
 {
-  title: '个签',
+  // title: '个签',
+  slotName: 'admin.signature',
   dataIndex: 'signature',
-  width: '90px',
-  ellipsis: true,
-  align: 'center'
-},
-{
-  title: '帖子数量',
-  dataIndex: 'posts_number',
-  width: '90px',
-  ellipsis: true,
-  align: 'center'
-},
-{
-  title: '关注人数',
-  dataIndex: 'follow_number',
-  width: '90px',
-  ellipsis: true,
-  align: 'center'
-},
-{
-  title: '好友数量',
-  dataIndex: 'friends_number',
-  width: '90px',
-  ellipsis: true,
-  align: 'center'
-},
-{
-  title: '创建时间',
-  dataIndex: 'created_at',
-  width: '90px',
+  width: '200px',
   ellipsis: true,
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'signature', title:'admin.signature' }
 },
+{
+  // title: '帖子数量',
+  slotName: 'dealer.numberOfPosts',
+  dataIndex: 'posts_number',
+  width: '100px',
+  ellipsis: true,
+  align: 'center',
+  scopedSlots: { customRender: 'posts_number', title:'dealer.numberOfPosts' }
+},
+{
+  // title: '关注人数',
+  slotName: 'dealer.followers',
+  dataIndex: 'follow_number',
+  width: '100px',
+  ellipsis: true,
+  align: 'center',
+  scopedSlots: { customRender: 'follow_number', title:'dealer.followers' }
+},
+{
+  // title: '好友数量',
+  slotName: 'dealer.numberOfFriends',
+  dataIndex: 'friends_number',
+  width: '100px',
+  ellipsis: true,
+  align: 'center',
+  scopedSlots: { customRender: 'friends_number', title:'dealer.numberOfFriends' }
+},
+{
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
+  dataIndex: 'created_at',
+  width: '200px',
+  ellipsis: true,
+  align: 'center',
+  scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
+},
+{
+  // title: '操作',
+  slotName: 'admin.operate',
+  dataIndex: 'action',
+  width: '150px',
+  align: 'center',
+  // fixed: 'right',
+  scopedSlots: { customRender: 'action', title:'admin.operate' }
+}
 ]
 const columnsSelect = [{
-    title: '用户名',
+    // title: '用户名',
+    slotName: 'admin.username',
     dataIndex: 'username',
     width: '100px',
-    align: 'center'
+    align: 'center',
+    scopedSlots: { customRender: 'created_at', title:'admin.username' }
   },
   {
-    title: '状态',
+    // title: '状态',
+    slotName: 'admin.state',
     dataIndex: 'status',
     width: '100px',
     align: 'center',
-    scopedSlots: { customRender: 'status' }
+    scopedSlots: { customRender: 'status', title:'admin.state' }
   }
   ]
 const runInfocolumns = [{
@@ -219,6 +238,7 @@ export default {
       tableData: [],
       total: 0,
       size: 10,
+      agencyTotal: 0,
       tableSelectData: [],
       selectPortDataId: [],
       selectPortData: [],
@@ -226,8 +246,7 @@ export default {
       sellVisible: false,
       // 划分账号
       divisionVisible: false,
-      // 积分记录
-      integralVisible: false,
+      divisionLoading: false, // 划分账号 确定按钮
       informationVisible: false,
       afficheVisible: false,
       affiche: null,
@@ -294,17 +313,39 @@ export default {
         this.total = res.data.count
       })
     },
-    // 账号出售
-    SellingAccount() {
-      if(this.selectPortDataId.length === 0) {
-        this.$message.error('请先选择要绑定的账号')
+    // 批量删除
+    deleteUpdate() {
+      if(this.selectPortDataId.length < 1) {
+        this.$message.error('请先选择要删除的账号')
         return
       }
-      this.sellVisible = true
-      
+      let form = {}
+      form.list = this.selectPortDataId
+      api.postDealeryAccountDel(form).then(res => {
+        if(res.code === 0) {
+          this.selectPortDataId = []
+          this.$message.success('删除成功')
+          this.getTableData()
+        }
+      }).catch(err => {
+        this.$message.error(err.msg)
+      })
     },
-    async sell() {
-      this.sellVisible = false
+    // 单个删除
+    accountDelete(id) {
+      let form = {}
+      let list = []
+      list.push(id)
+      form.list = list
+      api.postDealeryAccountDel(form).then(res => {
+        if(res.code === 0) {
+          this.selectPortDataId = []
+          this.$message.success('删除成功')
+          this.getTableData()
+        }
+      }).catch(err => {
+        this.$message.error(err.msg)
+      })
     },
     divisionView() {
       this.informationVisible = true
@@ -312,10 +353,10 @@ export default {
     getSelectTableData() {
       let searchData = {}
       searchData.page = this.page
-      searchData.size = this.size
+      searchData.page_size = this.size
       api.getDealerUser(searchData).then((res) => {
         this.tableSelectData = res.data.data
-        this.total = res.data.count
+        this.agencyTotal = res.data.count
       })
     },
     informationSubmit() {
@@ -339,20 +380,24 @@ export default {
       this.getSelectTableData()
     },
     divisionAccounSubmit() {
-      let form = {}
-      form.list = this.form.userID
-      form.user_id = this.form.userUserID
-      api.postDealeryAccountAssign(form).then((res) => {
-        if(res.code === 0) {
-          this.divisionVisible = false
-          this.init()
-        }
-      }).catch((err) => {
-        Message({
-          message: err.msg,
-          type: 'error'
+      this.divisionLoading = true
+      if(this.divisionLoading) {
+        let form = {}
+        form.list = this.form.userID
+        form.user_id = this.form.userUserID
+        api.postDealeryAccountAssign(form).then((res) => {
+          if(res.code === 0) {
+            this.divisionVisible = false
+            this.divisionLoading = false
+            this.init()
+          }
+        }).catch((err) => {
+          Message({
+            message: err.msg,
+            type: 'error'
+          })
         })
-      })
+      }
     },
     // 选择用户
     rowSelection(selectedRowKeys, values) {
@@ -375,10 +420,6 @@ export default {
         }
       })
     },
-    // 查看积分
-    integralView() {
-      this.integralVisible = true
-    },
     rowSelectionPort(selectedRowKeys, values) {
       this.selectPortDataId = []
       this.selectPortData = []
@@ -388,6 +429,15 @@ export default {
       values.forEach(item => {
         this.selectPortData.push(item)
       })
+    },
+    agencyHandleCurrentChange(page) {
+      this.page = page
+      this.getSelectTableData()
+    },
+    agencyHandleSizeChange() {
+      this.size = s
+      this.page = 1
+      this.getSelectTableData()
     },
     handleCurrentChange(page) {
       this.searchData.page = page

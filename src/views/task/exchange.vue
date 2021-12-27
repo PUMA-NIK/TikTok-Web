@@ -2,85 +2,91 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="私信类型">
-          <a-select v-model="type" placeholder="选择私信类型" style="width:150px" @change="changeSelect">
-            <a-select-option :value="1">视频</a-select-option>
-            <a-select-option :value="2">文字</a-select-option>
-            <a-select-option :value="3">富文本</a-select-option>
+        <a-form-item :label="$t('user.privateMessageType')">
+          <a-select v-model="type" style="width:150px" @change="changeSelect">
+            <a-select-option :value="5">{{$t('admin.businessCard')}}</a-select-option>
+            <a-select-option :value="2">{{$t('admin.text')}}</a-select-option>
+            <a-select-option :value="1">{{$t('admin.video')}}</a-select-option>
+            <a-select-option :value="3">{{$t('admin.richText')}}</a-select-option>
             <!-- <a-select-option :value="4">图片</a-select-option> -->
-            <a-select-option :value="5">名片</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" @click="init">查询</a-button>
-          <a-button style="margin-left:10px;" type="primary" @click="addDialogVisible">新增</a-button>
+          <a-button type="primary" @click="init">{{this.$t('admin.Inquire')}}</a-button>
+          <a-button style="margin-left:10px;" type="primary" @click="addDialogVisible">{{this.$t('admin.Add')}}</a-button>
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
-      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x }" :bordered="true" :pagination="false">
+      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x:1200 }" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="created_at" slot-scope="text, row">
           {{ new Date(row.created_at) | getTime }}
         </span>
         <span slot="action" slot-scope="text, row">
-          <a-button @click="view(row)"> 查看</a-button>
-          <a-button style="margin-left:8px" type="primary" @click="beforeCreate(row)">创建</a-button>
-          <a-button style="margin-left: 8px;background:#E6A23C;color:white" @click="stop(row.id)">停止</a-button>
-          <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="del(row.id)">
-            <a-button style="margin-left: 8px" type="danger">删除</a-button>
+          <a-button @click="view(row)">{{$t('user.check')}}</a-button>
+          <a-button style="margin-left:8px" type="primary" @click="beforeCreate(row)">{{$t('user.create')}}</a-button>
+          <!-- <a-button style="margin-left: 8px;background:#E6A23C;color:white" @click="stop(row.id)">停止</a-button> -->
+          <a-popconfirm :title="$t('admin.deleteOrNot')" :ok-text="$t('admin.Yes')" :cancel-text="$t('admin.No')" @confirm="del(row.id)">
+            <a-button style="margin-left: 8px" type="danger">{{$t('admin.delete')}}</a-button>
           </a-popconfirm>
         </span>
       </a-table>
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :total="total" :current="searchData.page" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :total="total" :current="searchData.page" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
         </a-pagination>
       </div>
-      <a-modal v-model="dialogVisible" title="新增" ok-text="确认" cancel-text="取消" width="500px" @ok="addTask">
+      <a-modal v-model="dialogVisible" :title="$t('admin.Add')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="500px" @ok="addTask">
         <a-form-model ref="form" layout="horizontal" :model="form" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="私信类型">
-            <a-select v-model="type" placeholder="选择私信类型" @change="changeFormSelect">
+          <a-form-model-item :label="$t('user.privateMessageType')">
+            <a-select v-model="type" @change="changeFormSelect">
               <a-select-option v-for="(item, index) in exchangeType" :key="index" :value="item.value">{{ item.label }}</a-select-option>
             </a-select>
           </a-form-model-item>
 
-          <a-form-model-item label="任务端口">
-            <a-input v-model="form.executives" placeholder="(如有多个使用,分割)" @click="dialogGroupId = true" readOnly />
+          <a-form-model-item :label="$t('user.taskPort')">
+            <a-input v-model="form.executives" @click="dialogGroupId = true" readOnly />
           </a-form-model-item>
           
-          <a-form-model-item label="间隔时间">
-            <a-input v-model="form.intervals" placeholder="间隔时间" />
+          <a-form-model-item :label="$t('user.intervals')">
+            <a-input-number style="width: 175px;" v-model="form.min" :min="3" :max="100"/> ---- <a-input-number style="width: 175px;" v-model="form.max" :min="0" :max="100"/>
+            <!-- <a-input v-model="form.intervals" placeholder="间隔时间" /> -->
           </a-form-model-item>
           <!-- <a-form-model-item label="任务账号">
             <a-input v-model="form.executives" placeholder="(如有多个使用,分割)" />
           </a-form-model-item> -->
-          <a-form-model-item label="地区筛选">
-            <a-input v-model="form.region" placeholder="(如有多个使用,分割)" prop="region" />
+          <a-form-model-item :label="$t('user.area')">
+            <a-input v-model="form.region" :placeholder="$t('user.segmentation')" prop="region" />
           </a-form-model-item>
           <!-- <a-form-model-item label="发送数量">
             <a-input v-model.number="form.number" placeholder="发送数量" />
           </a-form-model-item> -->
-          <a-form-model-item label="任务备注">
-            <a-input v-model="form.remark" placeholder="任务备注" />
+          <a-form-model-item :label="$t('admin.remark')">
+            <a-input v-model="form.remark" :placeholder="$t('admin.remark')" />
           </a-form-model-item>
-          <a-form-model-item label="发送">
+          <a-form-model-item :label="$t('user.send')">
             <a-select v-model="form.send_all" @change="changeFormSelectFslse">">
               <a-select-option :value="false">
-                发送新增
+                {{$t('user.sendNew')}}
               </a-select-option>
               <a-select-option :value="true">
-                发送全部
+                {{$t('user.sendAll')}}
               </a-select-option>
             </a-select>
           </a-form-model-item>
-
+          <a-form-model-item :label="$t('user.sendSubscript')">
+            <a-input-number style="width: 175px;" v-model="form.send_start_cursor" :min="1" :max="10000"/> ---- <a-input-number style="width: 175px;" v-model="form.send_end_cursor" :min="0" :max="10000"/>
+          </a-form-model-item>
           <!-- eslint-disable-next-line vue/no-use-v-if-with-v-for -->
-          <a-form-model-item v-for="(domain, index) in form.video" v-if="form.resourceName == '' && type === 1" :key="index" label="视频" class="short-input btn-item" prop="video">
+          <a-form-model-item v-for="(domain, index) in form.video" v-if="form.resourceName == '' && type === 1" :key="index" :label="$t('admin.video')" class="short-input btn-item" prop="video">
             <a-input v-model="domain.value" width="100px" @click="tiktokParseVideo"/>
-            <a-button class="add-btn" type="success" @click="form.video.push({ value: '' })">新增</a-button>
-            <a-button class="delete-btn" type="danger" @click.prevent="form.video.length === 1 ? '' : form.video.splice(index, 1)">删除</a-button>
+            <a-button class="add-btn" type="success" @click="form.video.push({ value: '' })">{{$t('admin.Add')}}</a-button>
+            <a-button class="delete-btn" type="danger" @click.prevent="form.video.length === 1 ? '' : form.video.splice(index, 1)">{{$t('admin.delete')}}</a-button>
           </a-form-model-item>
           <!-- <a-form-model-item v-for="(domain, index) in form.video_text" v-if="type === 1" :key="index" :label="'文本'" class="short-input btn-item" prop="video_text">
             <a-input v-model="domain.value"/>
@@ -88,9 +94,6 @@
             <a-button class="delete-btn" type="danger" plain @click.prevent="form.video_text.length === 1 ? '' : form.video_text.splice(index, 1)">删除</a-button>
           </a-form-model-item> -->
 
-
-          <!-- eslint-disable-next-line vue/no-use-v-if-with-v-for -->
-          
           <!-- <a-form-model-item v-for="(domain, index1) in form.text" v-if="form.resourceName == '' && type == 2 && resources" :key="index1 + 'info'" label="私信文字" class="short-input btn-item" prop="text">
             <a-input v-model="domain.value"/>
             <a-button class="add-btn" type="success" plain @click="form.text.push({ value: '' })">新增</a-button>
@@ -98,36 +101,40 @@
           </a-form-model-item> -->
           
           <!-- eslint-disable-next-line vue/no-use-v-if-with-v-for -->
-          <a-form-model-item v-for="(domain, index2) in form.rich_text" v-if="form.resourceName == '' && type == 3" :key="index2 + 'info1'" :label="'富文本'" class="short-input btn-item" prop="rich_text">
+          <a-form-model-item v-for="(domain, index2) in form.rich_text" v-if="form.resourceName == '' && type == 3" :key="index2 + 'info1'" :label="$t('admin.richText')" class="short-input btn-item" prop="rich_text">
             <a-input v-model="domain.value" type="textarea" @click.prevent="setRichText(index2)" />
-            <a-button class="add-btn" type="success" plain @click="form.rich_text.push({ value: '' })">新增</a-button>
-            <a-button class="delete-btn" type="danger" plain @click.prevent="form.rich_text.length === 1 ? '' : form.rich_text.splice(index2, 1)">删除</a-button>
+            <a-button class="add-btn" type="success" plain @click="form.rich_text.push({ value: '' })">{{$t('admin.Add')}}</a-button>
+            <a-button class="delete-btn" type="danger" plain @click.prevent="form.rich_text.length === 1 ? '' : form.rich_text.splice(index2, 1)">{{$t('admin.delete')}}</a-button>
           </a-form-model-item>
           <!-- eslint-disable-next-line vue/no-use-v-if-with-v-for -->
-          <a-form-model-item v-for="(domain, index) in form.image" v-if="form.resourceName == '' && type == 4" :key="index + 'info2'" :label="'图片地址'" class="short-input btn-item" prop="image">
+          <a-form-model-item v-for="(domain, index) in form.image" v-if="form.resourceName == '' && type == 4" :key="index + 'info2'" :label="$t('admin.pictureURL')" class="short-input btn-item" prop="image">
             <a-input v-model="domain.value" />
-            <a-button class="add-btn" type="success" plain @click="form.image.push({ value: '' })">新增</a-button>
-            <a-button class="delete-btn" type="danger" plain @click.prevent="form.image.length === 1 ? '' : form.image.splice(index, 1)">删除</a-button>
+            <a-button class="add-btn" type="success" plain @click="form.image.push({ value: '' })">{{$t('admin.Add')}}</a-button>
+            <a-button class="delete-btn" type="danger" plain @click.prevent="form.image.length === 1 ? '' : form.image.splice(index, 1)">{{$t('admin.delete')}}</a-button>
           </a-form-model-item>
-          <a-form-model-item v-for="(domain, index) in form.name_card" v-if="form.resourceName == '' && type == 5" :key="index + 'info3'" :label="'名片'" class="short-input btn-item" prop="name_card">
+          <a-form-model-item v-for="(domain, index) in form.name_card" v-if="form.resourceName == '' && type == 5" :key="index + 'info3'" :label="$t('admin.businessCard')" class="short-input btn-item" prop="name_card">
             <a-input v-model="domain.value"  @click="tiktokParseNameCard"/>
-            <a-button class="add-btn" type="success" plain @click="form.name_card.push({ value: '' })">新增</a-button>
-            <a-button class="delete-btn" type="danger" plain @click.prevent="form.name_card.length === 1 ? '' : form.name_card.splice(index, 1)">删除</a-button>
+            <a-button class="add-btn" type="success" plain @click="form.name_card.push({ value: '' })">{{$t('admin.Add')}}</a-button>
+            <a-button class="delete-btn" type="danger" plain @click.prevent="form.name_card.length === 1 ? '' : form.name_card.splice(index, 1)">{{$t('admin.delete')}}</a-button>
           </a-form-model-item>
           <!-- <a-form-model-item v-for="(domain, index) in form.card_text" v-if="type == 5" :key="index" :label="'文本'" class="short-input btn-item" prop="card_text">
             <a-input v-model="domain.value"/>
             <a-button class="add-btn" type="success" plain @click="form.card_text.push({ value: '' })">新增</a-button>
             <a-button class="delete-btn" type="danger" plain @click.prevent="form.card_text.length === 1 ? '' : form.card_text.splice(index, 1)">删除</a-button>
           </a-form-model-item> -->
+          <!-- <a-form-model-item v-for="(domain, index) in form.tips" :key="index + 'info4'" :label="'外链文本'" class="short-input btn-item">
+            <a-input v-model="domain.value"  @click="bookTextResources"/>
+            <a-button class="add-btn" type="success" plain @click="form.tips.push({ value: '' })">新增</a-button>
+            <a-button class="delete-btn" type="danger" plain @click.prevent="form.tips.length === 1 ? '' : form.name_card.splice(index, 1)">删除</a-button>
+          </a-form-model-item> -->
 
 
-          <a-form-model-item label="文本资源"  v-if="type === 2" prop="text">
-            <a-button class="add-btn" type="success" plain @click="resourcesText">资源</a-button><br/><span v-if="!resources">资源已选</span>
+          <a-form-model-item :label="$t('user.textResource')"  v-if="type === 2" prop="text">
+            <a-button class="add-btn" type="success" plain @click="resourcesText">{{$t('user.selectResource')}}</a-button><br/><span v-if="!resources">{{$t('user.resourceSelected')}}</span>
           </a-form-model-item>
-          <a-form-model-item label="文本资源"  v-if="type === 5 || type === 1">
-            <a-button class="add-btn" type="success" plain @click="resourcesText">资源</a-button><br/><span v-if="!resources">资源已选</span>
+          <a-form-model-item :label="$t('user.textResource')"  v-if="type === 5 || type === 1">
+            <a-button class="add-btn" type="success" plain @click="resourcesText">{{$t('user.selectResource')}}</a-button><br/><span v-if="!resources">{{$t('user.resourceSelected')}}</span>
           </a-form-model-item>
-          
           <!-- <a-form-model-item label="资源内容">
             <a-button v-if="form.resourceName == ''" @click="getResouce">获取</a-button>
             <a-tag v-else closable @close="closeTag">
@@ -136,71 +143,108 @@
             <span> (使用资源手填将会失效)</span>
           </a-form-model-item> -->
         </a-form-model>
+        <span slot="footer">
+          <a-button style="margin-left:10px;" class="add-btn" type="success" @click="dialogVisible = false">{{$t('admin.cancel')}}</a-button>
+          <a-button style="margin-left:10px;" type="primary" :loading="loading" @click="addTask">{{$t('admin.confirm')}}</a-button>
+        </span>
       </a-modal>
 
-      <a-modal v-model="disalogRichText" title="富文本" ok-text="确认" cancel-text="取消" width="550px" @ok="handleAddRichText">
+      <!-- 富文本 -->
+      <a-modal v-model="disalogRichText" :title="this.$t('admin.richText')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="550px" @ok="handleAddRichText">
         <a-form-model ref="rich_text_form" :model="rich_text_form" :rules="rich_text_form_rules" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="标题" prop="title">
+          <a-form-model-item :label="$t('admin.title')" prop="title">
             <a-input v-model="rich_text_form.title" />
           </a-form-model-item>
-          <a-form-model-item label="描述" prop="desc">
+          <a-form-model-item :label="$t('admin.describe')" prop="desc">
             <a-input v-model="rich_text_form.desc" />
           </a-form-model-item>
-          <a-form-model-item label="头像地址" prop="avatar">
+          <a-form-model-item :label="$t('dealer.photoUrl')" prop="avatar">
             <a-input v-model="rich_text_form.avatar" />
           </a-form-model-item>
-          <a-form-model-item label="链接" prop="link">
+          <a-form-model-item :label="$t('user.link')" prop="link">
             <a-input v-model="rich_text_form.link" />
           </a-form-model-item>
-          <a-form-model-item label="文本">
+          <a-form-model-item :label="$t('admin.text')">
             <a-input v-model="rich_text_form.text" type="textarea" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
-      <a-modal v-model="nameCardVisible" title="解析名片" ok-text="确认" cancel-text="取消" width="550px" @ok="handleNameCard">
+      <!-- 解析名片 -->
+      <a-modal v-model="nameCardVisible" :title="$t('user.analyzeBusinessCards')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="550px" @ok="handleNameCard">
         <a-form-model ref="nameCardFrom" :model="nameCardFrom" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="输入网址" prop="avatar">
+          <a-form-model-item :label="$t('user.enterURL')" prop="avatar">
             <a-input v-model="nameCardFrom.url" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
-      <a-modal v-model="videoVisible" title="解析视频" ok-text="确认" cancel-text="取消" width="550px" @ok="handleVideo">
+      <!-- 视频解析 -->
+      <a-modal v-model="videoVisible" :title="$t('user.videoAnalysis')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="550px" @ok="handleVideo">
         <a-form-model ref="videoFrom" :model="videoFrom" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="输入网址" prop="avatar">
+          <a-form-model-item :label="$t('user.enterURL')" prop="avatar">
             <a-input v-model="videoFrom.url" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
-      <a-modal v-model="nameCardTextVisible" title="选择名片资源" ok-text="确认" cancel-text="取消" width="600px" @ok="submitResourcesNameCard">
-        <a-table :columns="columnsResource" :data-source="nameCardData" :row-key="record => record.id" :row-selection="{onChange:onSelectChangeNameCard ,selectedRowKeys: selectedRowNameCard}" class="tableLimit" :scroll="{ x:550 }" :bordered="true" :pagination="false">
+      <!-- 外链文本 -->
+      <a-modal v-model="bookTextVisible" title="选择外链信息资源" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="600px" @ok="submitResourcesBookText">
+        <a-table :columns="columnsResource" :data-source="bookTextData" :row-key="record => record.id" :row-selection="{onChange:onSelectChangeBookText ,selectedRowKeys: selectedRowBookText,type:'radio'}" class="tableLimit" :scroll="{ x:550 }" :bordered="true" :pagination="false">
+          <templete v-for="(item, index) in columnsResource" :key="index" :slot="item.slotName">
+            <span>{{$t(item.slotName)}}</span>
+          </templete>
           <span slot="created_at" slot-scope="text, row">
             {{ new Date(row.created_at) | getTime }}
           </span>
         </a-table>
         <div class="page">
-          <a-pagination :show-total="(nameCardTotal, range) => `${range[0]}-${range[1]} 条，总数:${nameCardTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :total="nameCardTotal" :current="dataForm.page" @change="nameCardChange" @showSizeChange="nameCardSizeChange">
+          <a-pagination :show-total="(bookTextTotal, range) => `${range[0]}-${range[1]} 条，总数:${bookTextTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :total="bookTextTotal" :current="bookTextForm.page" @change="bookTextChange" @showSizeChange="bookTextSizeChange">
             <template slot="buildOptionText" slot-scope="props">
               <span>{{ props.value }}条/页</span>
             </template>
           </a-pagination>
         </div>
       </a-modal>
-      <a-modal v-model="videoTextVisible" title="选择视频资源" ok-text="确认" cancel-text="取消" width="600px" @ok="submitResourcesVideo">
+      <!-- 选择名片 -->
+      <a-modal v-model="nameCardTextVisible" :title="$t('user.businessCardResources')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="600px" @ok="submitResourcesNameCard">
+        <a-table :columns="columnsResource" :data-source="nameCardData" :row-key="record => record.id" :row-selection="{onChange:onSelectChangeNameCard ,selectedRowKeys: selectedRowNameCard}" class="tableLimit" :scroll="{ x:550 }" :bordered="true" :pagination="false">
+          <templete v-for="(item, index) in columnsResource" :key="index" :slot="item.slotName">
+            <span>{{$t(item.slotName)}}</span>
+          </templete>
+          <span slot="created_at" slot-scope="text, row">
+            {{ new Date(row.created_at) | getTime }}
+          </span>
+        </a-table>
+        <div class="page">
+          <a-pagination :show-total="(nameCardTotal, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${nameCardTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :total="nameCardTotal" :current="dataForm.page" @change="nameCardChange" @showSizeChange="nameCardSizeChange">
+            <template slot="buildOptionText" slot-scope="props">
+              <span>{{ props.value }}条/页</span>
+            </template>
+          </a-pagination>
+        </div>
+      </a-modal>
+      <!-- 选择视频资源 -->
+      <a-modal v-model="videoTextVisible" :title="$t('user.videoResource')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="600px" @ok="submitResourcesVideo">
+        <templete v-for="(item, index) in columnsResource" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <a-table :columns="columnsResource" :data-source="nameCardData" :row-key="record => record.id" :row-selection="{onChange:onSelectChangeVideo, selectedRowKeys: selectedRowVideo}" class="tableLimit" :scroll="{ x:550 }" :bordered="true" :pagination="false">
           <span slot="created_at" slot-scope="text, row">
             {{ new Date(row.created_at) | getTime }}
           </span>
         </a-table>
         <div class="page">
-          <a-pagination :show-total="(videoTotal, range) => `${range[0]}-${range[1]} 条，总数:${videoTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :total="videoTotal" :current="videoForm.page" @change="videoChange" @showSizeChange="videoSizeChange">
+          <a-pagination :show-total="(videoTotal, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${videoTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :total="videoTotal" :current="videoForm.page" @change="videoChange" @showSizeChange="videoSizeChange">
             <template slot="buildOptionText" slot-scope="props">
               <span>{{ props.value }}条/页</span>
             </template>
           </a-pagination>
         </div>
       </a-modal>
-      <a-modal v-model="resourcesTextVisible" title="选择资源模板" ok-text="确认" cancel-text="取消" width="600px" @ok="submitResourcesText">
+      
+      <a-modal v-model="resourcesTextVisible" :title="$t('user.resourceTemplate')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="600px" @ok="submitResourcesText">
         <a-table :columns="columnsResource" :data-source="ResourceData" :row-key="record => record.id" :row-selection="{onChange:onSelectChange,type:'radio'}" class="tableLimit" :scroll="{ x:550 }" :bordered="true" :pagination="false">
+          <templete v-for="(item, index) in columnsResource" :key="index" :slot="item.slotName">
+            <span>{{$t(item.slotName)}}</span>
+          </templete>
           <span slot="created_at" slot-scope="text, row">
             {{ new Date(row.created_at) | getTime }}
           </span>
@@ -219,7 +263,7 @@ import mixin from './mixin/mixin'
 import { columns } from './mixin/mixin'
 import * as api from '@/api/index'
 // 防抖动
-function debounce(func, wait=1000){
+function debounce(func, wait=2000){
  let timeout;
  return function(event){
   clearTimeout(timeout)
@@ -229,14 +273,16 @@ function debounce(func, wait=1000){
  }
 }
 const columnsResource = [{
-  title: '资源名称',
+  // title: '资源名称',
+  slotName: 'admin.resource',
   dataIndex: 'name',
   width: '80px',
   align: 'center',
-  scopedSlots: { customRender: 'name' }
+  scopedSlots: { customRender: 'name', title:'admin.resource' }
 },
 {
-  title: '资源内容',
+  // title: '资源内容',
+  slotName: 'admin.resourceContent',
   dataIndex: 'data',
   width: '80px',
   ellipsis: true,
@@ -244,14 +290,15 @@ const columnsResource = [{
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   },
-  scopedSlots: { customRender: 'data' }
+  scopedSlots: { customRender: 'data', title:'admin.resourceContent' }
 },
 {
-  title: '创建时间',
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
   dataIndex: 'created_at',
   width: '80px',
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
 },
 ]
 export default {
@@ -299,7 +346,7 @@ export default {
       value.forEach(item => {
         if (item.value === '') {
           isOk = false
-          callback(new Error('请检查是否有为空的值'))
+          // callback(new Error('请检查是否有为空的值'))
         }
       })
       if (isOk) callback()
@@ -320,20 +367,28 @@ export default {
         // 4: 'is_not_null_image',
         5: 'is_not_null_name_card'
       },
-      type: 1,
+      type: 5,
       total: 0,
       columns: [],
       resources: true,
+      loading: false,
       form: {
         type: 3,
         executive_group: '',
         executives: '',
-        intervals: 5,
+        // intervals: 5,
+        max: 3,
+        min: 10,
         card_text: '',
         video_text: '',
         remark: '',
         region: '',
         send_all: false,
+        send_start_cursor: 1,
+        send_end_cursor: 0,
+        // 文本外链
+        // tips: '',
+        bookText: '',
         video: [{ value: '' }]
       },
       resourceType: '',
@@ -343,7 +398,9 @@ export default {
       resourcesTextVisible: false,
       nameCardTextVisible: false,
       videoTextVisible: false,
+      bookTextVisible: false,
       nameCardData: [],
+      bookTextData: [],
       dataForm: {
         page: 1,
         page_size: 10,
@@ -354,10 +411,18 @@ export default {
         page_size: 10,
         order_created_at: true
       },
+      bookTextForm: {
+        page: 1,
+        page_size: 10,
+        order_created_at: true
+      },
       nameCardTotal: 0,
       videoTotal: 0,
+      bookTextTotal: 0,
       selectedRowKeys: [],
       selectedRowNameCard: [],
+      selectedRowBookText: [],
+      valueBookText: [],
       valueNameCard: [],
       selectedRowVideo: [],
       valueVideo: [],
@@ -388,10 +453,10 @@ export default {
           { required: true },
           { validator: checkNum, trigger: 'change' }
         ], */
-        region: [
+        /* region: [
           { required: true },
           { validator: checkRegion, trigger: 'blur' }
-        ]
+        ] */
       },
       rich_text_index: 0,
       rich_text_form: {
@@ -466,8 +531,13 @@ export default {
           if (this.validateForm()) return
           const form = {}
           form.type = 4
-          form.intervals = this.form.intervals === '' ? 5 : Number(this.form.intervals)
+          // form.intervals = this.form.intervals === '' ? 5 : Number(this.form.intervals)
+          form.max = this.form.max === '' ? 5 : Number(this.form.max)
+          form.min = this.form.min === '' ? 5 : Number(this.form.min)
           if(this.type === 1) {
+            if(this.form.video_text[0].value === '') {
+              this.form.video_text = null
+            }
             form.text = this.form.video_text
             this.type = 1
           }
@@ -485,7 +555,8 @@ export default {
             }
             this.type = 5
           }
-          
+          // form.tips = this.computeArr(this.form.tips)
+          form.tips = null
           form.video = this.computeArr(this.form.video)
           form.rich_text = this.computeArr(this.form.rich_text)
           form.image = this.computeArr(this.form.image)
@@ -493,6 +564,10 @@ export default {
           // form.number = this.form.number === '' ? 0 : Number(this.form.number)
           form.region = this.form.region === '' ? '' : this.form.region
           form.send_all = this.form.send_all
+          form.send_start_cursor = this.form.send_start_cursor
+          form.send_end_cursor = this.form.send_end_cursor
+          // console.log(form)
+          this.loading = true
           this.postTask(form)
         }
       })
@@ -521,7 +596,7 @@ export default {
           form.image = this.computeArr(this.form.image)
           form.name_card = this.computeArr(this.form.name_card)
           // form.number = this.form.number === '' ? 0 : Number(this.form.number)
-          form.region = this.form.region === '' ? '' : this.form.region
+          // form.region = this.form.region === '' ? '' : this.form.region
           form.send_all = this.form.send_all
           this.postTask(form)
         }
@@ -570,68 +645,18 @@ export default {
           return this.form.video_text.push(item)
         })
       }
-      /* if(this.form.text[0].value === '') {
-        if(this.type === 2) {
-          this.form.text = []
-          this.form.text = valueas[0].data
-          console.log(this.form.text)
-          this.form.text =this.form.text.map( item=> {
-            return { value: valueas[0].data}
-          })
-        }
-      } else {
-        console.log(this.form.text)
-        let objvalue = {
-          value: valueas[0].data
-        }
-        console.log(objvalue)
-        this.form.text.push(objvalue)
-        console.log(this.form.text)
-        console.log(objvalue)
-      } */
     },
     onSelectChangeNameCard(selectedRowKeys, value) {
       this.selectedRowNameCard = []
       this.valueNameCard = []
       this.selectedRowNameCard = selectedRowKeys
       this.valueNameCard = value
-/*       this.valueList = []
-      this.selectedRowKeys = []
-      this.valueList = value
-      let valueas = this.valueList */
-      /* this.form.name_card = []
-      value.map(item => {
-        item.data.map(items => {
-          this.form.name_card.push({ value: items})
-        })
-      })
-      value.forEach(item => {
-        this.valueList.push(item)
-      })
-      selectedRowKeys.forEach(item => {
-        this.selectedRowKeys.push(item)
-      }) */
       this.form.name_card = []
       this.valueNameCard.map(item => {
         item.data.map(items => {
           return this.form.name_card.push({ value: items})
         })
       })
-      /* let valueas = value
-      if(this.form.name_card[0].value === '') {
-        this.form.name_card = []
-        valueas[0].data.map(item => {
-          return this.form.name_card.push({ value: item})
-        })
-      } else {
-        valueas[0].data.map(item => {
-           let nameCard = this.form.name_card
-           nameCard.push({ value: item})
-           let nameCardList = nameCard.filter(word => word.value != '')
-           this.form.name_card = nameCardList
-        })
-      }
-      this.form.name_card = this.this.form.name_card.filter(word => word.value != '') */
     },
     submitResourcesNameCard() {
       this.nameCardTextVisible = false
@@ -651,21 +676,6 @@ export default {
           return this.form.video.push({ value: items})
         })
       })
-      /* let valueas = value
-      if(this.form.video[0].value === '') {
-        this.form.video = []
-        valueas[0].data.map(item => {
-          return this.form.video.push({ value: item})
-        })
-      } else {
-        valueas[0].data.map(item => {
-           let video = this.form.video
-           video.push({ value: item})
-           let videoList = video.filter(word => word.value != '')
-           this.form.video = videoList
-        })
-      }
-      this.form.video = this.this.form.video.filter(word => word.value != '') */
     },
     submitResourcesVideo() {
       this.videoTextVisible = false
@@ -713,6 +723,8 @@ export default {
       this.form.name_card = [{ value: '' }]
       this.form.card_text = [{ value: '' }]
       this.form.video_text = [{ value: '' }]
+      // this.form.tips = [{ value: '' }]
+      
     },
     changeFormSelectFslse(value) {
       this.form.send_all = value
@@ -723,7 +735,9 @@ export default {
       this.form.type = 3
       this.form.executive_group = ''
       this.form.executives = ''
-      this.form.intervals = 5
+      // this.form.intervals = 5
+      this.form.max = 10
+      this.form.min = 3
       this.form.remark = ''
       this.form.region = ''
       this.form.send_all = false
@@ -731,6 +745,42 @@ export default {
       this.form.name_card = [{ value: '' }]
       this.form.card_text = [{ value: '' }]
       this.form.video_text = [{ value: '' }]
+      // this.form.tips = [{ value: '' }]
+    },
+    // 外链文本
+    bookTextResources() {
+      this.bookTextVisible = true
+      let form  = {}
+      form.type = 8
+      form.page = this.bookTextForm.page
+      form.page_size = this.bookTextForm.page_size
+      form.order_created_at = true
+      api.getResourceUser(form).then(res => {
+        if(res.code === 0) {
+          this.bookTextData = res.data.data
+          this.bookTextTotal = res.data.count
+        }
+      }).catch(err => {
+        this.$message.error(err.msg)
+      })
+    },
+    // 选择 文本外链
+    onSelectChangeBookText(selectedRowKeys, value) {
+      this.selectedRowBookText = []
+      this.valueBookText = []
+      this.selectedRowBookText = selectedRowKeys
+      this.valueBookText = value
+
+      this.form.tips = []
+      console.log(this.valueBookText)
+      this.valueBookText.map(item => {
+        item.data.map(items => {
+          return this.form.tips.push({ value: items})
+        })
+      })
+    },
+    submitResourcesBookText() {
+      this.bookTextVisible = false
     },
     // 选择视频
     tiktokParseVideo() {
@@ -816,6 +866,15 @@ export default {
       this.dataForm.page_size = s
       this.tiktokParseNameCard()
     },
+    bookTextChange(page) {
+      this.bookTextForm.page = page
+      this.bookTextResources()
+    },
+    bookTextSizeChange(p , s) {
+      this.bookTextForm.page = p
+      this.bookTextForm.page_size = s
+      this.bookTextResources()
+    },
     videoChange(page) {
       this.videoForm.page = page
       this.tiktokParseNameCard()
@@ -846,7 +905,7 @@ export default {
       this.getColums(value)
       this.init()
     },
-    getColums(value = 1) {
+    getColums(value = 5) {
       this.columns = []
       columns.forEach(item => {
         if (!item.type.includes(2)) {
@@ -864,6 +923,12 @@ export default {
       })
     },
     handleAddRichText() {
+      let avatarA = this.rich_text_form.avatar.match(/(\S*)~/)[1].replace('-sign-','-amd-')
+      let jpg = this.rich_text_form.avatar.match(/_(\S*)jpeg/)[0].replace('_', '').replace('x',':')
+      this.rich_text_form.avatar = avatarA+ '~tplv-tiktok-shrink:'+jpg
+
+      // console.log(this.rich_text_form)
+      
       this.$refs['rich_text_form'].validate(async valid => {
         if (valid) {
           this.form.rich_text[this.rich_text_index].value = JSON.stringify(this.rich_text_form)

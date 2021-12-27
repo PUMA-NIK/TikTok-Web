@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'Tik Tok任务后台管理',
+  title: '水母数据任务后台管理',
 
   /**
    * @type {boolean} true | false

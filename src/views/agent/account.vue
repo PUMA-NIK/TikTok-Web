@@ -5,8 +5,8 @@
         <!-- <a-form-item label="账号UID">
           <a-input v-model="searchData.unique_id" placeholder="账号UID" allow-clear />
         </a-form-item> -->
-        <a-form-item label="昵称">
-          <a-input v-model="searchData.nickname" placeholder="请输入昵称" allow-clear />
+        <a-form-item :label="this.$t('agent.nickname')">
+          <a-input v-model="searchData.nickname" :placeholder="this.$t('agent.enterNickname')" allow-clear />
         </a-form-item>
         <!-- <a-form-item label="id">
           <a-input v-model="searchData.id" placeholder="请输入id" allow-clear />
@@ -20,8 +20,9 @@
           </a-select>
         </a-form-item> -->
 
-          <a-button type="primary" style="margin-left: 10px;width:88px" @click="init()">查询</a-button>
-          <a-button type="primary" style="margin-left: 10px" @click="assign">分配到用户</a-button>
+          <a-button type="primary" style="margin-left: 10px;width:88px" @click="init()">{{ $t('agent.inquire') }}</a-button>
+          <a-button type="primary" style="margin-left: 10px" @click="assign">{{ $t('agent.AssignUser') }}</a-button>
+          <a-button type="danger" style="margin-left:10px;" v-if="this.form.account_list.length > 0" @click="deleteUpdate">{{$t('dealer.batchDeletion')}}</a-button>
           <!-- <a-button type="primary" style="margin-left: 10px" @click="view">购买账号</a-button> -->
           <!-- <a-button type="primary" style="margin-left: 10px" @click="checkAccount()">查看封禁账号</a-button> -->
           <!-- 新增 绑定IP设备 取消 -->
@@ -50,8 +51,12 @@
         </a-form-item>
       </a-form>
     </div>
+    <p v-if="this.form.account_list.length > 0">{{$t('dealer.accountSelected')}}：{{this.form.account_list.length}}</p>
     <div class="table-box">
-      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :row-selection="{selectedRowKeys: form.account_list ,onChange: rowSelection}" :bordered="true" :pagination="false">
+      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x: 1200}" :row-selection="{selectedRowKeys: form.account_list ,onChange: rowSelection}" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{ $t(item.slotName) }}</span>
+        </templete>
         <span slot="avatar" slot-scope="text, row ">
           <a-badge v-if="row.id == bundle_id" color="#87d068">
             <a-avatar :src="row.avatar" />
@@ -82,8 +87,8 @@
           <!-- 新增修改资料页面   修改资料页面 绑定IP设备 -->
           <!-- <a-button v-if="role == 0 || role == 1" style="margin-left: 10px" @click="openRunInfo(row.id)">修改资料</a-button> -->
 
-          <a-popconfirm title="是否删除？此操作会导致账号无法添加到后台，仅用于账号被封禁的情况下！！！" ok-text="是" cancel-text="否" @confirm="handleDelete(row.id)">
-            <a-button style="margin-left: 10px" type="danger">删除</a-button>
+          <a-popconfirm :title="$t('admin.deleteOrNot')" :ok-text="$t('admin.Yes')" :cancel-text="$t('admin.No')" @confirm="handleDelete(row.id)">
+            <a-button style="margin-left: 10px" type="danger">{{$t('admin.delete')}}</a-button>
           </a-popconfirm>
         </span>
       </a-table>
@@ -95,37 +100,8 @@
           </a-form-item>
         </a-form>
       </a-modal>
-
-
-      <a-modal v-model="nicknameDialogAccount" title="修改昵称" width="500px" ok-text="确认" cancel-text="取消" @ok="changeAccountNickname">
-        <a-form ref="account_form" :model="changeAccountForm" :label-col="{ span:4 }" :wrapper-col="{ span: 20 }">
-          <a-form-item label="昵称">
-            <a-textarea v-model="changeAccountForm.account_nickname" :rows="4"/>
-          </a-form-item>
-        </a-form>
-      </a-modal>
-
-      
-      <a-modal v-model="signatureDialogAccount" title="修改个签" width="500px" ok-text="确认" cancel-text="取消" @ok="changeAccountSignature">
-        <a-form ref="account_form" :model="changeAccountForm" :label-col="{ span:4 }" :wrapper-col="{ span: 20 }">
-          <a-form-item label="个签">
-            <a-textarea v-model="changeAccountForm.account_signale" :rows="4"/>
-          </a-form-item>
-        </a-form>
-      </a-modal>
-
-      <a-modal v-model="headImgDialogAccount" title="修改头像" width="500px" ok-text="确认" cancel-text="取消" @ok="changeAccountHeadImg">
-        <a-form ref="account_form" :model="changeAccountForm" :label-col="{ span:4 }" :wrapper-col="{ span: 20 }">
-          <a-form-item label="头像">
-            <a-textarea v-model="changeAccountForm.account_headimg" :rows="4"/>
-          </a-form-item>
-        </a-form>
-      </a-modal>
-
-
-
       <!-- <group :dialog-group-id="dialogGroupId" @getGroupId="getGroupId" @cancelGetGroupId="dialogGroupId = false" /> -->
-      <user v-if="dialogUserId" @getGroupId="assignNewUser" @cancelGetGroupId="dialogUserId = false" />
+      <user v-if="dialogUserId" @getGroupId="assignNewUser" :assignLoading='assignLoading' @cancelGetGroupId="dialogUserId = false" />
 
       <div class="page">
         <!-- <YsMyPage :total="total" :size="10" @handlePage="handleCurrentChange" /> -->
@@ -199,54 +175,66 @@ const runInfocolumns = [{
 }]
 
 const columns = [{
-  title: '头像',
+  // title: '头像',
+  slotName: 'agent.profilePhoto',
   dataIndex: 'avatar',
   align: 'center',
-  width: '80px',
-  scopedSlots: { customRender: 'avatar' }
+  width: '200px',
+  scopedSlots: { customRender: 'avatar', title: 'agent.profilePhoto' }
 },
 {
-  title: '个签',
+  // title: '个签',
+  slotName: 'agent.personalizedSignature',
   dataIndex: 'signature',
-  width: '90px',
-  ellipsis: true,
-  align: 'center'
-},
-{
-  title: '帖子数量',
-  dataIndex: 'posts_number',
-  width: '90px',
-  ellipsis: true,
-  align: 'center'
-},
-{
-  title: '关注人数',
-  dataIndex: 'follow_number',
-  width: '90px',
-  ellipsis: true,
-  align: 'center'
-},
-{
-  title: '好友数量',
-  dataIndex: 'friends_number',
-  width: '90px',
-  ellipsis: true,
-  align: 'center'
-},
-{
-  title: '创建时间',
-  dataIndex: 'created_at',
-  width: '90px',
+  width: '100',
   ellipsis: true,
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'signature', title: 'agent.personalizedSignature' }
 },
 {
-  title: '操作',
+  // title: '帖子数量',
+  slotName: 'agent.posts',
+  dataIndex: 'posts_number',
+  width: '200px',
+  ellipsis: true,
+  align: 'center',
+  scopedSlots: { customRender: 'posts_number', title: 'agent.posts' }
+},
+{
+  // title: '关注人数',
+  slotName: 'agent.numberFollowers',
+  dataIndex: 'follow_number',
+  width: '200px',
+  ellipsis: true,
+  align: 'center',
+  scopedSlots: { customRender: 'follow_number', title: 'agent.numberFollowers' }
+},
+{
+  // title: '好友数量',
+  slotName: 'agent.NumberFriends',
+  dataIndex: 'friends_number',
+  width: '200px',
+  ellipsis: true,
+  align: 'center',
+  scopedSlots: { customRender: 'friends_number', title: 'agent.NumberFriends' }
+},
+{
+  // title: '创建时间',
+  slotName: 'agent.createTime',
+  dataIndex: 'created_at',
+  width: '200px',
+  ellipsis: true,
+  align: 'center',
+  scopedSlots: { customRender: 'created_at', title: 'agent.createTime' }
+},
+{
+  // title: '操作',
+  slotName: 'agent.operation',
   dataIndex: 'action',
   align: 'center',
-  width: '120px',
-  scopedSlots: { customRender: 'action' }
+  width: '200px',
+  fixed: 'right',
+  scopedSlots: { customRender: 'action', title: 'agent.operation' }
 }]
 export default {
   components: {
@@ -314,7 +302,8 @@ export default {
       port_id: null,
       ModalText: '',
       visible: false,
-      confirmLoading: false
+      confirmLoading: false,
+      assignLoading: false, //分配用户 按钮确定
     }
   },
   async mounted() {
@@ -374,7 +363,7 @@ export default {
       selectedRowKeys.forEach(item => {
         this.form.account_list.push(item)
       })
-      console.log(selectedRowKeys)
+      // console.log(selectedRowKeys)
     },
     // 查看封禁账号
     checkAccount() {
@@ -463,6 +452,7 @@ export default {
         return
       }
       this.dialogUserId = false
+      this.assignLoading = true
 
       const data = {
         list: this.form.account_list,
@@ -473,6 +463,7 @@ export default {
       api.postAgentAcountAssign(data).then((res) => {
         if (res.code === 0) {
           this.form.account_list = []
+          this.assignLoading = false
           this.getTableData()
         } else {
           this.form.account_list = []
@@ -485,7 +476,7 @@ export default {
         this.$message.error('请先选择要添加的账号')
         return
       }
-      console.log(this.form.account_list.join(','))
+      // console.log(this.form.account_list.join(','))
       var downloadParamsList = []
       for (var i = 0; i < this.form.account_list.length; i++) {
         var dataTemp = 'id=' + this.form.account_list[i]
@@ -534,6 +525,21 @@ export default {
         } else {
           message.error(res.data.message)
         }
+      })
+    },
+    // 批量删除
+    
+    deleteUpdate() {
+      let form = {}
+      form.list = this.form.account_list
+      api.postAgentAccountDel(form).then(res => {
+        if(res.code === 0) {
+          this.form.account_list = []
+          this.$message.success('删除成功')
+          this.getTableData()
+        }
+      }).catch(err => {
+        this.$message.error(err.msg)
       })
     },
     openRunInfo(accountId){
@@ -624,47 +630,6 @@ export default {
         if (res.code === 0) {
           this.dialogAccount = false
         }
-      }
-    },
-    async changeAccountNickname() {
-      var dataList = this.changeAccountForm.account_nickname.split('\n')
-      // console.log(dataList)
-      var changeAccountParam = {
-        List: this.form.account_list,
-        Param: dataList
-      }
-      const res = await api.setAccountNickname(changeAccountParam)
-      if (res.code === 0) {
-        this.nicknameDialogAccount = false
-        this.init()
-      }
-    },
-    async changeAccountSignature() {
-      var dataList = this.changeAccountForm.account_signale.split('\n')
-      console.log(dataList)
-      var changeAccountParam = {
-        List: this.form.account_list,
-        Param: dataList
-      }
-
-      const res = await api.setAccountSignature(changeAccountParam)
-      if (res.code === 0) {
-        this.nicknameDialogAccount = false
-        this.init()
-      }
-    },
-    async changeAccountHeadImg() {
-      var dataList = this.changeAccountForm.account_headimg.split('\n')
-      console.log(dataList)
-      var changeAccountParam = {
-        List: this.form.account_list,
-        Param: dataList
-      }
-
-      const res = await api.setAccountAvatar(changeAccountParam)
-      if (res.code === 0) {
-        this.nicknameDialogAccount = false
-        this.init()
       }
     },
     async handRandom() {

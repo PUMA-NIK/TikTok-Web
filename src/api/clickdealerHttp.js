@@ -21,7 +21,7 @@ axios.interceptors.response.use(
     return response
   },
   error => {
-    console.log(error)
+    // console.log(error)
     return Promise.reject(error)
   }
 )
@@ -121,7 +121,7 @@ function prompt(type, url) {
 }
 
 function convertRes2Blob(response) {
-  console.log(response)
+  // console.log(response)
   // 提取文件名
 
   const fileName = response.headers['content-disposition'].match(

@@ -2,72 +2,77 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="用户名">
-          <a-input v-model="searchData.username" style="150px" placeholder="用户名" allow-clear />
+        <a-form-item :label="this.$t('admin.username')">
+          <a-input v-model="searchData.username" style="150px" :placeholder="this.$t('admin.username')" allow-clear />
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" icon="search" @click="init()">查询</a-button>
-          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="add">新增</a-button>
+          <a-button type="primary" icon="search" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
+          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="add">{{this.$t('admin.Add')}}</a-button>
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
-      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x: 1500}" :bordered="true" :pagination="false">
+      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x: 1200}" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="status" slot-scope="text, row">
-          {{ row.status == 0 ? '正常' : '封禁' }}
+          {{ row.status == 0 ? $t('admin.normal') : $t('admin.Ban') }}
+        </span>
+        <span slot="created_at" slot-scope="text, row">
+          {{ new Date(row.created_at) | getTime }}
         </span>
         <span slot="role" slot-scope="text, row ">
           {{ row.role | getRole }}
         </span>
         <span slot="action" slot-scope="text, row">
-            <a-button style="margin-left:10px" type="primary" @click="edit(row)">编辑</a-button>
-          <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="del(row.id)">
-            <a-button style="margin-left:10px" type="danger">删除用户</a-button>
+            <a-button style="margin-left:10px" type="primary" @click="edit(row)">{{$t('admin.edit')}}</a-button>
+          <a-popconfirm :title="$t('admin.delete')" ok-text="Yes" cancel-text="No" @confirm="del(row.id)">
+            <a-button style="margin-left:10px" type="danger">{{$t('admin.delete')}}</a-button>
           </a-popconfirm>
         </span>
       </a-table>
 
-      <a-modal v-model="dialogVisible" title="新增用户" ok-text="确认" cancel-text="取消" @ok="addUser">
+      <a-modal v-model="dialogVisible" :title="this.$t('admin.newUsers')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="addUser">
         <a-form-model ref="form" layout="horizontal" :model="form" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="选择角色" prop="role">
-            <a-select v-model="form.role" placeholder="请选择角色">
-              <a-select-option :value="4">客服</a-select-option>
+          <a-form-model-item :label="this.$t('admin.role')" prop="role">
+            <a-select v-model="form.role" :placeholder="this.$t('admin.role')">
+              <a-select-option :value="4">{{$t('admin.customerService')}}</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="用户名" prop="username">
-            <a-input v-model="form.username" />
+          <a-form-model-item :label="this.$t('admin.username')" prop="username">
+            <a-input v-model="form.username" oninput="value=value.replace(/[^\w\/]/ig,'')"/>
           </a-form-model-item>
-          <a-form-model-item label="密码" prop="password">
-            <a-input v-model="form.password" />
+          <a-form-model-item :label="this.$t('admin.password')" prop="password">
+            <a-input-password v-model="form.password" type="password" oninput="value=value.replace(/[^\w\/]/ig,'')"/>
           </a-form-model-item>
-          <a-form-model-item label="邮箱">
+          <a-form-model-item :label="this.$t('admin.Mail')">
             <a-input v-model="form.email" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
 
 
-      <a-modal v-model="modifyDialogVisible" title="修改用户" ok-text="确认" cancel-text="取消" @ok="editUser">
+      <a-modal v-model="modifyDialogVisible" :title="this.$t('admin.modifyUser')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="editUser">
         <a-form-model ref="edit_form" layout="horizontal" :model="modifyForm"  :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="选择角色">
-            <a-select v-model="modifyForm.role" placeholder="请选择角色">
-              <a-select-option :value="4">客服</a-select-option>
+          <a-form-model-item :label="this.$t('admin.role')">
+            <a-select v-model="modifyForm.role" :placeholder="this.$t('admin.role')">
+              <a-select-option :value="4">{{$t('admin.customerService')}}</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="选择状态">
-            <a-select v-model="modifyForm.status" placeholder="请选择状态">
-              <a-select-option :value="1">封禁</a-select-option>
-              <a-select-option :value="0">正常</a-select-option>
+          <a-form-model-item :label="this.$t('admin.state')">
+            <a-select v-model="modifyForm.status" :placeholder="this.$t('admin.state')">
+              <a-select-option :value="1">{{$t('admin.Ban')}}</a-select-option>
+              <a-select-option :value="0">{{$t('admin.normal')}}</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="重置密码">
-            <a-input
-              v-model="modifyForm.password" type="password"/>
+          <a-form-model-item :label="this.$t('admin.password')">
+            <a-input-password v-model="modifyForm.password" type="password" oninput="value=value.replace(/[^\w\/]/ig,'')"/>
           </a-form-model-item>
         </a-form-model>
       </a-modal>
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} ，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
@@ -81,75 +86,77 @@ import * as api from '@/api/index'
 import user from '@/components/user/user'
 import { number } from 'echarts'
 const columns = [{
-  title: '用户名',
+  // title: '用户名',
+  slotName: 'admin.username',
   dataIndex: 'username',
   width: '200px',
   align: 'center',
-  scopedSlots: { customRender: 'username' }
+  scopedSlots: { customRender: 'username', title:'admin.username' }
 }, {
-  title: '状态',
+  // title: '状态',
+  slotName: 'admin.state',
   dataIndex: 'status',
   width: '200px',
   align: 'center',
-  scopedSlots: { customRender: 'status' }
-}, {
-  title: '角色',
+  scopedSlots: { customRender: 'status', title:'admin.state' }
+},
+{
+  // title: '角色',
+  slotName: 'admin.role',
   dataIndex: 'role',
   width: '200px',
   align: 'center',
-  role: [1],
-  scopedSlots: { customRender: 'role' }
+  scopedSlots: { customRender: 'role', title:'admin.role' }
 },
 {
-  title: '等级',
-  dataIndex: 'agent_level',
-  width: '100',
-  align: 'center',
-  scopedSlots: { customRender: 'agent_level' }
-},
-{
-  title: '邮箱',
+  // title: '邮箱',
+  slotName: 'admin.Mail',
   dataIndex: 'email',
   width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'email' }
-},
- {
-  title: '积分',
-  dataIndex: 'points',
-  width: '200px',
-  align: 'center',
-  scopedSlots: { customRender: 'points' }
+  scopedSlots: { customRender: 'email', title:'admin.Mail' }
 },
 {
-  title: '操作',
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
+  dataIndex: 'created_at',
+  width: '100',
+  align: 'center',
+  scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
+},
+{
+  // title: '操作',
+  slotName: 'admin.operate',
   dataIndex: 'action',
-  width: '550px',
+  width: '300px',
   align: 'center',
   fixed: 'right',
-  scopedSlots: { customRender: 'action' }
+  scopedSlots: { customRender: 'action', title:'admin.operate' }
 }]
 const columnsAgency = [
 {
-  title: '代理用户名',
+  // title: '代理用户名',
+  slotName: 'admin.proxyUsername',
   dataIndex: 'username',
   width: '80px',
   align: 'center',
-  scopedSlots: { customRender: 'username' }
+  scopedSlots: { customRender: 'username', title:'admin.proxyUsername' }
 },
 {
-  title: '代理密码',
+  // title: '代理密码',
+  slotName: 'admin.proxypassword',
   dataIndex: 'password',
   width: '80px',
   align: 'center',
-  scopedSlots: { customRender: 'password' }
+  scopedSlots: { customRender: 'password', title:'admin.proxypassword' }
 },
 {
-  title: '创建时间',
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
   dataIndex: 'created_at',
   width: '100px',
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
 },
 ]
 export default {
@@ -228,7 +235,7 @@ export default {
       if (value === 1) return '管理员'
       if (value === 2) return '代理商'
       if (value === 3) return '号商'
-      if (value === 4) return '号商'
+      if (value === 4) return '客服'
     }
   },
   mounted() {

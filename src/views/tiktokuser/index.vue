@@ -3,50 +3,52 @@
     <!-- <tag @getTagId="getTagId" /> -->
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="地区">
-          <a-input v-model="searchData.region" style="width:150px" placeholder="地区" allow-clear @blur="handleConvert" />
+        <a-form-item :label="this.$t('user.area')">
+          <a-input v-model="searchData.region" style="width:150px" :placeholder="this.$t('user.area')" allow-clear @blur="handleConvert" />
         </a-form-item>
         <!-- <a-form-item label="语言">
           <a-input v-model="searchData.language" style="width:150px" placeholder="语言" allow-clear />
         </a-form-item> -->
-        <a-form-item label="昵称">
-          <a-input v-model="searchData.nickname" style="width:150px" placeholder="昵称" allow-clear />
+        <a-form-item :label="this.$t('dealer.userNickname')">
+          <a-input v-model="searchData.nickname" style="width:150px" :placeholder="this.$t('dealer.userNickname')" allow-clear />
         </a-form-item>
         <a-form-item v-if="role == 1" label="uid">
           <a-input v-model="searchData.uid" style="width:150px" placeholder="uid" allow-clear />
         </a-form-item>
         <div v-if="role == 1" style="margin-top: 10px"></div>
-        <a-form-item label="用户名">
-          <a-input v-model="searchData.unique_id" style="width:150px" placeholder="用户名" allow-clear />
+        <a-form-item :label="this.$t('admin.username')">
+          <a-input v-model="searchData.unique_id" style="width:150px" :placeholder="this.$t('admin.username')" allow-clear />
         </a-form-item>
         <a-form-item v-if="role == 1" label="secID">
           <a-input v-model="searchData.sec_uid" style="width:150px" placeholder="secID" allow-clear />
         </a-form-item>
-        <a-form-item v-if="role == 1" label="排除使用过的账号">
+        <!-- <a-form-item v-if="role == 1" label="排除使用过的账号">
           <a-select v-model="searchData.exclude_user" style="width:150px" placeholder="排除使用过的账号">
             <a-select-option v-for="item in exclude_user_type" :key="item.value" :value="item.value">{{ item.label }}</a-select-option>
           </a-select>
-        </a-form-item>
+        </a-form-item> -->
         <a-form-item>
-          <a-button type="primary" @click="init()">查询</a-button>
-          <a-button type="primary" style="margin-left:10px" @click="add">关注</a-button> 
+          <a-button type="primary" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
+          <!-- <a-button type="primary" style="margin-left:10px" @click="add">{{this.$t('user.concern')}}</a-button>  -->
         </a-form-item>
       </a-form>
-      <span v-if="tiktok_user.length != 0">已选中：{{tiktok_user.length}}</span>
+      <span v-if="tiktok_user.length != 0">{{this.$t('user.chosen')}}：{{tiktok_user.length}}</span>
     </div>
     <div class="table-box">
-      <a-table :columns="columns" :loading="tableLoading" :scroll="{ y: 680 }" :data-source="tableData" :row-key="record => record.id" :row-selection="rowSelection" class="tableLimit" :bordered="true" :pagination="false">
+      <!-- <a-table :columns="columns" :loading="tableLoading" :scroll="{ y: 680,x: 1200 }" :data-source="tableData" :row-key="record => record.id" :row-selection="rowSelection" class="tableLimit" :bordered="true" :pagination="false"> -->
+      <a-table :columns="columns" :loading="tableLoading" :scroll="{ y: 680,x: 1200 }" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="head_img_url" slot-scope="text, row ">
           <a-avatar :src="row.head_img_url" />
           <p>{{ row.nickname }}</p>
         </span>
-        <span slot="is_blogger" slot-scope="text, row ">
-          {{ row.is_blogger ? '是' : '否' }}
-        </span>
       </a-table>
+      <!-- <addForm :dialog-visible="dialogVisible" :tiktok-user="tiktok_user" @closeForm="dialogVisible = false" @success="init" /> -->
       <addForm :dialog-visible="dialogVisible" :tiktok-user="tiktok_user" @closeForm="dialogVisible = false" @success="init" />
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100', '200', '500', '1000']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100', '200', '500', '1000']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
@@ -61,10 +63,11 @@ import * as api from '@/api/index'
 import addForm from './addForm'
 import tag from './tag'
 const columns = [{
-  title: '头像',
+  // title: '头像',
+  slotName: 'dealer.account',
   dataIndex: 'head_img_url',
   align: 'center',
-  scopedSlots: { customRender: 'head_img_url' }
+  scopedSlots: { customRender: 'head_img_url', title:'dealer.account' }
 },
 /* {
   title: '唯一id',
@@ -72,14 +75,18 @@ const columns = [{
   align: 'center'
 }, */
 {
-  title: '用户名',
+  // title: '用户名',
+  slotName: 'admin.username',
   dataIndex: 'unique_id',
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'unique_id', title:'admin.username' }
 },
 {
-  title: '地区',
+  // title: '地区',
+  slotName: 'user.area',
   dataIndex: 'region',
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'region', title:'user.area' }
 },
 /* {
   title: 'uid',
@@ -87,29 +94,41 @@ const columns = [{
   align: 'center'
 }, */
 {
-  title: '帖子数量',
+  // title: '帖子数量',
+  slotName: 'dealer.numberOfPosts',
   dataIndex: 'posts_numbe',
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'region', title:'dealer.numberOfPosts' }
 },
 {
-  title: '关注人数',
+  // title: '关注人数',
+  slotName: 'dealer.followers',
   dataIndex: 'follow_number',
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'region', title:'dealer.followers' }
 },
 {
-  title: '好友数量',
+  // title: '好友数量',
+  slotName: 'dealer.numberOfFriends',
   dataIndex: 'friends_number',
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'region', title:'dealer.numberOfFriends' }
 },
 {
-  title: '个性签名',
+  // title: '个性签名',
+  slotName: 'admin.signature',
   dataIndex: 'signature',
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'region', title:'admin.signature' }
 },
 {
-  title: '主页地址',
+  // title: '主页地址',
+  slotName: 'user.homepageAddress',
   dataIndex: 'share_url',
-  align: 'center'
+  align: 'center',
+  width: '300px',
+  fixed: 'right',
+  scopedSlots: { customRender: 'region', title:'user.homepageAddress' }
 }
 
 /* {

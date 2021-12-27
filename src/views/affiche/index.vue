@@ -2,65 +2,69 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="公告名称">
-          <a-input v-model="searchData.name" placeholder="公告名称" allow-clear />
+        <a-form-item :label="this.$t('admin.announcement')">
+          <a-input v-model="searchData.name" :placeholder="this.$t('admin.announcement')" allow-clear />
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" @click="init()">查询</a-button>
-          <a-button type="primary" style="margin-left:10px;" @click="addAffiche">新增</a-button>
+          <a-button type="primary" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
+          <a-button type="primary" style="margin-left:10px;" @click="addAffiche">{{this.$t('admin.Add')}}</a-button>
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
       <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="created_at" slot-scope="text, row">
           {{ new Date(row.created_at) | getTime }}
         </span>
         <span slot="action" slot-scope="text, row">
-          <a-button style="margin-left: 8px" type="primary" @click="view(row)">预览</a-button>
-          <a-button style="margin-left: 8px" type="primary" @click="addAffiche(row)">修改</a-button>
-          <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="handleDelete(row.id)">
-            <a-button style="margin-left: 8px" type="danger">删除</a-button>
+          <a-button style="margin-left: 8px" type="primary" @click="view(row)">{{$t('admin.preview')}}</a-button>
+          <a-button style="margin-left: 8px" type="primary" @click="addAffiche(row)">{{$t('admin.revise')}}</a-button>
+          <a-popconfirm :title="$t('admin.deleteOrNot')" :ok-text="$t('admin.Yes')" :cancel-text="$t('admin.No')" @confirm="handleDelete(row.id)">
+            <a-button style="margin-left: 8px" type="danger">{{$t('admin.delete')}}</a-button>
           </a-popconfirm>
         </span>
       </a-table>
 
-      <a-modal v-model="afficheListVisible" :title="afficheText" width="500px" ok-text="确认" cancel-text="取消" @ok="handleAffiche">
+      <a-modal v-model="afficheListVisible" :title="afficheText" width="500px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="handleAffiche">
         <a-form :model="form">
-          <a-form-item label="公告名称">
-            <a-input v-model="searchData.title" placeholder="公告名称" allow-clear />
+          <a-form-item :label="$t('admin.announcement')">
+            <a-input v-model="searchData.title" :placeholder="$t('admin.announcement')" allow-clear />
           </a-form-item>
-          <a-form-item label="公告信息">
+          <a-form-item :label="$t('admin.officialNews')">
             <div style="height:230px; overflow-y:auto;">
-              <a-textarea placeholder="请输入公告信息" v-model="searchData.content" :rows="10" :cols="10" />
+              <a-textarea :placeholder="$t('admin.officialNews')" v-model="searchData.content" :rows="10" :cols="10" />
             </div>
           </a-form-item>
         </a-form>
       </a-modal>
 
-      <a-modal v-model="dialogView" title="预览" width="50%" ok-text="确认" cancel-text="取消" @ok="handleEdit">
+      <a-modal v-model="dialogView" :title="$t('admin.preview')" width="50%" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="handleEdit">
         <div class="affiche">
           {{this.afficheList}}
         </div>
       </a-modal>
-      <div class="page">
+      <!-- <div class="page">
         <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
         </a-pagination>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
 
 <script>
 const columns = [{
-  title: '创建时间',
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
   dataIndex: 'created_at',
   width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
 },
 {
   title: '公告名称',
@@ -219,7 +223,7 @@ export default {
       }
     },
     async handleDelete(id) {
-      console.log(id)
+      // console.log(id)
       api.deletefnAdminPublish(id).then(res=> {
         if(res.code === 0) {
           this.init()
@@ -233,7 +237,7 @@ export default {
       this.init()
     },
     beforeUpload(file) {
-      console.log(file)
+      // console.log(file)
       // this.fileList = [...this.fileList, file]
       this.fileList = [file]
       return false

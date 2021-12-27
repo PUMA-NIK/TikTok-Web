@@ -3,141 +3,153 @@
     <a-row :gutter="16">
       <a-col :span="6">
         <div>
-          <a-col :span="24" style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  margin: 0px 0px 40px 0px;">
+          <a-col :span="24" style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  margin: 0px 0px 20px 0px;">
             <div>
               <a-col :span="10">
                 <div>
                   <p class="textColor">
                     <img src="../../assets/trafficIcon.svg">
-                    流量信息
+                    {{this.$t('admin.flowInformation')}}
                   </p>
-                  <p v-if="this.flow.second" class="describeText">总 流 量:{{this.flow.count}}</p>
-                  <p v-if="this.flow.second" class="describeText">已 使 用:{{this.flow.useing}}</p>
-                  <p v-if="this.flow.second" class="describeText">剩余流量:{{this.flow.second}}</p>
+                  <p style="margin: 10px 0 10px 0;" v-if="this.flow.second" class="describeText">{{this.$t('user.totalFlow')}}:{{this.flow.count+'M'}}</p>
+                  <p style="margin: 10px 0 10px 0;" v-if="this.flow.second" class="describeText">{{this.$t('user.used')}}:{{this.flow.useing+'M'}}</p>
+                  <p style="margin: 10px 0 10px 0;" v-if="this.flow.second" class="describeText">{{this.$t('user.remainingFlow')}}:{{this.flow.second+'M'}}</p>
                 </div>
               </a-col>
-              <a-col :span="14">
-                <div ref="traffic" class="traffic" style="width: 10vw; height: 10vw;"></div>
-                <div class="flowP" v-if="this.flow.second">
-                  <p style="width: 13px; height: 13px; background: #3598F1;border-radius: 10px;"></p><p style="padding-left: 10px;padding-right: 10px;">总 流 量</p>
-                  <p style="width: 13px; height: 13px; background: #FFA86D;border-radius: 10px;"></p><p style="padding-left: 10px">剩余流量</p>
-                </div>
-                <div class="homeBJ" v-if="!this.flow.second"></div>
+              <a-col :span="14" class="traffic">
+                <div ref="traffic" class="traffic" style="width: 100%; height: 25vh;"></div>
+                <!-- <div class="homeBJ" v-if="!this.flow.second" style="width: 100%; height: 350px;"></div> -->
               </a-col>
             </div>
           </a-col>
-          <a-col :span="24" style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  margin: 0px 0px 30px 0px;">
+          <a-col :span="24" style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  margin: 0px 0px 20px 0px;">
             <div>
               <a-col :span="10">
                 <div>
                   <p class="textColor">
-                    <img src="../../assets/portsIcon.svg">端口信息</p>
-                  <p v-if="this.port.good_count" class="describeText">端口总数:{{this.port.count}}</p>
-                  <p v-if="this.port.good_count" class="describeText">正常端口:{{this.port.good_count}}</p>
-                  <p v-if="this.port.good_count" class="describeText">即将过期:{{this.port.will_expire}}</p>
-                  <p v-if="this.port.good_count" class="describeText">已过期:{{this.port.is_expire}}</p>
+                    <img src="../../assets/portsIcon.svg">{{this.$t('user.portInformation')}}</p>
+                  <p style="margin: 10px 0 10px 0;" v-if="this.port.good_count" class="describeText">{{this.$t('admin.portNumber')}}:{{this.port.count}}</p>
+                  <p style="margin: 10px 0 10px 0;" v-if="this.port.good_count" class="describeText">{{this.$t('user.normalPort')}}:{{this.port.good_count}}</p>
+                  <p style="margin: 10px 0 10px 0;" v-if="this.port.good_count" class="describeText">{{this.$t('user.willExpire')}}:{{this.port.will_expire}}</p>
+                  <p style="margin: 10px 0 10px 0;" v-if="this.port.good_count" class="describeText">{{this.$t('user.expired')}}:{{this.port.is_expire}}</p>
                 </div>
               </a-col>
-              <a-col :span="14">
-                <div ref="ports" class="ports" style="width: 10vw; height: 24.5vh;"></div>
-                <div class="homeBJ" v-if="!this.port.good_count"></div>
+              <a-col :span="14" class="ports">
+                <div ref="ports" class="ports" style="width: 100%; height: 25vh;"></div>
+                <!-- <div class="homeBJ" v-if="!this.port.good_count" style="width: 100%; height: 300px"></div> -->
               </a-col>
             </div>
           </a-col>
         </div>
       </a-col>
       <a-col :span="18">
-        <div style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  margin: 0px 0px 30px 0px;">
+        <div style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  margin: 0px 0px 20px 0px;">
           <p class="textColor">
-            <img style="margin: 10px 0px 0px 20px;" src="../../assets/taskIcon.svg">任务信息</p>
-          <div ref="task" class="task" style="width: 100%; height: 44.2vh;"></div>
+            <img style="margin: 10px 0px 0px 20px;" src="../../assets/taskIcon.svg">{{this.$t('user.taskInformation')}}</p>
+          <div ref="task" class="task" style="width: 100%; height: 47vh;"></div>
           <div class="homeBJbar" v-if="!this.port.good_count"></div>
         </div>
       </a-col>
     </a-row>
     <a-row :gutter="16" align="bottom">
       <a-col :span="12" >
-        <div style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  width: 100%; height: 33vh;">
+        <div style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  width: 100%; height: 300px;">
           <p class="textColor">
-            <img style="margin: 10px 0px 0px 20px;" src="../../assets/attentionIcon.svg">关注任务信息</p>
+            <img style="margin: 10px 0px 0px 20px;" src="../../assets/attentionIcon.svg">{{this.$t('user.ConcernTask')}}</p>
             <div class="homeBJbar" v-if="!this.port.good_count"></div>
-          <div v-if="this.port.good_count">
-            <a-col :span="18">
-              <a-col class="describeText" :span="6">今日关注的总量：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">
-                <a-progress :stroke-color="'#3598F1'" :stroke-width="20" :percent="100" :format="() => ''" />
+          <div v-if="this.port.good_count" style="margin: 20px 0 10px 0;">
+            <a-col :span="24" class="progressHei">
+              <a-col class="describeText" :span="4">{{this.$t('user.followYesterday')}}：</a-col>
+              <a-col :span="14" style="margin:0 0 15px 0">
+                <a-progress :stroke-color="'#3598F1'" :stroke-width="16" :percent="100" :format="() => ''" />
               </a-col>
-              <a-col class="describeText" :span="6">今日关注成功量：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">
-                <a-progress :stroke-color="'#F86400'" :stroke-width="20" :percent="parseInt(this.taskFollow.today_success_count/this.taskFollow.today_count*100)" :format="() => ''" />
-              </a-col>
-              <a-col class="describeText" :span="6">今日关注失败量：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">
-                <a-progress :stroke-color="'#52c41a'" :stroke-width="20" :percent="parseInt(this.taskFollow.today_fail_count/this.taskFollow.today_count*100)"  :format="() => ''"/>
-              </a-col>
-              <a-col class="describeText" :span="6">关注任务的总量：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">
-                <a-progress :stroke-color="'#3598F1'" :stroke-width="20" :percent="100"  :format="() => ''"/>
-              </a-col>
-              <a-col class="describeText" :span="6">正在执行的任务：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">
-                <a-progress :stroke-color="'#F86400'" :stroke-width="20" :percent="parseInt(this.taskFollow.running_count/this.taskFollow.count*100)"  :format="() => ''"/>
-              </a-col>
-              <a-col class="describeText" :span="6">已经完成的任务：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">
-                <a-progress :stroke-color="'#52c41a'" :stroke-width="20" :percent="parseInt(this.taskFollow.over_count/this.taskFollow.count*100)"  :format="() => ''"/>
-              </a-col>
+              <a-col class="describeText" :span="6">{{this.$t('user.followYesterday')}}：{{this.taskFollow.today_count}}</a-col>
             </a-col>
-            <a-col :span="6">
-              <p class="taskFollowam">今日关注的总量：{{this.taskFollow.today_count}}</p>
-              <p class="taskFollowam">今日关注成功量：{{this.taskFollow.today_success_count}}</p>
-              <p class="taskFollowam">今日关注失败量：{{this.taskFollow.today_fail_count}}</p>
-              <p class="taskFollowam">关注任务的总量：{{this.taskFollow.count}}</p>
-              <p class="taskFollowam">正在执行的任务：{{this.taskFollow.running_count}}</p>
-              <p class="taskFollowam">已经完成的任务：{{this.taskFollow.over_count}}</p>
+            <a-col :span="24">
+              <a-col class="describeText" :span="4">{{this.$t('user.YesterdaySuccess')}}：</a-col>
+              <a-col :span="14" style="margin:0 0 15px 0">
+                <a-progress :stroke-color="'#F86400'" :stroke-width="16" :percent="parseInt(this.taskFollow.today_success_count/this.taskFollow.today_count*100)" :format="() => ''" />
+              </a-col>
+              <a-col class="describeText" :span="6">{{this.$t('user.YesterdaySuccess')}}：{{this.taskFollow.today_success_count}}</a-col>
+            </a-col>
+            <a-col :span="24">
+              <a-col class="describeText" :span="4">{{this.$t('user.careFailedYesterday')}}：</a-col>
+              <a-col :span="14" style="margin:0 0 15px 0">
+                <a-progress :stroke-color="'#52c41a'" :stroke-width="16" :percent="parseInt(this.taskFollow.today_fail_count/this.taskFollow.today_count*100)"  :format="() => ''"/>
+              </a-col>
+              <a-col class="describeText" :span="6">{{this.$t('user.careFailedYesterday')}}：{{this.taskFollow.today_fail_count}}</a-col>
+            </a-col>
+            <a-col :span="24">
+              <a-col class="describeText" :span="4">{{this.$t('user.totalAttention')}}：</a-col>
+              <a-col :span="14" style="margin:0 0 15px 0">
+                <a-progress :stroke-color="'#3598F1'" :stroke-width="16" :percent="100"  :format="() => ''"/>
+              </a-col>
+              <a-col class="describeText" :span="6">{{this.$t('user.totalAttention')}}：{{this.taskFollow.count}}</a-col>
+            </a-col>
+            <a-col :span="24">
+              <a-col class="describeText" :span="4">{{this.$t('user.beingExecuted')}}：</a-col>
+              <a-col :span="14" style="margin:0 0 15px 0">
+                <a-progress :stroke-color="'#F86400'" :stroke-width="16" :percent="parseInt(this.taskFollow.running_count/this.taskFollow.count*100)"  :format="() => ''"/>
+              </a-col>
+              <a-col class="describeText" :span="6">{{this.$t('user.beingExecuted')}}：{{this.taskFollow.running_count}}</a-col>
+            </a-col>
+            <a-col :span="24">
+              <a-col class="describeText" :span="4">{{this.$t('user.hasBeenCompleted')}}：</a-col>
+              <a-col :span="14" style="margin:0 0 15px 0">
+                <a-progress :stroke-color="'#52c41a'" :stroke-width="16" :percent="parseInt(this.taskFollow.over_count/this.taskFollow.count*100)"  :format="() => ''"/>
+              </a-col>
+              <a-col class="describeText" :span="6">{{this.$t('user.hasBeenCompleted')}}：{{this.taskFollow.over_count}}</a-col>
             </a-col>
           </div>
         </div>
       </a-col>
       <a-col :span="12">
-        <div style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px; width: 100%; height: 33vh;">
+        <div style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px; width: 100%; height: 300px;">
           <p class="textColor">
-            <img style="margin: 10px 0px 0px 20px;" src="../../assets/privateIcon.svg">私信任务信息</p>
+            <img style="margin: 10px 0px 0px 20px;" src="../../assets/privateIcon.svg">{{this.$t('user.privateMessageTask')}}</p>
             <div class="homeBJbar" v-if="!this.port.good_count"></div>
-          <div v-if="this.port.good_count">
-            <a-col :span="18">
-              <a-col class="describeText" :span="6">今日私信总数量：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">
-                <a-progress :stroke-color="'#3598F1'" :stroke-width="20" :percent="100" :format="() => ''"/>
+          <div v-if="this.port.good_count" style="margin: 20px 0 10px 0;">
+            <a-col :span="24">
+              <a-col class="describeText" :span="4">{{this.$t('user.YesterdayPersonalCommunication')}}：</a-col>
+              <a-col :span="14" style="margin:0vh 0vw 15px 0vw">
+                <a-progress :stroke-color="'#3598F1'" :stroke-width="16" :percent="100" :format="() => ''"/>
               </a-col>
-              <a-col class="describeText" :span="6">今日私信成功量：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">
-                <a-progress :stroke-color="'#F86400'" :stroke-width="20" :percent="parseInt(this.taskLetter.today_success_count/this.taskLetter.today_count*100)" :format="() => ''"/>
-              </a-col>
-              <a-col class="describeText" :span="6">今日私信失败量：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">            
-                <a-progress :stroke-color="'#52c41a'" :stroke-width="20" :percent="parseInt(this.taskLetter.today_fail_count/this.taskLetter.today_count*100)" :format="() => ''"/>
-              </a-col>
-              <a-col class="describeText" :span="6">私信任务的总数：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">            
-                <a-progress :stroke-color="'#3598F1'" :stroke-width="20" :percent="100" :format="() => ''"/>
-              </a-col>
-              <a-col class="describeText" :span="6">正在执行的任务：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">            
-                <a-progress :stroke-color="'#F86400'" :stroke-width="20" :percent="parseInt(this.taskLetter.running_count/this.taskLetter.count*100)" :format="() => ''"/>
-              </a-col>
-              <a-col class="describeText" :span="6">已经完成的任务：</a-col>
-              <a-col :span="18" style="margin:0vh 0vw 15px 0vw">            
-                <a-progress :stroke-color="'#52c41a'" :stroke-width="20" :percent="parseInt(this.taskLetter.today_over_count/this.taskLetter.count*100)" :format="() => ''"/>
-              </a-col>
+              <a-col class="taskLetterm" :span="6">{{this.$t('user.YesterdayPersonalCommunication')}}：{{this.taskLetter.today_count}}</a-col>
             </a-col>
-            <a-col :span="6">
-              <p class="taskLetterm">今日私信总数量：{{this.taskLetter.today_count}}</p>
-              <p class="taskLetterm">今日私信成功量：{{this.taskLetter.today_success_count}}</p>
-              <p class="taskLetterm">今日私信失败量：{{this.taskLetter.today_fail_count}}</p>
-              <p class="taskLetterm">私信任务的总数：{{this.taskLetter.count}}</p>
-              <p class="taskLetterm">正在执行的任务：{{this.taskLetter.running_count}}</p>
-              <p class="taskLetterm">已经完成的任务：{{this.taskLetter.today_over_count}}</p>
+            <a-col :span="24">
+              <a-col class="describeText" :span="4">{{this.$t('user.privateMessageYesterdayOk')}}：</a-col>
+              <a-col :span="14" style="margin:0vh 0vw 15px 0vw">
+                <a-progress :stroke-color="'#F86400'" :stroke-width="16" :percent="parseInt(this.taskLetter.today_success_count/this.taskLetter.today_count*100)" :format="() => ''"/>
+              </a-col>
+              <a-col class="describeText" :span="6">{{this.$t('user.privateMessageYesterdayOk')}}：{{this.taskLetter.today_count}}</a-col>
+            </a-col>
+            <a-col :span="24">
+              <a-col class="describeText" :span="4">{{this.$t('user.privateMessageFailedYesterday')}}：</a-col>
+              <a-col :span="14" style="margin:0vh 0vw 15px 0vw">            
+                <a-progress :stroke-color="'#52c41a'" :stroke-width="16" :percent="parseInt(this.taskLetter.today_fail_count/this.taskLetter.today_count*100)" :format="() => ''"/>
+              </a-col>
+              <a-col class="describeText" :span="6">{{this.$t('user.privateMessageFailedYesterday')}}：{{this.taskLetter.today_fail_count}}</a-col>
+            </a-col>
+            <a-col :span="24">
+              <a-col class="describeText" :span="4">{{this.$t('user.numberOfPrivateMessages')}}：</a-col>
+              <a-col :span="14" style="margin:0vh 0vw 15px 0vw">            
+                <a-progress :stroke-color="'#3598F1'" :stroke-width="16" :percent="100" :format="() => ''"/>
+              </a-col>
+              <a-col class="describeText" :span="6">{{this.$t('user.numberOfPrivateMessages')}}：{{this.taskLetter.count}}</a-col>
+            </a-col>
+            <a-col :span="24">
+              <a-col class="describeText" :span="4">{{this.$t('user.beingExecuted')}}：</a-col>
+              <a-col :span="14" style="margin:0vh 0vw 15px 0vw">            
+                <a-progress :stroke-color="'#F86400'" :stroke-width="16" :percent="parseInt(this.taskLetter.running_count/this.taskLetter.count*100)" :format="() => ''"/>
+              </a-col>
+              <a-col class="describeText" :span="6">{{this.$t('user.beingExecuted')}}：{{this.taskLetter.running_count}}</a-col>
+            </a-col>
+            <a-col :span="24">
+              <a-col class="describeText" :span="4">{{this.$t('user.hasBeenCompleted')}}：</a-col>
+              <a-col :span="14" style="margin:0vh 0vw 15px 0vw">            
+                <a-progress :stroke-color="'#52c41a'" :stroke-width="16" :percent="parseInt(this.taskLetter.today_over_count/this.taskLetter.count*100)" :format="() => ''"/>
+              </a-col>
+              <a-col class="describeText" :span="6">{{this.$t('user.hasBeenCompleted')}}：{{this.taskLetter.today_over_count}}</a-col>
             </a-col>
           </div>
         </div>
@@ -150,23 +162,30 @@
         {{this.affiche}}
       </div>
     </a-modal>
+    <statement-duty/>
     <!-- 世界地图 -->
     <!-- <div id="chart6" class="chart6" style="width: 100%; height: 500px; padding: 0px; margin: 0px 58px 20px 0px;; border: none;"></div> -->
   </div>
 </template>
 
 <script>
-import PanelGroup from "./components/PanelGroup";
+import PanelGroup from "./components/PanelGroup"
+import statementDuty from '../../components/statement/index.vue'
 import world from '../../mapData/world.json'
 import * as api from '@/api/index'
 export default {
-  name: "Dashboard",
+  name: "DashDoard",
+  components: {
+    PanelGroup,
+    statementDuty
+  },
   data() {
     return {
       value: "world",
       afficheVisible: false,
       affiche: null,
       title: null,
+      promptVisible: JSON.parse(localStorage.getItem('promptVisible')),
       userInfo: JSON.parse(window.sessionStorage.getItem('userInfo')),
       newDataList: [],
       flow: {
@@ -516,9 +535,6 @@ export default {
       },
     }
   },
-  components: {
-    PanelGroup,
-  },
   created(){
     //   循环注册地图
     /* for (let index in this.jsonMap) {
@@ -527,6 +543,7 @@ export default {
   },
   mounted() {
     this.getHomeInfo()
+    this.getFlowDataList()
     // 地图初始化
     // this.chinaConfigure(this.value);
     this.getPublish()
@@ -565,9 +582,11 @@ export default {
       form.user_id = user_id
       api.getUserHomeInfo(form).then(res => {
         if(res.code === 0) {
-          this.flow = res.data.flow_info
           this.port = res.data.port_info
           this.taskFollow = res.data.task_follow_info
+          
+          // this.flow = res.data.flow_info
+          
           this.tasklist = res.data.task_info
           this.taskLetter = res.data.task_letter_info
           this.over_count = parseInt(this.taskFollow.over_count/this.taskFollow.count*100)
@@ -577,8 +596,23 @@ export default {
           this.getEchartData()
         }
       }).catch(err => {
+        this.$message.error(err.msg)
         console.log(err)
       })
+    },
+    getFlowDataList() {
+      let form = {}
+      let user_id = this.userInfo.data.i
+      form.user_id = user_id
+       api.getUseGetFlow(form).then(res => {
+         if(res.code === 0) {
+          //  console.log(res)
+           this.flow = res.data
+           this.getEchartData()
+         }
+       }).catch(err => {
+         this.$message.error(err.msg)
+       })
     },
     handleOk() {
       this.afficheVisible = false
@@ -610,20 +644,21 @@ export default {
             data: this.newDataList
           },
           legend: {
-            data: ['账号总数', '关注总数', '回关总数', '昨日新增关注', '今日回关数', '异常账号数量']
+            data: [this.$t('admin.accountsNumber'), this.$t('user.followTheTotal'), this.$t('user.refocusTotal'),
+            this.$t('user.addedAttentionYesterday'), this.$t('user.YesterdayCustomsClearance'), this.$t('user.abnormalAccount')]
           },
           yAxis: {
             type: 'value'
           },
           grid: {
             x: 50,
-            y: 25,
-            x2: 30,
+            // y: 25,
+            x2: 40,
             y2: 50
           },
           series: [
             {
-              name: '账号总数',
+              name: this.$t('admin.accountsNumber'),
               data: this.tasklist.account,
               type: 'bar',
               showBackground: true,
@@ -636,7 +671,7 @@ export default {
               }
             },
             {
-              name: '关注总数',
+              name: this.$t('user.followTheTotal'),
               data: this.tasklist.account_record_count,
               type: 'bar',
               showBackground: true,
@@ -649,7 +684,7 @@ export default {
               }
             },
             {
-              name: '回关总数',
+              name: this.$t('user.refocusTotal'),
               data: this.tasklist.follower_count,
               type: 'bar',
               showBackground: true,
@@ -662,7 +697,7 @@ export default {
               }
             },
             {
-              name: '昨日新增关注',
+              name: this.$t('user.addedAttentionYesterday'),
               data: this.tasklist.yestoday_follwer_count,
               type: 'bar',
               showBackground: true,
@@ -675,7 +710,7 @@ export default {
               }
             },
             {
-              name: '今日回关数',
+              name: this.$t('user.YesterdayCustomsClearance'),
               data: this.tasklist.today_new_record_count,
               type: 'bar',
               showBackground: true,
@@ -688,7 +723,7 @@ export default {
               }
             },
             {
-              name: '异常账号数量',
+              name: this.$t('user.abnormalAccount'),
               data: this.tasklist.panic_account_count,
               type: 'bar',
               showBackground: true,
@@ -702,7 +737,10 @@ export default {
             }
           ]
         }
-        myTask.setOption(option);
+        myTask.setOption(option)
+        /* window.onresize = function() {
+          myTask.resize()
+        } */
         window.addEventListener("resize", function () {
           myTask.resize()
         });
@@ -734,16 +772,15 @@ export default {
               center: ["50%", "50%"],
               hoverAnimation: true,
               z: 10,
-              itemStyle: {
+              itemStyle: {    
                 normal: {
                   borderRadius: '50%',
                 }
               },
-              data: [
-                { value: this.port.good_count, name: '正常端口',
-                 },
-                { value: this.port.will_expire, name: '即将过期' },
-                { value: this.port.is_expire, name: '已过期' },
+              data: [ 
+                { value: this.port.good_count, name: this.$t('user.normalPort') },
+                // { value: this.port.will_expire, name: '即将过期' },
+                { value: this.port.is_expire, name: this.$t('user.expired') },
               ],
               label: {
                 show: false,
@@ -768,7 +805,7 @@ export default {
                 show: false
               },
               color: "#3598F1",
-              data: [10],
+              data: [this.port.count],
               labelLine: {
                 show: false
               }
@@ -781,75 +818,84 @@ export default {
         });
       }
       if (traffic) {
-        const myTraffic= this.$echarts.init(traffic);
-        const option = {
+        let myTraffic= this.$echarts.init(traffic)
+        let option = {
+          tooltip: {
+            show: true
+          },
+          title: {
+            text: this.flow.second+'M',
+            top: "45%",
+            left: 'center',
+            textStyle: {
+              color: '#FFA86D',
+              fontSize: 16
+            }
+          },
           legend: {
-            top: '1%',
-            left: '1%',
-            left: 'center'
+            orient: 'horizontal',
+            bottom: 'bottom',
+            icon: 'circle',
           },
           series: [
             {
-            type: 'gauge',
-            startAngle: 90,
-            endAngle: -270,
-            radius: '70%',
-            pointer: {
-              show: false,
-            },
-            progress: {
-              show: true,
-              overlap: false,
-              roundCap: true,
-              clip: false,
+              type: "pie",
+              radius: ["55%", "70%"],
+              center: ["50%", "50%"],
+              hoverAnimation: true,
+              z: 10,
               itemStyle: {
-                borderWidth: 0,
-                color: '#FFA86D',
-                borderColor: '#464646'
+                normal: {
+                  borderRadius: '50%',
+                }
+              },
+              data: [
+                { value: this.flow.useing, name: this.$t('user.used') },
+                { value: this.flow.second, name: this.$t('user.remainingFlow') }
+              ],
+              label: {
+                show: false,
+                position: 'center'
+              },
+              labelLine: {
+                show: false
               }
             },
-            axisLine: {
-              lineStyle: {
-                color: [[1, '#3598F1']],
-                width: 10
+            {
+              type: "pie",
+              radius: ["55%", "70%"],
+              center: ["50%", "50%"],
+              hoverAnimation: true,
+              z: 1,
+              itemStyle: {
+                normal: {
+                  color: '#235894',
+                }
+              },
+              label: {
+                show: false
+              },
+              color: "#3598F1",
+              data: [this.flow.count],
+              labelLine: {
+                show: false
               }
-            },
-            splitLine: {
-              show: false,
-              distance: 0,
-              length: 2
-            },
-            axisTick: {
-              show: false
-            },
-            axisLabel: {
-              show: false,
-              distance: 50
-            },
-            data: [
-              { 
-                value: (this.flow.second/this.flow.count*100).toFixed(0)
-              }
-            ],
-            detail: {
-              fontSize: '20px',
-              offsetCenter: ['0%', '0%'],
-              color: 'auto',
-              formatter: `${this.flow.second}M`
             }
-          }
           ]
-        };
-        myTraffic.setOption(option);
+        }
+        myTraffic.setOption(option)
         window.addEventListener("resize", function () {
           myTraffic.resize()
-        });
-      }
-      this.$on("hook:destroyed", () => {
+        })
+        
+        /* this.$on("hook:destroyed", () => {
         window.removeEventListener("resize", function () {
          myTraffic.resize()
-        });
-      });
+        })
+      }); */
+      }
+      
+      
     },
     chinaConfigure(area) {
       this.myChart = this.$echarts.init(document.getElementById("chart6")); //这里是为了获得容器所在位置        
@@ -905,6 +951,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 20px;
 }
 .homeBJ{
   width: 200px;
@@ -931,10 +978,10 @@ export default {
   padding: 10px;
 }
 .describeText{
-  font-size: .6vw;
+  font-size: 14px;
 }
 .textColor{
-  font-size: 1vw;
+  font-size: 18px;
   font-weight: 600;
   padding-top: 10px;
   img{

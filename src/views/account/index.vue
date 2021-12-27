@@ -5,31 +5,29 @@
         <!-- <a-form-item label="账号UID">
           <a-input v-model="searchData.unique_id" placeholder="账号UID" allow-clear />
         </a-form-item> -->
-        <a-form-item label="昵称">
-          <a-input v-model="searchData.nickname" placeholder="请输入昵称" allow-clear />
+        <a-form-item :label="$t('dealer.userNickname')">
+          <a-input v-model="searchData.nickname" :placeholder="$t('dealer.userNickname')" allow-clear />
         </a-form-item>
         <a-form-item label="ID">
-          <a-input v-model="searchData.id" placeholder="请输入账号ID" allow-clear />
+          <a-input v-model="searchData.id" placeholder="ID" allow-clear />
         </a-form-item>
-        <a-form-item>
-        <a-form-item v-if="role == 1" label="状态">
-          <a-select v-model="searchData.is_bind" placeholder="账号状态" style="width:213px" allow-clear>
-            <a-select-option :value="2">全部</a-select-option>
-            <a-select-option :value="1">已分配</a-select-option>
-            <a-select-option :value="0">未分配</a-select-option>
+        <a-form-item :label="$t('admin.state')">
+          <a-select v-model="searchData.status" style="width:213px" allow-clear>
+            <a-select-option :value="''">{{$t('admin.normal')}}</a-select-option>
+            <a-select-option :value="'被封禁'">{{$t('user.banned')}}</a-select-option>
+            <a-select-option :value="'Token失效'">{{$t('user.TokenInvalid')}}</a-select-option>
           </a-select>
         </a-form-item>
-
-          <a-button type="primary" style="margin-left: 10px;width:88px" @click="init()">查询</a-button>
-          <a-button v-if="role == 1" type="primary" style="margin-left: 10px" @click="assign">分配到用户</a-button>
-          <a-button type="primary" style="margin-left: 10px" @click="add">绑定到端口</a-button>
+        <a-form-item>
+          <a-button type="primary" style="margin-left: 10px;" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
+          
           <!-- <a-button type="primary" style="margin-left: 10px" @click="checkAccount()">查看封禁账号</a-button> -->
           <!-- 新增 绑定IP设备 取消 -->
           <!-- <a-button type="primary" style="margin-left: 10px">绑定IP设备</a-button> -->
-          <a-button type="primary" style="margin-left: 10px" @click="changeNickname">修改昵称</a-button>
-          <a-button type="primary" style="margin-left: 10px" @click="changeSignature">修改个签</a-button>
-          <a-button type="primary" style="margin-left: 10px" @click="changeHeadImg">修改头像</a-button>
-          <a-button type="danger" style="margin-left: 10px" v-if="form.account_list.length != 0" @click="deleteVisible">批量删除</a-button>
+          
+          
+          <!-- <a-button type="primary" style="margin-left: 10px" @click="changeHeadImg">修改头像</a-button> -->
+          
           <!-- <a-button v-if="isBundle_id" type="primary" style="margin-left: 10px;" @click="dialogAccount = true">新增账号</a-button> -->
 
           <!-- <a-button v-if="role == 1" type="primary" style="margin-left: 10px;width:88px" @click="create('Collection')">采集</a-button> -->
@@ -49,13 +47,31 @@
 
           <!-- <a-button type="primary" @click="create('Comment')">评论</a-button> -->
         </a-form-item>
+        <a-form-item>
+          <a-button type="primary" style="margin-left: 10px" @click="add">{{$t('user.bindingPort')}}</a-button>
+        </a-form-item>
+        <a-form-item>
+          <a-button v-if="role == 1" type="primary" style="margin-left: 10px" @click="assign">{{$t('dealer.assignAccount')}}</a-button>
+        </a-form-item>
+        <a-form-item>
+          <a-button type="primary" style="margin-left: 10px" @click="changeNickname">{{$t('user.changeUsername')}}</a-button>
+        </a-form-item>
+        <a-form-item>
+          <a-button type="primary" style="margin-left: 10px" @click="changeSignature">{{$t('user.modifySignature')}}</a-button>
+        </a-form-item>
+        <a-form-item>
+          <a-button type="danger" style="margin-left: 10px" v-if="form.account_list.length != 0" @click="deleteVisible">{{$t('dealer.batchDeletion')}}</a-button>
+        </a-form-item>
       </a-form>
-      <span v-if="form.account_list.length != 0">已选中账号：{{form.account_list.length}}</span>
+      <span v-if="form.account_list.length != 0">{{$t('dealer.accountSelected')}}:{{form.account_list.length}}</span>
     </div>
     
     
     <div class="table-box">
-      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :row-selection="{selectedRowKeys: form.account_list ,onChange: rowSelection}" :bordered="true" :pagination="false">
+      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" :scroll="{ x: 1200}" class="tableLimit" :row-selection="{selectedRowKeys: form.account_list ,onChange: rowSelection}" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="avatar" slot-scope="text, row ">
           <a-badge v-if="row.id == bundle_id" color="#87d068">
             <a-avatar :src="row.avatar" />
@@ -82,70 +98,84 @@
           <!-- <el-button v-if="isBundle_id" :disabled="scope.row.id == device_id" size="small" type="success" plain @click="handCheck(scope.row)">{{ scope.row.id == device_id ? '当前账号' : '切换账号' }}</el-button>
           <el-button size="small" type="primary" plain @click="handPut(scope.row.id)">重置次数</el-button>
           <el-button size="small" type="danger" plain @click="handleDelete(scope.row.id)">删除</el-button> -->
-          <a-button v-if="role == 0 || role == 1" style="margin-left: 10px" type="primary" @click="openRunInfo(row.id)">运行记录</a-button>
+          <a-button v-if="role == 0 || role == 1" style="margin-left: 10px" type="primary" @click="privateMessage(row.id)">{{$t('user.privateMessageTask')}}</a-button>
+          <a-button v-if="role == 0 || role == 1" style="margin-left: 10px" type="primary" @click="attention(row.id)">{{$t('user.ConcernTask')}}</a-button>
+          <a-button style="margin-left: 10px" type="primary" @click="tokenPage(row.id)">{{$t('user.viewToken')}}</a-button>
 
-          <a-button v-if="isBundle_id" :disabled="row.id == bundle_id" @click="handCheck(row)">{{ row.id == bundle_id ? '当前账号' : '切换账号' }}</a-button>
+          <!-- <a-button v-if="isBundle_id" :disabled="row.id == bundle_id" @click="handCheck(row)">{{ row.id == bundle_id ? '当前账号' : '切换账号' }}</a-button> -->
           <!-- <a-button style="margin-left: 8px" type="primary" @click="handPut(row.id)">重置次数</a-button> -->
           <!-- 新增修改资料页面   修改资料页面 绑定IP设备 -->
           <!-- <a-button v-if="role == 0 || role == 1" style="margin-left: 10px" @click="openRunInfo(row.id)">修改资料</a-button> -->
 
-          <a-popconfirm title="是否删除？此操作会导致账号无法添加到后台，仅用于账号被封禁的情况下！！！" ok-text="是" cancel-text="否" @confirm="handleDelete(row.id)">
-            <a-button style="margin-left: 10px" type="danger">删除</a-button>
+          <a-popconfirm :title="$t('admin.deleteOrNot')" :ok-text="$t('admin.Yes')" :cancel-text="$t('admin.No')" @confirm="handleDelete(row.id)">
+            <a-button style="margin-left: 10px" type="danger">{{$t('admin.delete')}}</a-button>
           </a-popconfirm>
         </span>
       </a-table>
 
-      <a-modal v-model="dialogVisible" title="分配账号到设备" width="500px" ok-text="确认" cancel-text="取消" @ok="handleAdd">
+      <a-modal v-model="dialogVisible" :title="$t('dealer.assignAccount')" width="500px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="handleAdd">
         <a-form ref="form" :model="form" :label-col="{ span:4 }" :wrapper-col="{ span: 20 }">
-          <a-form-item label="设备ID">
+          <a-form-item :label="$t('user.portID')">
             <!-- <a-input v-model="form.group_id" @click="dialogGroupId = true" /> -->
-            <a-input v-model="form.group_id" @click="dialogPortVisible" />
+            <a-input v-model="form.group_id" @click="dialogPortVisible"  readOnly/>
           </a-form-item>
         </a-form>
+        <span slot="footer">
+          <a-button style="margin-left:10px;" class="add-btn" type="success" @click="dialogVisible = false">{{this.$t('admin.cancel')}}</a-button>
+          <a-button style="margin-left:10px;" type="primary" :loading="dialogLoading" @click="handleAdd">{{this.$t('admin.confirm')}}</a-button>
+        </span>
+      </a-modal>
+      <!-- 查看账号token -->
+      <a-modal v-if="tokenVisible" v-model="tokenVisible" :title="$t('user.accountToken')" width="500px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="tokenVisible = false">
+        <div style="height:450px; overflow-y:auto;">
+          {{tokenVal}}
+        </div>
       </a-modal>
 
-
-      <a-modal v-model="nicknameDialogAccount" title="修改昵称" width="500px" ok-text="确认" cancel-text="取消" @ok="changeAccountNickname">
+      <a-modal v-model="nicknameDialogAccount" :title="$t('user.changeUsername')" width="500px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="changeAccountNickname">
         <a-form ref="account_form" :model="changeAccountForm" :label-col="{ span:4 }" :wrapper-col="{ span: 20 }">
-          <a-form-item label="昵称">
-            <a-button class="add-btn" type="success" plain @click="Nickname">选择资源</a-button><br/>
-            <a-tag v-for="(item, index) in selectedNicknameValue" v-model="selectedNicknameValue" color="#2db7f5" closable :key="index" @close="tagNickname">昵称：{{item.name}}</a-tag>
+          <a-form-item :label="$t('dealer.userNickname')">
+            <a-button class="add-btn" type="success" plain @click="Nickname">{{$t('user.selectResource')}}</a-button><br/>
+            <a-tag v-for="(item, index) in selectedNicknameValue" v-model="selectedNicknameValue" color="#2db7f5" closable :key="index" @close="tagNickname">{{$t('dealer.userNickname')}}：{{item.name}}</a-tag>
             <!-- <a-textarea v-model="changeAccountForm.account_nickname" :rows="4"/> -->
           </a-form-item>
         </a-form>
       </a-modal>
       
-      <a-modal v-model="signatureDialogAccount" title="修改个签" width="500px" ok-text="确认" cancel-text="取消" @ok="changeAccountSignature">
+      <a-modal v-model="signatureDialogAccount" :title="$t('user.modifySignature')" width="500px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="changeAccountSignature">
         <a-form ref="account_form" :model="changeAccountForm" :label-col="{ span:4 }" :wrapper-col="{ span: 20 }">
           <!-- <a-form-item label="个签">
             <a-textarea v-model="changeAccountForm.account_signale" :rows="4"/>
           </a-form-item> -->
           
-          <a-form-item label="资源">
-            <a-button class="add-btn" type="success" plain @click="resourcesText">选择资源</a-button><br/>
-            <a-tag v-for="(item, index) in selectedRowKeysValue" v-model="selectedRowKeysValue" color="#2db7f5" closable :key="index" @close="tagID">个签：{{item.name}}</a-tag>
+          <a-form-item :label="$t('admin.resourceContent')">
+            <a-button class="add-btn" type="success" plain @click="resourcesText">{{$t('user.selectResource')}}</a-button><br/>
+            <a-tag v-for="(item, index) in selectedRowKeysValue" v-model="selectedRowKeysValue" color="#2db7f5" closable :key="index" @close="tagID">{{$t('admin.signature')}}：{{item.name}}</a-tag>
           </a-form-item>
         </a-form>
       </a-modal>
 
-      <a-modal v-model="headImgDialogAccount" title="修改头像" width="500px" ok-text="确认" cancel-text="取消" @ok="changeAccountHeadImg">
+      <a-modal v-model="headImgDialogAccount" title="修改头像" width="500px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="changeAccountHeadImg">
         <a-form ref="account_form" :model="changeAccountForm" :label-col="{ span:4 }" :wrapper-col="{ span: 20 }">
           <a-form-item label="头像">
             <!-- <a-textarea v-model="changeAccountForm.account_headimg" :rows="4"/> -->
-            <a-button class="add-btn" type="success" plain @click="Headimg">选择资源</a-button><br/>
+            <a-button class="add-btn" type="success" plain @click="Headimg">{{$t('user.selectResource')}}</a-button><br/>
             <a-tag v-for="(item, index) in selectedHeadimgValue" v-model="selectedHeadimgValue" color="#2db7f5" closable :key="index" @close="tagNickname">头像：{{item.name}}</a-tag>
           </a-form-item>
         </a-form>
       </a-modal>
 
-      <a-modal v-model="resourcesTextVisible" title="选择个签资源" ok-text="确认" cancel-text="取消" width="600px" @ok="submitResourcesText">
+      <a-modal v-model="resourcesTextVisible" :title="$t('admin.signature')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="600px" @ok="submitResourcesText">
         <a-table :columns="columnsResource" :data-source="ResourceData" :row-key="record => record.id" :row-selection="{onChange:onSelectChange,selectedRowKeys: selectedRowKeysId,type: 'radio'}" class="tableLimit" :scroll="{ x:550 }" :bordered="true" :pagination="false">
+          <templete v-for="(item, index) in columnsResource" :key="index" :slot="item.slotName">
+            <span>{{$t(item.slotName)}}</span>
+          </templete>
           <span slot="created_at" slot-scope="text, row">
             {{ new Date(row.created_at) | getTime }}
           </span>
         </a-table>
         <div class="page">
-          <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${ResourceTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="ResourcePage" :total="ResourceTotal" @change="handleASign" @showSizeChange="handleSizeASign">
+          <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${ResourceTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="ResourcePage" :total="ResourceTotal" @change="handleASign" @showSizeChange="handleSizeASign">
             <template slot="buildOptionText" slot-scope="props">
               <span>{{ props.value }}条/页</span>
             </template>
@@ -153,14 +183,17 @@
         </div>
       </a-modal>
 
-      <a-modal v-model="nicknameVisible" title="选择昵称资源" ok-text="确认" cancel-text="取消" width="600px" @ok="submitNickname">
+      <a-modal v-model="nicknameVisible" :title="$t('dealer.userNickname')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="600px" @ok="submitNickname">
         <a-table :columns="columnsResource" :data-source="ResourceData" :row-key="record => record.id" :row-selection="{onChange:onSelectChangeNickname,selectedRowKeys: selectedNicknameId,type: 'radio'}" class="tableLimit" :scroll="{ x:550 }" :bordered="true" :pagination="false">
+          <templete v-for="(item, index) in columnsResource" :key="index" :slot="item.slotName">
+            <span>{{$t(item.slotName)}}</span>
+          </templete>
           <span slot="created_at" slot-scope="text, row">
             {{ new Date(row.created_at) | getTime }}
           </span>
         </a-table>
         <div class="page">
-          <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${NicknameTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="NicknamePage" :total="NicknameTotal" @change="handleNickname" @showSizeChange="handleSizeNickname">
+          <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${NicknameTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="NicknamePage" :total="NicknameTotal" @change="handleNickname" @showSizeChange="handleSizeNickname">
             <template slot="buildOptionText" slot-scope="props">
               <span>{{ props.value }}条/页</span>
             </template>
@@ -168,14 +201,17 @@
         </div>
       </a-modal>
 
-      <a-modal v-model="headimgVisible" title="选择头像资源" ok-text="确认" cancel-text="取消" width="600px" @ok="submitHeadimg">
+      <a-modal v-model="headimgVisible" title="选择头像资源" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="600px" @ok="submitHeadimg">
         <a-table :columns="columnsResource" :data-source="ResourceData" :row-key="record => record.id" :row-selection="{onChange:onSelectChangeHeadimg,selectedRowKeys: selectedHeadimgId,type: 'radio'}" class="tableLimit" :scroll="{ x:550 }" :bordered="true" :pagination="false">
+          <templete v-for="(item, index) in columnsResource" :key="index" :slot="item.slotName">
+            <span>{{$t(item.slotName)}}</span>
+          </templete>
           <span slot="created_at" slot-scope="text, row">
             {{ new Date(row.created_at) | getTime }}
           </span>
         </a-table>
         <div class="page">
-          <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${HeadimgTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="HeadimgPage" :total="HeadimgTotal" @change="handleHeadimg" @showSizeChange="handleSizeHeadimg">
+          <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${HeadimgTotal} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="HeadimgPage" :total="HeadimgTotal" @change="handleHeadimg" @showSizeChange="handleSizeHeadimg">
             <template slot="buildOptionText" slot-scope="props">
               <span>{{ props.value }}条/页</span>
             </template>
@@ -183,9 +219,9 @@
         </div>
       </a-modal>
 
-      <a-modal v-model="batchDeleteVisible" title="" ok-text="确认" cancel-text="取消" width="600px" @ok="submitBatchDelete">
+      <a-modal v-model="batchDeleteVisible" :title="this.$t('dealer.batchDeletion')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="600px" @ok="submitBatchDelete">
         <a-form ref="account_form" :model="changeAccountForm" :label-col="{ span:4 }" :wrapper-col="{ span: 20 }">
-          <a-form-item label="账号ID">
+          <a-form-item :label="$t('user.accountID')">
             <a-textarea v-model="changeAccountForm.delete_nickname" :rows="4"/>
           </a-form-item>
         </a-form>
@@ -197,7 +233,7 @@
       <port v-if="dialogPortId" :dialogPortId="dialogPortId" @getPortId='getPortId' @cancelGetPortId="dialogPortId = false"></port>
       
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
@@ -205,16 +241,43 @@
       </div>
 
 
-      <!-- // 运行记录 -->
+      <!-- // 私信运行记录 -->
       <div>
-        <a-modal v-model="runInfoGroupId" title="运行记录" width="60%" ok-text="确认" cancel-text="取消" @cancel="cancel" @ok="cancel">
+        <a-modal v-if="runInfoGroupId" v-model="runInfoGroupId" :title="$t('user.privateMessageTask')" width="60%" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @cancel="cancelPrivateLetter" @ok="cancelPrivateLetter">
           <a-table :columns="runInfocolumns" :data-source="runInfoData" :row-key="record => record.id" class="tableLimit" :pagination="false">
+            <templete v-for="(item, index) in runInfocolumns" :key="index" :slot="item.slotName">
+              <span>{{$t(item.slotName)}}</span>
+            </templete>
             <span slot="created_at" slot-scope="text, row">
-            {{ new Date(row.created_at) | getTime }}
-          </span>
+              {{ new Date(row.created_at) | getTime }}
+            </span>
           </a-table>
           <div class="page">
-            <a-pagination :show-total="(runInfoTotal, range) => `总数:${runInfoTotal} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="runInfoCurrentPage" :total="runInfoTotal" @change="runInfoCurrentChange" @showSizeChange="runInfohandleSizeChange" />
+            <a-pagination :show-total="(runInfoTotal, range) => `${$t('admin.total')}:${runInfoTotal} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="runInfoCurrentPage" :total="runInfoTotal" @change="runInfoCurrentChange" @showSizeChange="runInfohandleSizeChange">
+              <template slot="buildOptionText" slot-scope="props">
+                <span>{{ props.value }}条/页</span>
+              </template>
+            </a-pagination>
+          </div>
+        </a-modal>
+      </div>
+      <!-- // 关注运行记录 -->
+      <div>
+        <a-modal v-if="followRunInfoGroupId" v-model="followRunInfoGroupId" :title="$t('user.ConcernTask')" width="60%" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @cancel="cancelFollow" @ok="cancelFollow">
+          <a-table :columns="runInfocolumns" :data-source="runInfoData" :row-key="record => record.id" class="tableLimit" :pagination="false">
+            <templete v-for="(item, index) in runInfocolumns" :key="index" :slot="item.slotName">
+              <span>{{$t(item.slotName)}}</span>
+            </templete>
+            <span slot="created_at" slot-scope="text, row">
+              {{ new Date(row.created_at) | getTime }}
+            </span>
+          </a-table>
+          <div class="page">
+            <a-pagination :show-total="(followTotal, range) => `${$t('admin.total')}:${followTotal} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="followCurrentPage" :total="followTotal" @change="followCurrentChange" @showSizeChange="followHandleSizeChange">
+              <template slot="buildOptionText" slot-scope="props">
+                <span>{{ props.value }}条/页</span>
+              </template>
+            </a-pagination>
           </div>
         </a-modal>
       </div>
@@ -232,108 +295,133 @@ import port from './components/port.vue'
 import jsCookie from 'js-cookie'
 
 const runInfocolumns = [{
-
-    title: '任务类型',
+    // title: '任务类型',
+    slotName: 'user.taskType',
     dataIndex: 'type',
     width: '60px',
     ellipsis: true,
-    align: 'center'
+    align: 'center',
+    scopedSlots: { customRender: 'type', title:'user.taskType' }
 },{
-    title: '昵称',
+    // title: '昵称',
+    slotName: 'dealer.userNickname',
     dataIndex: 'nickname',
     width: '60px',
     ellipsis: true,
-    align: 'center'
+    align: 'center',
+    scopedSlots: { customRender: 'nickname', title:'dealer.userNickname' }
 },{
-    title: '目标用户',
+    // title: '目标用户',
+    slotName: 'user.targetUsers',
     dataIndex: 'unique_id',
     width: '60px',
     ellipsis: true,
-    align: 'center'
+    align: 'center',
+    scopedSlots: { customRender: 'unique_id', title:'user.targetUsers' }
 },{
-    title: '地区',
+    // title: '地区',
+    slotName: 'user.area',
     dataIndex: 'region',
     width: '60px',
     ellipsis: true,
-    align: 'center'
+    align: 'center',
+    scopedSlots: { customRender: 'region', title:'user.area' }
 },{
-    title: '状态',
+    // title: '状态',
+    slotName: 'admin.state',
     dataIndex: 'status',
     width: '60px',
     ellipsis: true,
-    align: 'center'
+    align: 'center',
+    scopedSlots: { customRender: 'status', title:'admin.state' }
 },{
-    title: '创建时间',
+    // title: '创建时间',
+    slotName: 'admin.creationTime',
     dataIndex: 'created_at',
     width: '60px',
     ellipsis: true,
-    align: 'center'
+    align: 'center',
+    scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
 }]
 
 const columns = [{
-  title: '头像',
+  // title: '头像',
+  slotName: 'dealer.account',
   dataIndex: 'avatar',
   align: 'center',
-  width: '80px',
-  scopedSlots: { customRender: 'avatar' }
+  width: '100px',
+  scopedSlots: { customRender: 'avatar', title:'dealer.account' }
 },
 {
-  title: '个签',
+  // title: '个签',
+  slotName: 'admin.signature',
   dataIndex: 'signature',
-  width: '90px',
+  width: '200px',
   ellipsis: true,
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'signature', title:'admin.signature' }
 },
 {
-  title: '帖子数量',
+  // title: '帖子数量',
+  slotName: 'dealer.numberOfPosts',
   dataIndex: 'posts_number',
-  width: '90px',
+  width: '150px',
   ellipsis: true,
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'posts_number', title:'dealer.numberOfPosts' }
 },
 {
-  title: '关注人数',
+  // title: '关注人数',
+  slotName: 'dealer.followers',
   dataIndex: 'follow_number',
-  width: '90px',
+  width: '150px',
   ellipsis: true,
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'follow_number', title:'dealer.followers' }
 },
 {
-  title: '好友数量',
+  // title: '好友数量',
+  slotName: 'dealer.numberOfFriends',
   dataIndex: 'friends_number',
-  width: '90px',
+  width: '150px',
   ellipsis: true,
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'friends_number', title:'dealer.numberOfFriends' }
 },
 {
-  title: '状态',
+  // title: '状态',
+  slotName: 'admin.state',
   dataIndex: 'status',
-  width: '90px',
+  width: '150px',
   ellipsis: true,
   align: 'center',
-  scopedSlots: { customRender: 'status' }
+  scopedSlots: { customRender: 'status', title:'admin.state' }
 },
 {
-  title: '创建时间',
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
   dataIndex: 'created_at',
-  width: '90px',
+  width: '100',
   ellipsis: true,
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
 },
 {
-  title: '操作',
+  // title: '操作',
+  slotName: 'admin.operate',
   dataIndex: 'action',
   align: 'center',
-  width: '200px',
-  scopedSlots: { customRender: 'action' }
+  fixed: 'right',
+  width: '470px',
+  scopedSlots: { customRender: 'action', title:'admin.operate' }
 }]
 const columnsResource = [{
-  title: '资源名称',
+  // title: '资源名称',
+  slotName: 'admin.resource',
   dataIndex: 'name',
   width: '80px',
   align: 'center',
-  scopedSlots: { customRender: 'name' }
+  scopedSlots: { customRender: 'name', title:'admin.resource' }
 },
 /* {
   title: '资源内容',
@@ -346,11 +434,12 @@ const columnsResource = [{
   scopedSlots: { customRender: 'data' }
 }, */
 {
-  title: '创建时间',
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
   dataIndex: 'created_at',
   width: '80px',
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
 },
 ]
 export default {
@@ -365,6 +454,7 @@ export default {
       searchData: {
         nickname: null,
         _like_r_nickname: '',
+        status: '',
         page: 1,
         page_size: 10,
         order_created_at: true,
@@ -392,8 +482,12 @@ export default {
       size: 10,
       runInfohandleSize: 10,
       runInfoCurrentPage: 1,
+      followTotal: 0,
+      followhandleSize: 10,
+      followCurrentPage: 1,
       currentAccountId: '',
       dialogVisible: false,
+      dialogLoading: false, //绑定到端口 确定按钮
       batchDeleteVisible: false,
       nicknameDialogAccount: false,
       signatureDialogAccount: false,
@@ -403,9 +497,12 @@ export default {
       headimgVisible: false,
       dialogGroupId: false,
       dialogPortId: false,
-      runInfoGroupId: false,
+      runInfoGroupId: false,//私信任务信息
+      followRunInfoGroupId: false, //关注任务信息
       dialogAccount: false,
       dialogUserId: false,
+      tokenVisible: false, //账号token
+      tokenVal: '',
       ResourceTotal: 0,
       ResourcePage: 1,
       ResourceASize: 10,
@@ -512,10 +609,6 @@ export default {
         this.form.account_list.push(item)
       })
     },
-    // 查看封禁账号
-    checkAccount() {
-
-    },
     async getTableData() {
       let res = ''
       const name = ''
@@ -526,7 +619,7 @@ export default {
           this.deviceInfo = deviceRes.data.data[0]
         }
 
-        res = await api.getAcount(this.searchData)
+        let res = await api.getAcount(this.searchData)
         if (res && res.code === 0 && res.data) {
           res.data.data.map(item => { item.device_name = name })
           res.data.data.map(item => { item.device_remarks = remarks })
@@ -535,14 +628,14 @@ export default {
         }
       } else {
         if (this.role === 1) {
-          res = await api.getAcountAll(this.searchData)
+          let res = await api.getAcountAll(this.searchData)
           if (res && res.code === 0 && res.data) {
             this.tableData = res.data.data
             this.total = res.data.count
           }
         }else{
           this.searchData.user_id = this.userInfo.data.i
-          res = await api.getAcountAll(this.searchData)
+          let res = await api.getAcountAll(this.searchData)
           if (res && res.code === 0 && res.data) {
             this.tableData = res.data.data
             this.total = res.data.count
@@ -550,7 +643,19 @@ export default {
         }
       }
     },
-    
+    // 查看Token
+    tokenPage(id) {
+      let form = {}
+      form.id = id
+      api.getUseToken(form).then(res => {
+        if(res.code === 0) {
+          this.tokenVal = res.data.token
+          this.tokenVisible = true
+        }
+      }).catch(err => {
+        this.$message.error(err.msg)
+      })
+    },
     add() {
       if (this.form.account_list.length === 0) {
         this.$message.error('请先选择要添加的账号')
@@ -588,6 +693,8 @@ export default {
     },
     resourcesText() {
       this.resourcesTextVisible = true
+      this.ResourcePage = 1
+      this.ResourceASize = 10
       this.ResourceText()
     },
     ResourceText() {
@@ -603,7 +710,7 @@ export default {
         this.ResourceData = res.data.data
         this.ResourceTotal = res.data.count
       }).catch((err) => {
-        console.log(err)
+        // console.log(err)
       })
     },
     // 个签资源
@@ -637,9 +744,10 @@ export default {
     submitNickname() {
       this.nicknameVisible = false
     },
-    // 修改昵称
     Nickname() {
       this.nicknameVisible = true
+      this.NicknamePage = 1
+      this.NicknameASize = 10
       this.NicknameList()
     },
     NicknameList() {
@@ -655,7 +763,7 @@ export default {
         this.ResourceData = res.data.data
         this.NicknameTotal = res.data.count
       }).catch((err) => {
-        console.log(err)
+        // console.log(err)
       })
     },
     // 昵称资源 分页
@@ -700,7 +808,7 @@ export default {
         this.ResourceData = res.data.data
         this.HeadimgTotal = res.data.count
       }).catch((err) => {
-        console.log(err)
+        // console.log(err)
       })
     },
     // 头像资源 分页
@@ -757,7 +865,7 @@ export default {
 
       api.putAcountAssign(data).then((res) => {
         if (res.code === 0) {
-          console.log("分配日志：\n用户ID " + id + "\n账号：" + this.form.account_list)
+          // console.log("分配日志：\n用户ID " + id + "\n账号：" + this.form.account_list)
           message.success('分配成功')
           this.form.account_list = []
           this.getTableData()
@@ -772,7 +880,7 @@ export default {
         this.$message.error('请先选择要添加的账号')
         return
       }
-      console.log(this.form.account_list.join(','))
+      // console.log(this.form.account_list.join(','))
       var downloadParamsList = []
       for (var i = 0; i < this.form.account_list.length; i++) {
         var dataTemp = 'id=' + this.form.account_list[i]
@@ -794,7 +902,7 @@ export default {
     deleteVisible() {
       this.batchDeleteVisible = true
       this.changeAccountForm.delete_nickname = this.form.account_list.join(',')
-      console.log(this.form.account_list)
+      // console.log(this.form.account_list)
     },
     submitBatchDelete() {
       let form = {}
@@ -804,10 +912,10 @@ export default {
           this.form.account_list = 0
           this.batchDeleteVisible = false
           this.init()
-          console.log(res)
+          // console.log(res)
         }
       }).catch((err) => {
-        console.log(err)
+        // console.log(err)
       })
     },
     handleAdd() {
@@ -817,15 +925,16 @@ export default {
       }
       
       this.form.group_id = Number(this.form.group_id)
+      this.dialogLoading = true
       const data = {
         list: this.form.account_list,
         port_id: this.form.group_id, // 设备Id
         user_id: this.userInfo.data.i // 用户ID
       }
-
       api.putAcountBindPortUser(data).then((res) => {
         if (res.code === 0) {
           this.dialogVisible = false
+          this.dialogLoading = false
           this.form.group_id = ''
           this.form.account_list = []
           this.getTableData()
@@ -834,16 +943,22 @@ export default {
         this.$message.error(err.msg)
       })
     },
-    openRunInfo(accountId){
-      this.currentAccountId = accountId
-      this.runInfoGroupId=true
+    privateMessage(id) {
+      this.runInfoGroupId = true
+      this.currentAccountId = id
+      this.openRunInfo()
+    },
+    // 私信任务记录
+    openRunInfo(){
       var accountRecordParam = {
-        account_id: accountId,
-        order_created_at: true
+        account_id: this.currentAccountId,
+        order_created_at: true,
+        page: this.runInfoCurrentPage,
+        page_size: this.runInfohandleSize,
+        type: 2,
       }
       api.getAccountRecordUser(accountRecordParam).then((res) => {
         if (res && res.code === 0 && res.data) {
-
           for (var i=0; i< res.data.data.length; i++){
             if (res.data.data[i].type == 1){
               res.data.data[i].type = "关注"
@@ -857,15 +972,37 @@ export default {
       })
     },
     runInfoCurrentChange(page) {
-     this.runInfoCurrentPage = page
+      this.runInfoCurrentPage = page
+      this.openRunInfo()
+    },
+    runInfohandleSizeChange(p, s) {
+      this.runInfohandleSize = s
+      this.runInfoCurrentPage = 1
+      this.openRunInfo()
+    },
+    cancelPrivateLetter() {
+      this.runInfoGroupId = false
+      this.runInfohandleSize = 10
+      this.runInfoCurrentPage = 1
+    },
+
+    // 关注任务信息
+    attention(id) {
+      this.followRunInfoGroupId = true
+      this.currentAccountId = id
+      this.openRunInfoFollow()
+    },
+    openRunInfoFollow() {
       var accountRecordParam = {
         account_id: this.currentAccountId,
-        page: page,
-        page_size: this.runInfohandleSize,
-        order_created_at: true
+        order_created_at: true,
+        page: this.followCurrentPage,
+        page_size: this.followhandleSize,
+        type: 1,
       }
       api.getAccountRecordUser(accountRecordParam).then((res) => {
         if (res && res.code === 0 && res.data) {
+
           for (var i=0; i< res.data.data.length; i++){
             if (res.data.data[i].type == 1){
               res.data.data[i].type = "关注"
@@ -874,15 +1011,26 @@ export default {
             }
           }
           this.runInfoData = res.data.data
-          this.runInfoTotal = res.data.count
+          this.followTotal = res.data.count
         }
       })
     },
-    runInfohandleSizeChange(p, s) {
-      this.runInfohandleSize = s
-      this.runInfoCurrentPage = 1
-      this.runInfoCurrentChange()
+    followCurrentChange(page) {
+      this.followCurrentPage = page
+      this.openRunInfoFollow()
     },
+    followHandleSizeChange(p, s) {
+      this.followhandleSize = s
+      this.followCurrentPage = 1
+      this.openRunInfoFollow()
+    },
+    cancelFollow() {
+      this.followRunInfoGroupId = false
+      this.followhandleSize = 10
+      this.followCurrentPage = 1
+    },
+
+
     cancel() {
       this.runInfoGroupId = false
       this.getTableData()
@@ -930,7 +1078,7 @@ export default {
       }
       var dataList = this.selectedNicknameId[0]
       // var dataList = this.changeAccountForm.account_nickname.split('\n')
-      console.log(dataList)
+      // console.log(dataList)
       var changeAccountParam = {
         list: this.form.account_list,
         resource_id: dataList
@@ -947,7 +1095,7 @@ export default {
         return
       }
       let dataList = this.selectedRowKeysId[0]
-      console.log(dataList)
+      // console.log(dataList)
       let changeAccountParam = {
         // list: this.form.account_list,
         list: [30],

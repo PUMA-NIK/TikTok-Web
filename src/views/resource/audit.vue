@@ -2,19 +2,19 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="是否通过审核">
-          <a-select v-model="searchData.status" placeholder="请选择" style="width:213px" allow-clear>
-            <a-select-option :value="1">否</a-select-option>
-            <a-select-option :value="2">是</a-select-option>
+        <a-form-item :label="this.$t('admin.Approved')">
+          <a-select v-model="searchData.status" style="width:213px" allow-clear>
+            <a-select-option :value="1">{{this.$t('admin.No')}}</a-select-option>
+            <a-select-option :value="2">{{this.$t('admin.Yes')}}</a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item label="资源类型">
-          <a-select v-model="searchData.type" placeholder="请选择" style="width:213px" allow-clear>
-            <a-select-option :value="1">文本</a-select-option>
-            <a-select-option :value="2">富文本</a-select-option>
-            <a-select-option :value="3">视频</a-select-option>
-            <a-select-option :value="6">名片</a-select-option>
-            <a-select-option :value="7">个签</a-select-option>
+        <a-form-item :label="this.$t('admin.resourceType')">
+          <a-select v-model="searchData.type" style="width:213px" allow-clear>
+            <a-select-option :value="1">{{this.$t('admin.text')}}</a-select-option>
+            <a-select-option :value="2">{{this.$t('admin.richText')}}</a-select-option>
+            <a-select-option :value="3">{{this.$t('admin.video')}}</a-select-option>
+            <a-select-option :value="6">{{this.$t('admin.businessCard')}}</a-select-option>
+            <a-select-option :value="7">{{this.$t('admin.signature')}}</a-select-option>
           </a-select>
         </a-form-item>
         <!-- <a-form-item label="用户ID">
@@ -24,12 +24,15 @@
           <a-input v-model="searchData.contact" style="100px" placeholder="请输入联系方式" allow-clear />
         </a-form-item> -->
         <a-form-item>
-          <a-button type="primary" icon="search" @click="init()">查询</a-button>
+          <a-button type="primary" icon="search" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
       <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x: 1500}" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="role" slot-scope="text, row ">
           {{ row.role | getRole }}
         </span>
@@ -37,32 +40,31 @@
           {{ row.type | getType }}
         </span>
         <span slot="status" slot-scope="text, row">
-          {{ row.status === 1 ?'未审核':'已审核'}}
+          {{ row.status === 1 ? $t('admin.pendingReview') : $t('admin.audited') }}
         </span>
         <span slot="created_at" slot-scope="text, row">
           {{ new Date(row.created_at) | getTime }}
         </span>
         <span slot="action" slot-scope="text, row">
-          <a-button style="margin-left:10px" v-if="row.status === 1" type="primary" @click="auditResources(row)">审核</a-button>
-          <a-button style="margin-left:10px" type="primary" @click="preview(row)">预览</a-button>
+          <a-button style="margin-left:10px" v-if="row.status === 1" type="primary" @click="auditResources(row)">{{$t('admin.review')}}</a-button>
+          <a-button style="margin-left:10px" type="primary" @click="preview(row)">{{$t('admin.preview')}}</a-button>
           <!-- <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="delAdmin(row.id)">
             <a-button style="margin-left:10px" type="danger">删除</a-button>
           </a-popconfirm> -->
         </span>
       </a-table>
       <!-- 预览 -->
-      <a-modal v-model="previewVisible" title="预览" width="500px" ok-text="确认" cancel-text="取消">
-
+      <a-modal v-model="previewVisible" :title="this.$t('admin.preview')" width="500px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')">
         <div style="height:300px; overflow-y:auto;">
-          <p>提交人信息：{{previewUserId}}</p>
-          <p>资源名称：{{previewName}}</p>
-          <p>资源类型：{{previewType  | getType}}</p>
+          <p>{{this.$t('admin.submitter')}}：{{previewUserId}}</p>
+          <p>{{this.$t('admin.resource')}}：{{previewName}}</p>
+          <p>{{this.$t('admin.resourceType')}}：{{previewType  | getType}}</p>
           <p v-for="(item, index) in previewData" :key="index">{{ item }}</p>
         </div>
       </a-modal>
 
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
@@ -89,52 +91,58 @@ import { Message } from 'element-ui'
 import user from '@/components/user/user'
 const columns = [
   {
-    title: '资源名称',
+    // title: '资源名称',
+    slotName: 'admin.resource',
     dataIndex: 'name',
     width: '150px',
     ellipsis: true,
     align: 'center',
-    scopedSlots: { customRender: 'name' }
+    scopedSlots: { customRender: 'name', title:'admin.resource' }
   },
   {
-    title: '资源类型',
+    // title: '资源类型',
+    slotName: 'admin.resourceType',
     dataIndex: 'type',
     width: '150px',
     align: 'center',
-    scopedSlots: { customRender: 'type' }
+    scopedSlots: { customRender: 'type', title:'admin.resourceType' }
   },
   {
-    title: '资源数据',
+    // title: '资源数据',
+    slotName: 'admin.resourceContent',
     dataIndex: 'data',
     width: '100',
     align: 'center',
-    scopedSlots: { customRender: 'data' },
+    scopedSlots: { customRender: 'data', title:'admin.resourceContent' },
     ellipsis: true,
     customRender: (value, row, index) => {
       return value != null ? JSON.stringify(value) : value
     }
   },
   {
-    title: '创建时间',
+    // title: '创建时间',
+    slotName: 'admin.creationTime',
     dataIndex: 'created_at',
     width: '200PX',
     align: 'center',
-    scopedSlots: { customRender: 'created_at' }
+    scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
   },
   {
-    title: '审核',
+    // title: '审核',
+    slotName: 'admin.review',
     dataIndex: 'status',
     width: '150PX',
     align: 'center',
-    scopedSlots: { customRender: 'status' }
+    scopedSlots: { customRender: 'status', title:'admin.review' }
   },
   {
-    title: '操作',
+    // title: '操作',operate
+    slotName: 'admin.operate',
     dataIndex: 'action',
     width: '300px',
     align: 'center',
     fixed: 'right',
-    scopedSlots: { customRender: 'action' }
+    scopedSlots: { customRender: 'action', title:'admin.operate' }
   }
 ]
 export default {
@@ -146,7 +154,7 @@ export default {
       earningsRecordData: [],
       dialogTableVisible: false,
       userInfo: JSON.parse(window.sessionStorage.getItem('userInfo')),
-      total: 20,
+      total: 0,
       size: 10,
       columns: [],
       dialogGroupId: false,
@@ -248,11 +256,21 @@ export default {
       if (this.searchData.user_id === '') {
         this.searchData.user_id = null
       }
-      const res = await api.getAdminResource(this.searchData)
-      if (res && res.code === 0 && res.data) {
-        this.tableData = res.data.data
-        this.total = res.data.count
+      if(this.userInfo.data.r === 1) {
+        let res = await api.getAdminResource(this.searchData)
+        if (res && res.code === 0 && res.data) {
+          this.tableData = res.data.data
+          this.total = res.data.count
+        }
+      } else if (this.userInfo.data.r === 5) {
+        let res = await api.getReviewResource(this.searchData)
+        if (res && res.code === 0 && res.data) {
+          this.tableData = res.data.data
+          this.total = res.data.count
+        }
+        
       }
+      
     },
     onSubmit() {
       console.log('submit!')
@@ -279,19 +297,34 @@ export default {
       let form = {}
       form.id = row.id
       form.status = 2
-      api.postAdminExamineResource(form).then((res) => {
-        Message({
-          type: 'success',
-          message: '审核成功'
+      if(this.userInfo.data.r === 1) {
+        api.postAdminExamineResource(form).then((res) => {
+          Message({
+            type: 'success',
+            message: '审核成功'
+          })
+          this.getTableData()
+        }).catch((err) => {
+          Message({
+            type: 'error',
+            message: err.msg
+          })
         })
-        this.init()
-        console.log(res)
-      }).catch((err) => {
-        Message({
-          type: 'error',
-          message: err.msg
+      } else if (this.userInfo.data.r === 5) {
+        api.postReviewExamineResource(form).then((res) => {
+          Message({
+            type: 'success',
+            message: '审核成功'
+          })
+          this.getTableData()
+        }).catch((err) => {
+          Message({
+            type: 'error',
+            message: err.msg
+          })
         })
-      })
+      }
+      
     },
     preview(row) {
       console.log(row)

@@ -16,6 +16,7 @@ export const getEnum = res => get('/api/v1/init/enum', res)
 export const getUser = res => get('/api/v1/user/user/', res)
 // 修改密码
 export const putUser = res => put('/api/v1/user/user/', res)
+export const putAgent = res => put('/api/v1/agent/user/', res)
 export const getAdmin = res => get('/api/v1/admin/user/', res)
 export const getUserUser = res => get('/api/v1/user/user/', res)
 export const addUserInter = res => post('/api/v1/admin/user/', res)
@@ -60,11 +61,11 @@ export const putAcountAssign = res => put('/api/v1/account/assign', res)
 //  账号管理  绑定到端口 分配账号到设备  ##
 export const putAcountBindPortUser  = res => put('/api/v1/user/account/bind', res)
 //  任务管理  关注 不使用  有api 用户链接
-export const postAnalyzeUserLink = res => post('/api/v1/tiktokParse/user',res)  // 原
-export const postAnalyzeUserLinkUser = res => post('/api/v1/user/tiktokParse/user',res)  // 修改
+export const postAnalyzeUserLink = res => post('/api/v1/tiktokParse/user',res)
+export const postAnalyzeUserLinkUser = res => post('/api/v1/user/tiktokParse/user',res)
 //  任务管理  关注 不使用  有api 视频链接
-export const postAnalyzeVideoLink = res => post('/api/v1/tiktokParse/video',res) // 原
-export const postAnalyzeVideoLinkUser = res => post('/api/v1/user/tiktokParse/video',res)   // 修改
+export const postAnalyzeVideoLink = res => post('/api/v1/tiktokParse/video',res)
+export const postAnalyzeVideoLinkUser = res => post('/api/v1/user/tiktokParse/video',res)
 // 未使用 无api
 export const exportAccountInfo = res => gets('/api/v1/account/download', res)
 //   ##
@@ -168,7 +169,14 @@ export const setAccountNicknameUser = res => post('/api/v1/user/accountInfo/nick
 export const setAccountSignatureUser = res => post('/api/v1/user/accountInfo/signature', res)
 // 修改头像  用户 ##
 export const setAccountAvatarUser = res => post('/api/v1/user/accountInfo/avatar', res)
+// 用户首页数据获取
 export const getUserHomeInfo = res => get('/api/v1/user/user/homeInfo', res)
+// 用户首页获取实时流量信息
+export const getUseGetFlow = res => get('/api/v1/user/user/getFlow', res)
+export const getUseToken = res => get('/api/v1/user/account/token', res)
+
+
+// 用户资源 视频解析
 export const postTiktokParseVideo = res => post('/api/v1/user/tiktokParse/video/', res)
 export const postUserKF = res => post('/api/v1/user/user', res)
 export const getUserKF = res => get('/api/v1/user/user', res)
@@ -176,6 +184,10 @@ export const putUserKF = res => put('/api/v1/user/user', res)
 export const delUserKF = res => deletefn('/api/v1/user/user/', res)
 export const postPortbindKf = res => post('/api/v1/user/port/bindKf', res)
 export const postUserSearch = res => post('/api/v1/user/search/', res)
+export const postUserUploadData = res => post('/api/v1/collect/uploadData', res)
+export const postUserAccountUpload = res => post('/api/v1/account/upload', res)
+
+
 
 
 
@@ -184,6 +196,12 @@ export const postUserSearch = res => post('/api/v1/user/search/', res)
 
 // 公告提示
 export const getPublish = res => get('/api/v1/publish/', res)
+
+
+// 审核员
+export const getReviewResource = res => get('/api/v1/review/resource/', res) 
+export const postReviewExamineResource = res => post('/api/v1/review/resource/ExamineResource', res)
+
 
 
 
@@ -204,13 +222,16 @@ export const postAdminPublish = res => post('/api/v1/admin/publish', res)
 export const putAdminPublish = res => put('/api/v1/admin/publish', res)
 export const deletefnAdminPublish = res => deletefn('/api/v1/admin/publish/'+ res, '')
 export const getAdminAdminHomePage = res => get('/api/v1/admin/user/adminHomePage', res)
-
-
-
+export const putAdminUserAgent = res => put('/api/v1/admin/user/agent', res)
+// 积分信息下载
+export const postAdminExportPort = res => post('/api/v1/admin/pointsRecord/exportPort', res)
 // 管理员 系统配置
 export const postAdminConfig = res => post('/api/v1/admin/config/', res)
 export const getAdminConfig = res => get('/api/v1/admin/config/'+ res, )
 export const getAdminCommodityAccount = res => get('/api/v1/admin/commodityAccount', res)
+
+
+
 
 // 代理商 
 export const getAgent = res => get('/api/v1/agent/user/', res)
@@ -233,10 +254,15 @@ export const postAgentCommodityAccountStock = res => post('/api/v1/agent/commodi
 export const getAgentRecordGet = res => get('/api/v1/agent/record/get', res)
 export const postAgentPortAddDay = res => post('/api/v1/agent/port/addDay', res)
 export const postAgentPortRenewDay = res => post('/api/v1/agent/port/renewDay', res)
+export const getAgentAssignAccountRecord = res => get('/api/v1/agent/assignAccountRecord/', res)
 // 用户管理
 export const putAgentUserInter = res => put('/api/v1/agent/user/', res)
 export const delAgentUserInter = res => deletefn('/api/v1/agent/user/', res)
 export const delAgentAcount = res => deletefn('/api/v1/agent/account/', res)
+export const postAgentAccountDel = res => post('/api/v1/agent/account/del', res)
+
+
+
 
 // 号商
 export const getDealerUser = res => get('/api/v1/dealer/user', res)
@@ -248,6 +274,9 @@ export const postDealerCommodityAccount = res => post('/api/v1/dealer/commodityA
 export const postDealeryAccountAssign = res => post('/api/v1/dealer/account/assign', res)
 export const getDealer = res => get('/api/v1/dealer/user/', res)
 export const getDealerQuerySale = res => get('/api/v1/dealer/user/querySale', res)
+// 号商批量删除账号
+export const postDealeryAccountDel = res => post('/api/v1/dealer/account/del', res)
+
 
 
 // 聊天
@@ -261,6 +290,12 @@ export const getFansMessge = res => get('/api/v1/im/message/', res)
 
 // 发送消息
 export const sendMessge = res => post('/api/v1/im/message/send', res)
+// 快捷回复
+export const getImQuickReply = res => get('/api/v1/im/quickReply/', res)
+export const postImQuickReply = res => post('/api/v1/im/quickReply/', res)
+export const delImQuickReply = res => deletefn('/api/v1/im/quickReply/', res)
+// 客服备注
+export const putImAccountFollower = res => put('/api/v1/im/accountFollower/', res)
 
 export const getGitIO = res => getGitIoURL(res)
 

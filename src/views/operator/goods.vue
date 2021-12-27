@@ -2,32 +2,33 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="描述">
-          <a-input v-model="searchData.describe" placeholder="请输入描述" allow-clear />
+        <a-form-item :label="this.$t('admin.describe')">
+          <a-input v-model="searchData.describe" :placeholder="this.$t('admin.describe')" allow-clear />
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" @click="init()">查询</a-button>
-          <a-button type="primary" style="margin-left:10px;" @click="goodsUpload()">商品上传</a-button>
-          <!-- <a-button type="primary" style="margin-left:10px;" @click="SellingAccount">账号出售</a-button> -->
-          <!-- <a-button type="primary" style="margin-left:10px;" @click="divisionAccoun">划分至用户</a-button> -->
+          <a-button type="primary" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
+          <a-button type="primary" style="margin-left:10px;" @click="goodsUpload()">{{this.$t('dealer.productUpload')}}</a-button>
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
             <!-- <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" :row-selection="{ selectedRowKeys: selectPortDataId, onChange: rowSelectionPort }" class="tableLimit" :bordered="true" :pagination="false"> -->
       <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="avatar" slot-scope="text, row ">
           <a-avatar :src="row.avatar" />
           <p>{{ row.nickname }}</p>
         </span>
         <span slot="is_official" slot-scope="text, row">
-          {{ row.is_official === false ?'否':'是'}}
+          {{ row.is_official === false ? $t('admin.No') : $t('admin.Yes') }}
         </span>
         <span slot="price" slot-scope="text, row">
-          {{ row.price}} 积分
+          {{ row.price}}{{$t('admin.integral')}}
         </span>
         <span slot="action" slot-scope="text, row">
-          <a-button style="margin-left:10px" type="primary" @click="goodsUpload(row)">修改</a-button>
+          <a-button style="margin-left:10px" type="primary" @click="goodsUpload(row)">{{$t('admin.revise')}}</a-button>
           <!-- <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="deletefn(row)">
             <a-button style="margin-left:10px" type="danger">删除</a-button>
           </a-popconfirm> -->
@@ -36,27 +37,27 @@
       </a-table>
 
       <!-- 商品上传 -->
-      <a-modal v-model="goodsVisible" title="商品上传" width="400px" ok-text="确认" cancel-text="取消" @ok="goodsSubmit">
-        <a-form ref="form" :model="goodsForm" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+      <a-modal v-model="goodsVisible" :title="this.$t('dealer.productUpload')" width="500px" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="goodsSubmit">
+        <a-form ref="form" :model="goodsForm" labelAlign='left' :label-col="{ span: 8 }" :wrapper-col="{ span: 24 }">
           <!-- <a-form-item label="唯一ID">
             <a-input v-model="goodsForm.user_id" />
-          </a-form-item> -->
+          </a-form-item> -->                   
           <!-- <a-form-item label="是否自营账号">
             <a-input v-model="goodsForm.is_official" />
           </a-form-item> -->
-          <a-form-item label="标题信息" prop="title">
+          <a-form-item :label="$t('dealer.headerInformation')" prop="title">
             <a-input v-model="goodsForm.title" />
           </a-form-item>
-          <a-form-item label="商品描述">
+          <a-form-item :label="$t('dealer.productDescription')">
             <a-input v-model="goodsForm.describe" prop="describe"/>
           </a-form-item>
-          <a-form-item label="图片地址">
+          <a-form-item :label="$t('dealer.photoUrl')">
             <a-input v-model="goodsForm.avatar" prop="avatar"/>
           </a-form-item>
-          <a-form-item label="商品价格">
+          <a-form-item :label="$t('admin.price')">
             <a-input v-model="goodsForm.price" prop="price"/>
           </a-form-item>
-          <a-form-item label="联系信息">
+          <a-form-item :label="$t('admin.contactInformation')">
             <a-input v-model="goodsForm.contact" prop="contact"/>
           </a-form-item>
         </a-form>
@@ -75,23 +76,8 @@
           </a-form-item>
         </a-form>
       </a-modal>
-      <!-- 划分账号 -->
-      <a-modal v-model="divisionVisible" title="划分账号" width="500px" ok-text="确认" cancel-text="取消">
-        <a-form ref="form" :model="form" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-          <a-form-item label="账号ID">
-            <a-input v-model="form.userID" />
-          </a-form-item>
-          <a-form-item label="用户名称">
-            <a-input v-model="form.username" />
-          </a-form-item>
-        </a-form>
-      </a-modal>
-      <!-- 运行记录 -->
-      <a-modal v-model="integralVisible"   title="运行记录" width="60%" ok-text="确认" cancel-text="取消">
-        <a-table :columns="runInfocolumns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :bordered="true" :pagination="false"></a-table>
-      </a-modal>
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
@@ -103,55 +89,65 @@
 
 <script>
 const columns = [{
-  title: '头像',
+  // title: '头像',
+  slotName: 'dealer.account',
   dataIndex: 'avatar',
   align: 'center',
   width: '80px',
-  scopedSlots: { customRender: 'avatar' }
+  scopedSlots: { customRender: 'avatar', title:'dealer.account' }
 },
 {
-  title: '标题',
+  // title: '标题',
+  slotName: 'dealer.headerInformation',
   dataIndex: 'title',
   width: '200px',
   ellipsis: true,
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'title', title:'dealer.headerInformation' }
 },
 {
-  title: '描述',
+  // title: '描述',
+  slotName: 'admin.describe',
   dataIndex: 'describe',
   width: '200px',
   ellipsis: true,
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'describe', title:'admin.describe' }
 },
 {
-  title: '联系信息',
+  // title: '联系信息',
+  slotName: 'admin.contactInformation',
   dataIndex: 'contact',
   width: '200px',
   ellipsis: true,
-  align: 'center'
+  align: 'center',
+  scopedSlots: { customRender: 'contact', title:'admin.contactInformation' }
 },
 {
-  title: '价格',
+  // title: '价格',
+  slotName: 'admin.price',
   dataIndex: 'price',
   width: '100px',
   ellipsis: true,
   align: 'center',
-  scopedSlots: { customRender: 'price' }
+  scopedSlots: { customRender: 'price', title:'admin.price' }
 },
 {
-  title: '是否自营',
+  // title: '是否自营',SelfEmployed
+  slotName: 'admin.SelfEmployed',
   dataIndex: 'is_official',
   width: '100px',
   ellipsis: true,
   align: 'center',
-  scopedSlots: { customRender: 'is_official' }
+  scopedSlots: { customRender: 'is_official', title:'admin.SelfEmployed' }
 },
 {
-  title: '操作',
+  // title: '操作',
+  slotName: 'admin.operate',
   dataIndex: 'action',
   align: 'center',
   width: '120px',
-  scopedSlots: { customRender: 'action' }
+  scopedSlots: { customRender: 'action', title:'admin.operate' }
 }]
 const runInfocolumns = [{
 
@@ -230,10 +226,6 @@ export default {
       goodsVisible: false,
       // 出售账号
       sellVisible: false,
-      // 划分账号
-      divisionVisible: false,
-      // 积分记录
-      integralVisible: false
     }
   },
   async mounted() {
@@ -307,11 +299,6 @@ export default {
       this.sellVisible = false
     },
 
-    // 划分账号
-    divisionAccoun() {
-      this.divisionVisible = true
-    },
-
     // 查看账号
     view(row) {
       this.$router.push({
@@ -320,10 +307,6 @@ export default {
           device_id: row.id
         }
       })
-    },
-    // 查看积分
-    integralView() {
-      this.integralVisible = true
     },
     rowSelectionPort(selectedRowKeys, values) {
       this.selectPortDataId = []

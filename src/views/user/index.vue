@@ -2,29 +2,32 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="用户名">
-          <a-input v-model="searchData.username" style="150px" placeholder="用户名" allow-clear />
+        <a-form-item :label="this.$t('admin.username')">
+          <a-input v-model="searchData.username" style="150px" :placeholder="this.$t('admin.username')" allow-clear />
         </a-form-item>
-        <a-form-item v-if="role == 1" label="角色">
-          <a-select v-model="searchData.role" placeholder="选择角色" style="width:213px" allow-clear>
-            <a-select-option :value="0">用户</a-select-option>
+        <a-form-item v-if="role == 1" :label="this.$t('admin.role')">
+          <a-select v-model="searchData.role" :placeholder="this.$t('admin.role')" style="width:213px" allow-clear>
+            <a-select-option :value="0">{{this.$t('admin.user')}}</a-select-option>
             <!-- <a-select-option :value="1">管理员</a-select-option> -->
-            <!-- 代理商 2 -->
-            <a-select-option :value="2">代理商</a-select-option>
-            <!-- 号商 3 -->
-            <a-select-option :value="3">号商</a-select-option>
+            <a-select-option :value="2">{{this.$t('admin.agent')}}</a-select-option>
+            <a-select-option :value="3">{{this.$t('admin.supplier')}}</a-select-option>
+            <a-select-option :value="4">{{this.$t('admin.customerService')}}</a-select-option>
+            <a-select-option :value="5">审核员</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" icon="search" @click="init()">查询</a-button>
-          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="add">新增</a-button>
+          <a-button type="primary" icon="search" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
+          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="add">{{this.$t('admin.Add')}}</a-button>
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
       <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x: 1500}" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="status" slot-scope="text, row">
-          {{ row.status == 0 ? '正常' : '封禁' }}
+          {{ row.status == 0 ? $t('admin.normal') : $t('admin.Ban') }}
         </span>
         <span slot="agent_level" slot-scope="text, row">
           {{ row.agent_level | getLevel }}
@@ -35,58 +38,60 @@
         <span slot="action" slot-scope="text, row">
           <!-- <a-button style="margin-left:10px" @click="viewEarnings(row.id)">查看收益</a-button> -->
 
-          <a-button v-if="role === 1" type="primary" @click="checkSystem(row.id)">积分记录</a-button>
-          <a-button style="margin-left:10px" type="primary" @click="addTraffic(row.id)">添加积分</a-button>
+          <a-button v-if="role === 1" type="primary" @click="checkSystem(row.id)">{{$t('admin.pointsRecord')}}</a-button>
+          <a-button style="margin-left:10px" type="primary" @click="addTraffic(row.id)">{{$t('admin.addPoints')}}</a-button>
           <!-- <a-button style="margin-left:10px" @click="addPort(row.id)">新增端口</a-button> -->
-          <a-button style="margin-left:10px" type="primary" @click="edit(row)">编辑信息</a-button>
-          <a-button style="margin-left:10px" type="primary" @click="editLevel(row)">修改等级</a-button>
+          <a-button style="margin-left:10px" type="primary" @click="edit(row)">{{$t('admin.edit')}}</a-button>
+          <a-button style="margin-left:10px" type="primary" @click="editLevel(row)">{{$t('admin.modifyLevel')}}</a-button>
+          <a-button style="margin-left:10px" type="primary" @click="alterAgent(row)">{{$t('admin.modifyAgent')}}</a-button>
           <!-- <a-button v-if="role == 1" :disabled="row.role != 0" style="margin-left:10px" type="primary" @click="check(row)">绑定代理商</a-button> -->
           <!-- <a-button v-if="role == 1" style="margin-left:10px" type="primary" @click="configAdv(row)">配置广告</a-button> -->
-          <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="del(row.id)">
-            <a-button style="margin-left:10px" type="danger">删除用户</a-button>
+          <a-popconfirm :title="$t('admin.deleteUsers')" ok-text="Yes" cancel-text="No" @confirm="del(row.id)">
+            <a-button style="margin-left:10px" type="danger">{{$t('admin.deleteUsers')}}</a-button>
           </a-popconfirm>
         </span>
       </a-table>
 
-      <a-modal v-model="dialogVisible" title="新增用户" ok-text="确认" cancel-text="取消" @ok="addUser">
+      <a-modal v-model="dialogVisible" :title="this.$t('admin.newUsers')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="addUser">
         <a-form-model ref="form" layout="horizontal" :model="form" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="选择角色" prop="role">
-            <a-select v-model="form.role" placeholder="请选择角色">
-              <a-select-option v-if="role == 1" :value="1">管理员</a-select-option>
+          <a-form-model-item :label="this.$t('admin.role')" prop="role">
+            <a-select v-model="form.role" :placeholder="this.$t('admin.role')">
+              <a-select-option v-if="role == 1" :value="1">{{$t('admin.administrator')}}</a-select-option>
               <!-- <a-select-option :value="0">用户</a-select-option> -->
-              <a-select-option :value="2">代理商</a-select-option>
-              <a-select-option :value="3">号商</a-select-option>
+              <a-select-option :value="2">{{$t('admin.agent')}}</a-select-option>
+              <a-select-option :value="3">{{$t('admin.supplier')}}</a-select-option>
+              <a-select-option :value="5">审核员</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item v-if="form.role === 2" label="VIP等级">
-            <a-select @change="(value,option) => {levelId(value,option)} " placeholder="请选择等级" >
+          <a-form-model-item v-if="form.role === 2" :label="this.$t('admin.VIPlevel')">
+            <a-select @change="(value,option) => {levelId(value,option)} " :placeholder="this.$t('admin.grade')" >
               <a-select-option v-for="item in levelList" :key="item.id" :value="item.id" :label="item.name">{{item.name}}</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="用户名" prop="username">
-            <a-input v-model="form.username" />
+          <a-form-model-item :label="this.$t('admin.username')" prop="username">
+            <a-input v-model="form.username" oninput="value=value.replace(/[^\w\/]/ig,'')" />
           </a-form-model-item>
-          <a-form-model-item label="密码" prop="password">
-            <a-input v-model="form.password" />
+          <a-form-model-item :label="this.$t('admin.password')" prop="password">
+            <a-input-password v-model="form.password" type="password" oninput="value=value.replace(/[^\w\/]/ig,'')"/>
           </a-form-model-item>
-          <a-form-model-item label="邮箱">
+          <a-form-model-item :label="this.$t('admin.Mail')">
             <a-input v-model="form.email" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
 
-      <a-modal v-model="addPortVisible" title="新增端口" ok-text="确认" cancel-text="取消" @ok="addPortApi">
+      <a-modal v-model="addPortVisible" :title="this.$t('admin.newPort')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="addPortApi">
         <a-form-model ref="form" layout="horizontal" :model="form" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="数量" prop="num">
+          <a-form-model-item :label="this.$t('admin.quantity')" prop="num">
             <a-input v-model="addPortForm.num" />
           </a-form-model-item>
-          <a-form-model-item label="天数">
+          <a-form-model-item :label="this.$t('admin.heaven')">
             <a-input v-model="addPortForm.day" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
       <!-- 查看积分记录  @ok="addAgencyApit" -->
-      <a-modal v-model="checkAgencyVisible" title="积分记录" ok-text="添加代理" :ok-button-props="OKbuttonDisplay"  :width="700" cancel-text="取消" @ok="addAgency">
+      <a-modal v-model="checkAgencyVisible" :title="this.$t('admin.pointsRecord')" :ok-text="this.$t('admin.confirm')" :ok-button-props="OKbuttonDisplay"  :width="700" :cancel-text="this.$t('admin.cancel')" @ok="addAgency">
         <a-table :columns="columnsAgency" :data-source="agencyData" :row-key="record => record.user_id" class="tableLimit" :bordered="true" :pagination="false" :scroll="{ x: 600}">
           <span slot="created_at" slot-scope="text, row">
             {{ new Date(row.created_at) | getTime }}
@@ -95,61 +100,98 @@
       </a-modal>
 
       <!-- 添加积分 -->
-      <a-modal v-model="addTrafficVisible" title="添加积分" ok-text="确认" cancel-text="取消" @ok="addTrafficApi">
+      <a-modal v-model="addTrafficVisible" :title="this.$t('admin.addPoints')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="addTrafficApi">
         <a-form-model ref="form" layout="horizontal" :model="form" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="积分：" prop="flow">
+          <a-form-model-item :label="$t('admin.integral')+':'" prop="flow">
             <a-input v-model="form.points" />
           </a-form-model-item>
-          <a-form-model-item label="备注：" prop="flow">
+          <a-form-model-item :label="$t('admin.remark')+':'" prop="flow">
             <a-input v-model="form.remarks" />
           </a-form-model-item>
         </a-form-model>
+        <span slot="footer">
+          <a-button style="margin-left:10px;" class="add-btn" type="success" @click="addTrafficVisible = false">{{this.$t('admin.cancel')}}</a-button>
+          <a-button style="margin-left:10px;" type="primary" :loading="addTrafficLoading" @click="addTrafficApi">{{this.$t('admin.confirm')}}</a-button>
+        </span>
       </a-modal>
       <!-- VIP等级 -->
-      <a-modal v-model="agentLevelVisible" title="VIP等级设置" ok-text="确认" cancel-text="取消" @ok="addAgentLevel">
+      <a-modal v-model="agentLevelVisible" :title="this.$t('admin.levelSetting')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="addAgentLevel">
         <a-form-model ref="form" layout="horizontal" :model="agentLevelForm" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="等级">
+          <a-form-model-item :label="this.$t('admin.grade')">
             <a-input v-model="agentLevelForm.name" />
           </a-form-model-item>
-          <a-form-model-item label="描述">
+          <a-form-model-item :label="this.$t('admin.describe')">
             <a-input v-model="agentLevelForm.describe" />
           </a-form-model-item>
-          <a-form-model-item label="端口优惠价">
+          <a-form-model-item :label="this.$t('admin.portOffer')">
             <a-input v-model="agentLevelForm.port_discount" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
 
-      <a-modal v-model="modifyDialogVisible" title="修改用户" ok-text="确认" cancel-text="取消" @ok="editUser">
+      <a-modal v-model="modifyDialogVisible" :title="this.$t('admin.modifyUser')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="editUser">
         <a-form-model ref="edit_form" layout="horizontal" :model="modifyForm"  :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="选择角色">
-            <a-select v-model="modifyForm.role" placeholder="请选择角色">
-              <a-select-option v-if="role == 1" :value="1">管理员</a-select-option>
-              <a-select-option v-if="role == 1" :value="0">用户</a-select-option>
-              <a-select-option v-if="role == 1" :value="2">代理商</a-select-option>
-              <a-select-option v-if="role == 1" :value="3">号商</a-select-option>
+          <a-form-model-item :label="this.$t('admin.role')">
+            <a-select v-model="modifyForm.role" :placeholder="this.$t('admin.role')">
+              <a-select-option v-if="role == 1" :value="1">{{$t('admin.administrator')}}</a-select-option>
+              <a-select-option v-if="role == 1" :value="0">{{$t('admin.user')}}</a-select-option>
+              <a-select-option v-if="role == 1" :value="2">{{$t('admin.agent')}}</a-select-option>
+              <a-select-option v-if="role == 1" :value="3">{{$t('admin.supplier')}}</a-select-option>
+              <a-select-option v-if="role == 1" :value="4">{{$t('admin.customerService')}}</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="选择状态">
-            <a-select v-model="modifyForm.status" placeholder="请选择状态">
-              <a-select-option :value="1">封禁</a-select-option>
-              <a-select-option :value="0">正常</a-select-option>
+          <a-form-model-item :label="this.$t('admin.state')">
+            <a-select v-model="modifyForm.status" :placeholder="this.$t('admin.state')">
+              <a-select-option :value="1">{{$t('admin.Ban')}}</a-select-option>
+              <a-select-option :value="0">{{$t('admin.normal')}}</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="重置密码">
-            <a-input
-              v-model="modifyForm.password" type="password"/>
+          <a-form-model-item :label="this.$t('admin.password')">
+            <a-input-password v-model="modifyForm.password" type="password" oninput="value=value.replace(/[^\w\/]/ig,'')"/>
           </a-form-model-item>
         </a-form-model>
       </a-modal>
-      <a-modal v-model="levelVisible" title="修改等级" ok-text="确认" cancel-text="取消" @ok="levelUser">
+      <a-modal v-model="levelVisible" :title="this.$t('admin.modifyLevel')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok="levelUser">
         <a-form-model ref="edit_form" layout="horizontal" :model="levelForm" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="VIP等级">
-            <a-select @change="(value,option) => {levelAlter(value,option)} " placeholder="请选择等级" >
+          <a-form-model-item :label="this.$t('admin.VIPlevel')">
+            <a-select @change="(value,option) => {levelAlter(value,option)} " :placeholder="this.$t('admin.grade')" >
               <a-select-option v-for="item in levelList" :key="item.id" :value="item.id" :label="item.name">{{item.name}}</a-select-option>
             </a-select>
           </a-form-model-item>
         </a-form-model>
+      </a-modal>
+      <!-- 修改代理商 -->
+      <a-modal v-model="alterAgentVisible" :title="this.$t('admin.modifyAgent')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" @ok='alterAgentSubmit'>
+        <a-form-model ref="edit_form" layout="horizontal" :model="alterAgentForm" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }">
+          <a-form-model-item :label="this.$t('admin.agent')">
+            <a-input v-model="alterAgentForm.AgentName" @click="gainAgent" readOnly/>
+          </a-form-model-item>
+          <a-form-model-item :label="this.$t('admin.user')">
+            <a-input v-model="alterAgentForm.userName" readOnly/>
+          </a-form-model-item>
+        </a-form-model>
+      </a-modal>
+
+      <!-- 代理商ID -->
+      <a-modal v-model="agentDataVisible" :title="this.$t('admin.agent')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" :width="700" @ok='agentDataOK'>
+        <a-table :columns="columnsAgent" :data-source="agentData" :row-key="record => record.id" class="tableLimit" :row-selection="{onChange:onSelectChange,type:'radio'}" :bordered="true" :pagination="false" :scroll="{ x: 600}">
+          <span slot="created_at" slot-scope="text, row">
+            {{ new Date(row.created_at) | getTime }}
+          </span>
+          <span slot="status" slot-scope="text, row">
+          {{ row.status == 0 ? $t('admin.normal') : $t('admin.Ban') }}
+        </span>
+        <span slot="agent_level" slot-scope="text, row">
+          {{ row.agent_level | getLevel }}
+        </span>
+        </a-table>
+        <div class="page">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]}，${$t('admin.total')}:${agencyTotal}`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="agencyObj.page" :total="agencyTotal" @change="agencyCurrentChange" @showSizeChange="agencySizeChange">
+          <template slot="buildOptionText" slot-scope="props">
+            <span>{{ props.value }}条/页</span>
+          </template>
+        </a-pagination>
+      </div>
       </a-modal>
       <a-modal v-model="dialogAdv" title="配置广告" ok-text="确认" cancel-text="取消" @ok="addAdv">
         <a-form-model ref="adv_form" layout="horizontal" :model="advForm" :label-col="{ span: 8 }" :wrapper-col="{ span: 14 }">
@@ -165,7 +207,7 @@
         </a-form-model>
       </a-modal>
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]}，${$t('admin.total')}:${total}`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
@@ -190,83 +232,136 @@
 import * as api from '@/api/index'
 import user from '@/components/user/user'
 import { number } from 'echarts'
-const columns = [{
-  title: '用户名',
+const columns = [{ 
+  slotName: 'admin.username',
   dataIndex: 'username',
   width: '200px',
   align: 'center',
-  scopedSlots: { customRender: 'username' }
-}, {
-  title: '状态',
+  scopedSlots: { customRender: 'username', title:'admin.username' }
+},
+{
+  // title: '状态',
+  slotName: 'admin.state',
   dataIndex: 'status',
   width: '200px',
   align: 'center',
-  scopedSlots: { customRender: 'status' }
+  scopedSlots: { customRender: 'status', title:'admin.state' }
 }, {
-  title: '角色',
+  // title: '角色',
+  slotName: 'admin.role',
   dataIndex: 'role',
   width: '200px',
   align: 'center',
   role: [1],
-  scopedSlots: { customRender: 'role' }
+  scopedSlots: { customRender: 'role', title:'admin.role' }
 },
 {
-  title: '等级',
+  // title: '等级',
+  slotName: 'admin.grade',
   dataIndex: 'agent_level',
   width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'agent_level' }
+  scopedSlots: { customRender: 'agent_level', title:'admin.grade' }
 },
 {
-  title: '邮箱',
+  // title: '邮箱',
+  slotName: 'admin.Mail',
   dataIndex: 'email',
   width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'email' }
-},
- {
-  title: '积分',
-  dataIndex: 'points',
-  width: '200px',
-  align: 'center',
-  scopedSlots: { customRender: 'points' }
+  scopedSlots: { customRender: 'email', title:'admin.Mail' }
 },
 {
-  title: '操作',
+  // title: '积分',
+  slotName: 'admin.integral',
+  dataIndex: 'points',
+  width: '100px',
+  align: 'center',
+  scopedSlots: { customRender: 'points', title:'admin.integral' }
+},
+{
+  // title: '操作',
+  slotName: 'admin.operate',
   dataIndex: 'action',
-  width: '550px',
+  width: '700px',
   align: 'center',
   fixed: 'right',
-  scopedSlots: { customRender: 'action' }
-}]
+  scopedSlots: { customRender: 'action', title:'admin.operate' }
+}
+]
+const columnsAgent = [{
+  // title: '用户名',
+  slotName: 'admin.username',
+  dataIndex: 'username',
+  width: '100px',
+  align: 'center',
+  scopedSlots: { customRender: 'username', title:'admin.username'}
+},
+{
+  // title: '等级',
+  slotName: 'admin.grade',
+  dataIndex: 'agent_level',
+  width: '100',
+  align: 'center',
+  scopedSlots: { customRender: 'agent_level', title:'admin.grade' }
+},
+{
+  // title: '积分',
+  slotName: 'admin.integral',
+  dataIndex: 'points',
+  width: '100px',
+  align: 'center',
+  scopedSlots: { customRender: 'points', title:'admin.integral' }
+},
+{
+  // title: '状态',
+  slotName: 'admin.state',
+  dataIndex: 'status',
+  width: '100px',
+  align: 'center',
+  scopedSlots: { customRender: 'status', title:'admin.state' }
+},
+{
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
+  dataIndex: 'created_at',
+  width: '200px',
+  align: 'center',
+  scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
+}
+]
 const columnsAgency = [
 {
-  title: '代理用户名',
+  // title: '代理用户名',
+  slotName: 'admin.proxyUsername',
   dataIndex: 'username',
   width: '80px',
   align: 'center',
-  scopedSlots: { customRender: 'username' }
+  scopedSlots: { customRender: 'username', title:'admin.proxyUsername' }
 },
 {
-  title: '代理密码',
+  // title: '代理密码',
+  slotName: 'admin.proxypassword',
   dataIndex: 'password',
   width: '80px',
   align: 'center',
-  scopedSlots: { customRender: 'password' }
+  scopedSlots: { customRender: 'password', title:'admin.proxypassword' }
 },
 {
-  title: '创建时间',
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
   dataIndex: 'created_at',
   width: '100px',
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
 },
 ]
 export default {
   components: {
     user
   },
-  data() {
+  data() 
+    {
     return {
       earningsRecordData: [],
       dialogTableVisible: false,
@@ -274,6 +369,7 @@ export default {
       total: 20,
       size: 10,
       columns: [],
+      columnsAgent: columnsAgent,
       columnsAgency: [],
       dialogGroupId: false,
       dialogAdv: false,
@@ -292,6 +388,12 @@ export default {
       },
       tableData: [],
       agencyData: [],
+      agencyObj: {
+        page: 1,
+        page_size: 10,
+        order_created_at: true
+      },
+      agencyTotal: 0,
       dialogVisible: false,
       addPortVisible: false,
       // 添加积分
@@ -300,10 +402,21 @@ export default {
         flow: 0
       },
       addTrafficVisible: false,
+      addTrafficLoading: false, // 添加积分确定按钮
       // 查看代理
       checkAgencyVisible: false,
       // VIP等级
       levelVisible: false,
+      // 修改代理商
+      alterAgentVisible: false,
+      agentDataVisible: false,
+      agentData: [],
+      alterAgentForm: {
+        AgentName: '',
+        AgentId: '',
+        userName: '',
+        userId: '',
+      },
       agentLevelVisible: false,
       agentLevelForm: {
         name: '',
@@ -354,6 +467,7 @@ export default {
       if (value === 1) return '管理员'
       if (value === 2) return '代理商'
       if (value === 3) return '号商'
+      if (value === 4) return '客服'
     },
     getLevel(value) {
       if (value === 1) return '一级VIP'
@@ -453,6 +567,63 @@ export default {
       this.form.password = ''
       this.form.email = ''
     },
+    // 修改代理商
+    alterAgent(res) {
+      this.alterAgentVisible = true
+      this.alterAgentForm.userName = res.username
+      this.alterAgentForm.userId = res.id
+    },
+    // 获取代理商ID
+    gainAgent() {
+      this.agentDataVisible = true
+      let agencyObj = {}
+      agencyObj.page = this.agencyObj.page
+      agencyObj.page_size = this.agencyObj.page_size
+      agencyObj.role = 2
+      agencyObj.order_created_at = this.agencyObj.order_created_at
+      api.getAdmin(agencyObj).then(res => {
+        if (res && res.code === 0 && res.data) {
+          this.agentData = res.data.data
+          this.agencyTotal = res.data.count
+        }
+      }).catch(err => {
+        this.$message.error(err.msg)
+      })
+      
+    },
+    // 翻页
+    agencyCurrentChange(page) {
+      this.agencyObj.page = page
+      this.gainAgent()
+    },
+    // 翻页
+    agencySizeChange(p, s) {
+      this.agencyObj.page = p
+      this.agencyObj.page_size = s
+      this.gainAgent()
+    },
+    onSelectChange(selectedRowKeys, value) {
+      this.alterAgentForm.AgentName = value[0].username
+      this.alterAgentForm.AgentId = value[0].id
+    },
+    agentDataOK() {
+      this.agentDataVisible = false
+      console.log(this.alterAgentForm)
+    },
+    // 提交 修改代理
+    alterAgentSubmit() {
+      let form = {}
+      form.agent_id = this.alterAgentForm.AgentId
+      form.user_id = this.alterAgentForm.userId
+      api.putAdminUserAgent(form).then(res => {
+        if(res.code === 0 ) {
+          this.alterAgentVisible = false
+          console.log(res)
+        }
+      }).catch(err => {
+        this.$message.error(err.msg)
+      })
+    },
     // 查看积分记录
     checkAgency(row) {
       this.checkAgencyVisible= true
@@ -485,6 +656,7 @@ export default {
       this.addTrafficVisible = true
     },
     addTrafficApi() {
+      this.addTrafficLoading = true
       const data = {
         user_id: this.form.user_id,
         points: Number(this.form.points),
@@ -492,8 +664,9 @@ export default {
       }
       api.postPointsRecord(data).then((res) => {
         if (res.code === 0) {
+          this.addTrafficLoading = false
           this.addTrafficVisible = false
-          this.init()
+          this.getTableData()
         } else {
           this.$message.error(err.msg)
           

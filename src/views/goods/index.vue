@@ -2,104 +2,42 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="是否自营账号">
-          <a-select v-model="searchData.is_official" placeholder="请选择" style="width:213px" allow-clear>
-            <a-select-option :value="false">否</a-select-option>
-            <a-select-option :value="true">是</a-select-option>
+        <a-form-item :label="this.$t('admin.SelfEmployed')">
+          <a-select v-model="searchData.is_official" style="width:213px" allow-clear>
+            <a-select-option :value="false">{{$t('admin.No')}}</a-select-option>
+            <a-select-option :value="true">{{$t('admin.Yes')}}</a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item label="用户ID">
-          <a-input v-model="searchData.user_id" style="100px" placeholder="请输入用户ID" allow-clear />
+        <a-form-item :label="this.$t('admin.userID')">
+          <a-input v-model="searchData.user_id" style="100px" :placeholder="this.$t('admin.userID')" allow-clear />
         </a-form-item>
-        <a-form-item label="联系方式">
-          <a-input v-model="searchData.contact" style="100px" placeholder="请输入联系方式" allow-clear />
+        <a-form-item :label="this.$t('admin.contactInformation')">
+          <a-input v-model="searchData.contact" style="100px" :placeholder="this.$t('admin.contactInformation')" allow-clear />
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" icon="search" @click="init()">查询</a-button>
+          <a-button type="primary" icon="search" @click="init()">{{this.$t('admin.Inquire')}}</a-button>
           <!-- <a-button style="margin-left:10px;" type="primary" icon="plus" @click="add">新增</a-button> -->
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
       <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x: 1500}" :bordered="true" :pagination="false">
-<!--         <span slot="status" slot-scope="text, row">
-          {{ row.status == 0 ? '正常' : '封禁' }}
-        </span> -->
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="role" slot-scope="text, row ">
           {{ row.role | getRole }}
         </span>
         <span slot="is_official" slot-scope="text, row">
-          {{ row.is_official === false ?'否':'是'}}
+          {{ row.is_official === false ? $t('admin.No') : $t('admin.Yes') }}
         </span>
         <span slot="action" slot-scope="text, row">
-          <a-button style="margin-left:10px" v-if="row.is_official === false" type="primary" @click="submitSetOfficial(row)">设为官方账号</a-button>
-          <a-button style="margin-left:10px" v-else-if="row.is_official === true" type="primary" @click="submitSetOfficial(row)">设为非官方账号</a-button>
-          <!-- <a-button style="margin-left:10px" @click="viewEarnings(row.id)">查看收益</a-button>
-          <a-button style="margin-left:10px" @click="view(row.id)">查看设备</a-button>
-          <a-button style="margin-left:10px" type="primary" @click="edit(row)">编辑</a-button>
-          <a-button v-if="role == 1" :disabled="row.role != 0" style="margin-left:10px" type="primary" @click="check(row)">绑定代理商</a-button>
-          <a-button v-if="role == 1" style="margin-left:10px" type="primary" @click="configAdv(row)">配置广告</a-button>
-          <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="del(row.id)">
-            <a-button style="margin-left:10px" type="danger">删除</a-button>
-          </a-popconfirm> -->
+          <a-button style="margin-left:10px" v-if="row.is_official === false" type="primary" @click="submitSetOfficial(row)">{{$t('admin.officialAccount')}}</a-button>
+          <a-button style="margin-left:10px" v-else-if="row.is_official === true" type="primary" @click="submitSetOfficial(row)">{{$t('admin.unofficialAccount')}}</a-button>
         </span>
       </a-table>
-
-      <a-modal v-model="dialogVisible" title="新增用户" ok-text="确认" cancel-text="取消" @ok="addUser">
-        <a-form-model ref="form" layout="horizontal" :model="form" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="选择角色" prop="role">
-            <a-select v-model="form.role" placeholder="请选择角色">
-              <a-select-option v-if="role == 1" :value="1">管理员</a-select-option>
-              <a-select-option :value="0">用户</a-select-option>
-              <a-select-option :value="2">代理商</a-select-option>
-            </a-select>
-          </a-form-model-item>
-          <a-form-model-item label="用户名" prop="username">
-            <a-input v-model="form.username" />
-          </a-form-model-item>
-          <a-form-model-item label="密码" prop="password">
-            <a-input v-model="form.password" />
-          </a-form-model-item>
-          <a-form-model-item label="邮箱">
-            <a-input v-model="form.email" />
-          </a-form-model-item>
-        </a-form-model>
-      </a-modal>
-      <a-modal v-model="modifyDialogVisible" title="修改用户" ok-text="确认" cancel-text="取消" @ok="editUser">
-        <a-form-model ref="edit_form" layout="horizontal" :model="modifyForm" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="选择角色">
-            <a-select v-model="modifyForm.role" placeholder="请选择角色">
-              <a-select-option v-if="role == 1" :value="1">管理员</a-select-option>
-              <a-select-option :value="0">用户</a-select-option>
-              <a-select-option v-if="role == 1" :value="2">代理商</a-select-option>
-            </a-select>
-          </a-form-model-item>
-          <a-form-model-item label="选择状态">
-            <a-select v-model="modifyForm.status" placeholder="请选择状态">
-              <a-select-option :value="1">封禁</a-select-option>
-              <a-select-option :value="0">正常</a-select-option>
-            </a-select>
-          </a-form-model-item>
-          <a-form-model-item label="重置密码">
-            <a-input v-model="modifyForm.password" />
-          </a-form-model-item>
-        </a-form-model>
-      </a-modal>
-      <a-modal v-model="dialogAdv" title="配置广告" ok-text="确认" cancel-text="取消" @ok="addAdv">
-        <a-form-model ref="adv_form" layout="horizontal" :model="advForm" :label-col="{ span: 8 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="api_key">
-            <a-input v-model="advForm.api_key" />
-          </a-form-model-item>
-          <a-form-model-item label="affiliate_id">
-            <a-input v-model="advForm.affiliate_id" />
-          </a-form-model-item>
-          <a-form-model-item label="form_public_api_key">
-            <a-input v-model="advForm.form_public_api_key" />
-          </a-form-model-item>
-        </a-form-model>
-      </a-modal>
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
@@ -107,69 +45,65 @@
       </div>
       <user v-if="dialogGroupId" :role="searchRole" @getGroupId="getUserId" @cancelGetGroupId="dialogGroupId = false" />
     </div>
-    <div>
-      <el-dialog title="收益记录" :visible.sync="dialogTableVisible">
-        <el-table :data="earningsRecordData">
-          <el-table-column property="totalMoney" label="总收入" width="150"></el-table-column>
-          <el-table-column property="adRecordTotal" label="广告收入" width="200"></el-table-column>
-          <el-table-column property="rewardTotal" label="返利收入"></el-table-column>
-          <el-table-column property="cashAmount" label="已提现总金额"></el-table-column>
-          <el-table-column property="notCashAmount" label="未提现金额"></el-table-column>
-        </el-table>
-      </el-dialog>
-    </div>
   </div>
 </template>
 <script>
 import * as api from '@/api/index'
 import user from '@/components/user/user'
 const columns = [{
-  title: '用户ID',
+  // title: '用户ID',
+  slotName: 'admin.userID',
   dataIndex: 'user_id',
   width: '180px',
   align: 'center',
-  scopedSlots: { customRender: 'username' }
+  scopedSlots: { customRender: 'username', title:'admin.userID' }
 }, {
-  title: '自营账号',
+  // title: '自营账号',
+  slotName: 'admin.SelfEmployed',
   dataIndex: 'is_official',
   width: '100px',
   align: 'center',
-  scopedSlots: { customRender: 'is_official' }
+  scopedSlots: { customRender: 'is_official', title:'admin.SelfEmployed' }
 }, {
-  title: '标题',
+  // title: '标题',
+  slotName: 'admin.title',
   dataIndex: 'title',
   width: '150px',
   align: 'center',
-  scopedSlots: { customRender: 'title' }
+  scopedSlots: { customRender: 'title', title:'admin.title' }
 },
 {
-  title: '描述',
+  // title: '描述',
+  slotName: 'admin.describe',
   dataIndex: 'describe',
   width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'describe' }
+  scopedSlots: { customRender: 'describe', title:'admin.describe' }
 },
 {
-  title: '联系信息',
+  // title: '联系信息',
+  slotName: 'admin.contactInformation',
   dataIndex: 'contact',
   width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'contact' }
+  scopedSlots: { customRender: 'contact', title:'admin.contactInformation' }
 },
 {
-  title: '价格',
+  // title: '价格',
+  slotName: 'admin.price',
   dataIndex: 'price',
   width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'price' }
+  scopedSlots: { customRender: 'price', title:'admin.price' }
 },
 {
-  title: '操作',
+  // title: '操作',
+  slotName: 'admin.operate',
   dataIndex: 'action',
-  width: '200px',
+  width: '250px',
   align: 'center',
   fixed: 'right',
-  scopedSlots: { customRender: 'action' }
+  scopedSlots: { customRender: 'action', title:'admin.operate' }
 }
 ]
 export default {
@@ -274,24 +208,8 @@ export default {
         this.total = res.data.count
       }
     },
-    onSubmit() {
-      console.log('submit!')
-    },
     add() {
       this.dialogVisible = true
-    },
-    addUser() {
-      this.form.username = this.form.username.trim()
-      this.$refs['form'].validate(async valid => {
-        if (valid) {
-          api.addUserInter(this.form).then((res) => {
-            if (res.code === 0) {
-              this.dialogVisible = false
-              this.init()
-            }
-          })
-        }
-      })
     },
     check(row) {
       this.dialogGroupId = true
@@ -303,30 +221,6 @@ export default {
       await api.putUserInter({ id: uid, superiors_id })
       this.getTableData()
     },
-    edit(row) {
-      // 修改  角色和状态 状态封禁1正常0
-      this.modifyDialogVisible = true
-      this.modifyForm = row
-      this.modifyForm.password = null
-    },
-    async configAdv(row) {
-      const res = await api.getAdConfig({ user_id: row.id })
-      this.nowData = row
-      this.advForm = {
-        api_key: '',
-        affiliate_id: '',
-        form_public_api_key: ''
-      }
-      if (res.code === 0 && res.data && res.data.data && res.data.data.length > 0) {
-        const data = res.data.data[0]
-        this.advForm = {
-          api_key: data.api_key,
-          affiliate_id: data.affiliate_id,
-          form_public_api_key: data.form_public_api_key
-        }
-      }
-      this.dialogAdv = true
-    },
     async addAdv() {
       if (this.advForm.affiliate_id !== '') {
         this.advForm.affiliate_id = Number(this.advForm.affiliate_id)
@@ -336,28 +230,6 @@ export default {
       if (res.code === 0) {
         this.dialogAdv = false
       }
-    },
-    editUser() {
-      this.modifyForm.password = this.modifyForm.password === '' ? null : this.modifyForm.password
-      if (this.modifyForm.password !== '' && this.modifyForm.password != null) {
-        if (this.modifyForm.password.length < 6) {
-          this.$message.error('密码不低于六位数')
-          return
-        }
-      }
-      api.putUserInter(this.modifyForm).then(res => {
-        if (res.code === 0) {
-          this.modifyDialogVisible = false
-        }
-      })
-    },
-    view(id) {
-      this.$router.push({
-        name: 'Device',
-        query: {
-          belong: id
-        }
-      })
     },
     submitSetOfficial(row) {
       api.putSetOfficial(row).then((res) => {
@@ -369,32 +241,10 @@ export default {
       this.searchData.page = page
       this.getTableData()
     },
-    del(row) {
-      api.delUserInter(row).then(res => {
-        if (res.code === 0) {
-          this.getTableData()
-        }
-      })
-    },
     handleSizeChange(p, s) {
       this.searchData.page_size = s
       this.init()
     },
-    async viewEarnings(id) {
-      this.dialogTableVisible = true
-      const res = await api.getIncome({ 'id': id })
-      if (res.code === 0) {
-        var recordData = {
-          'totalMoney': res.data.total / 100,
-          'adRecordTotal': res.data.adRecord.total / 100,
-          'rewardTotal': res.data.reward.total / 100,
-          'cashAmount': res.data.complete / 100,
-          'notCashAmount': (res.data.total - res.data.complete) / 100
-        }
-        this.earningsRecordData = [recordData]
-        console.log(res.data)
-      }
-    }
   }
 }
 </script>

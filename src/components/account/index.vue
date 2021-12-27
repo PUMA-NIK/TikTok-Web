@@ -162,7 +162,7 @@ export default {
       this.getTableData()
     },
     handleAdd() {
-      console.log(this.form.group_id)
+      // console.log(this.form.group_id)
       if (this.form.group_id == null) {
         return
       }

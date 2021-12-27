@@ -1,105 +1,150 @@
 export const columns = [{
-  title: '创建时间',
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
   dataIndex: 'created_at',
   align: 'center',
   scopedSlots: {
-    customRender: 'created_at'
+    customRender: 'created_at',
+    title:'admin.creationTime'
   },
   type: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-}, {
+},
+{
+  // title: '任务间隔最小时间',
+  slotName: 'user.minimumTimeBetweenTasks',
+  dataIndex: 'min',
+  width: '80px',
+  align: 'center',
+  scopedSlots: { customRender: 'min', title:'user.minimumTimeBetweenTasks' },
+  type: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+},
+{
+  // title: '任务间隔最大时间',
+  slotName: 'user.maximumTimeBetweenTasks',
+  dataIndex: 'max',
+  width: '80px',
+  align: 'center',
+  scopedSlots: { customRender: 'max', title:'user.maximumTimeBetweenTasks' },
+  type: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+},
+/* {
   title: '创建人',
   dataIndex: 'belong_name',
   align: 'center',
   type: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
   ellipsis: true,
   role: [1]
-}, {
+}, */
+/* {
   title: '组名',
   dataIndex: 'group_name',
   align: 'center',
   ellipsis: true,
   type: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 14]
-}, {
-  title: '账号ID',
+}, */
+{
+  // title: '账号ID',
+  slotName: 'user.accountID',
   dataIndex: 'executive',
   align: 'center',
   type: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 14],
   ellipsis: true,
+  scopedSlots: { customRender: 'executive', title:'user.accountID' },
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   }
-}, {
+}, 
+/* {
   title: '账号',
   dataIndex: 'account_username',
   align: 'center',
   ellipsis: true,
   type: [7]
-}, {
+}, */
+/* {
   title: '密码',
   dataIndex: 'account_password',
   ellipsis: true,
   align: 'center',
   ellipsis: true,
   type: [7]
-}, {
+}, */
+/* {
   title: '包ID',
   dataIndex: 'executive_bundle',
   align: 'center',
   ellipsis: true,
   type: [8]
-},
+}, */
 {
-  title: '关注/发送数量',
+  // title: '发送数量',
+  slotName: 'user.quantitySent',
   dataIndex: 'task_execute',
   align: 'center',
   ellipsis: true,
+  scopedSlots: { customRender: 'task_execute', title:'user.quantitySent' },
   type: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 14]
 },
 {
-  title: '发送失败',
+  // title: '发送失败',
+  slotName: 'user.failedSend',
   dataIndex: 'task_fail',
   align: 'center',
   ellipsis: true,
+  scopedSlots: { customRender: 'task_fail', title:'user.failedSend' },
   type: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 14]
 },
 {
-  title: '发送成功',
+  // title: '发送成功',
+  slotName: 'user.sentSuccessfully',
   dataIndex: 'task_success',
   align: 'center',
   ellipsis: true,
+  scopedSlots: { customRender: 'task_success', title:'user.sentSuccessfully' },
   type: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 14]
 },
 {
-  title: '间隔时间',
+  // title: '间隔时间',
+  slotName: 'user.intervals',
   dataIndex: 'intervals',
   align: 'center',
   ellipsis: true,
+  scopedSlots: { customRender: 'intervals', title:'user.intervals' },
   type: [4, 6]
-}, {
-  title: '目标总数',
+},
+{
+  // title: '目标总数',
+  slotName: 'admin.total',
   dataIndex: 'follow_total',
   align: 'center',
   ellipsis: true,
+  scopedSlots: { customRender: 'follow_total', title:'admin.total' },
   type: [4, 6]
-}, {
-  title: '开始下标',
+},
+{
+  // title: '开始下标',
+  slotName: 'user.sendSubscript',
   dataIndex: 'follow_index',
   align: 'center',
   ellipsis: true,
+  scopedSlots: { customRender: 'follow_index', title:'user.sendSubscript' },
   type: [4, 6]
-}, {
+},
+{
   title: '帖子ID',
   dataIndex: 'follow_note_id',
   align: 'center',
   ellipsis: true,
   type: [4, 14]
-}, {
+},
+{
   title: '用户UID',
   dataIndex: 'follow_user_id',
   align: 'center',
   ellipsis: true,
   type: [5, 6, 14]
-}, {
+},
+{
   title: '用户secID',
   dataIndex: 'follow_user_sec_id',
   align: 'center',
@@ -107,7 +152,7 @@ export const columns = [{
   type: [5, 6, 14]
 },
 {
-  title: 'TIKTOK用户',
+  title: 'TK用户',
   dataIndex: 'tiktok_user',
   ellipsis: true,
   width: '100',
@@ -118,10 +163,14 @@ export const columns = [{
   }
 },
 {
-  title: '备注',
+  // title: '备注',
+  slotName: 'admin.remark',
   dataIndex: 'remark',
   align: 'center',
   ellipsis: true,
+  scopedSlots: {
+    customRender: 'remark', title:'admin.remark'
+  },
   type: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13]
 },
 {
@@ -132,108 +181,148 @@ export const columns = [{
   type: [3, 9, 10, 11, 12, 13]
 },
 {
-  title: '视频连接地址',
+  // title: '视频连接地址',
+  slotName: 'user.videoURL',
   dataIndex: 'video',
   ellipsis: true,
   exchange: 1,
   align: 'center',
-  width: '500px',
+  width: '300px',
+  scopedSlots: {
+    customRender: 'video', title:'user.videoURL'
+  },
   type: [2, 3],
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   }
 },
 {
-  title: '文本信息',
+  // title: '文本信息',
+  slotName: 'user.textMessage',
   dataIndex: 'text',
   ellipsis: true,
   exchange: 2,
   width: '500',
   align: 'center',
+  scopedSlots: {
+    customRender: 'text', title:'user.textMessage'
+  },
   type: [2, 3, 9, 10, 11, 12, 13],
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   }
 },
 {
-  title: '富文本',
+  // title: '富文本',
+  slotName: 'admin.richText',
   dataIndex: 'rich_text',
   align: 'center',
   ellipsis: true,
   width: '500',
   exchange: 3,
   type: [2],
+  scopedSlots: {
+    customRender: 'rich_text', title:'admin.richText'
+  },
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   }
 },
 {
-  title: '图片链接地址',
+  // title: '图片链接地址',
+  slotName: 'user.pictureURL',
   dataIndex: 'image',
   exchange: 4,
   align: 'center',
   ellipsis: true,
   width: '500',
   type: [2],
+  scopedSlots: {
+    customRender: 'image', title:'user.pictureURL'
+  },
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   }
 },
 {
-  title: '名片',
+  // title: '名片',
+  slotName: 'admin.businessCard',
   dataIndex: 'name_card',
   exchange: 5,
   align: 'center',
   ellipsis: true,
   width: '500',
   type: [2],
+  scopedSlots: {
+    customRender: 'name_card', title:'admin.businessCard'
+  },
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   }
 },
 {
-  title: '文本',
+  // title: '文本',
+  slotName: 'admin.text',
   dataIndex: 'text',
   align: 'center',
   exchange: 5,
   ellipsis: true,
   type: [2],
+  scopedSlots: {
+    customRender: 'text', title:'admin.text'
+  },
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   }
 },
 {
-  title: '文本',
+  // title: '文本',
+  slotName: 'admin.text',
   dataIndex: 'text',
   align: 'center',
   exchange: 1,
   ellipsis: true,
   type: [2],
+  scopedSlots: {
+    customRender: 'text', title:'admin.text'
+  },
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   }
 },
 {
-  title: '地区',
+  // title: '地区',
+  slotName: 'user.area',
   dataIndex: 'follow_region',
   align: 'center',
   ellipsis: true,
+  scopedSlots: {
+    customRender: 'follow_region', title:'user.area'
+  },
   type: [4, 6]
 },
 {
-  title: '间隔时间',
+  // title: '间隔时间',
+  slotName: 'user.intervals',
   dataIndex: 'intervals',
   align: 'center',
   exchange: 5,
   ellipsis: true,
+  scopedSlots: {
+    customRender: 'intervals', title:'user.intervals'
+  },
   type: [2]
 },
 {
-  title: '地区',
+  // title: '地区',
+  slotName: 'user.area',
   dataIndex: 'region',
   align: 'center',
   exchange: 5,
   ellipsis: true,
+  scopedSlots: {
+    customRender: 'region', title:'user.area'
+  },
   type: [2]
 },
 {
@@ -245,7 +334,8 @@ export const columns = [{
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   }
-}, {
+},
+{
   title: '标签',
   dataIndex: 'tags',
   align: 'center',
@@ -254,14 +344,16 @@ export const columns = [{
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   }
-}, {
-  title: '操作',
+},
+{
+  // title: '操作',
+  slotName: 'admin.operate',
   dataIndex: 'option',
   width: '330px',
   align: 'center',
   fixed: 'right',
   scopedSlots: {
-    customRender: 'action'
+    customRender: 'action', title:'admin.operate'
   },
   type: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 }]
@@ -292,11 +384,11 @@ export default {
       tableData: [],
       x: 1500,
       exchangeType: [
-        { label: '视频地址', value: 1 },
-        { label: '文字', value: 2 },
+        { label: this.$t('admin.video'), value: 1 },
+        { label: this.$t('admin.text'), value: 2 },
         { label: '富文本', value: 3 },
-        // { label: '图片地址', value: 4 },
-        { label: '名片', value: 5 }],
+        // { label: '图片', value: 4 },
+        { label: this.$t('admin.businessCard'), value: 5 }],
       proxy_index: 0,
       form: {
         executive_group: '',
@@ -304,6 +396,8 @@ export default {
         executives: '',
         number: 10,
         intervals: 10,
+        max: 10,
+        min: 3,
         follow_total: 10,
         follow_index: 1,
         follow_note_id: '',
@@ -389,7 +483,11 @@ export default {
         this.form.follow_total = data.follow_total
         this.form.follow_user_id = data.follow_user_id
         this.form.follow_user_sec_id = data.follow_user_sec_id
-        this.form.intervals = data.intervals
+        // this.form.intervals = data.intervals
+        this.form.max = data.max
+        this.form.min = data.min
+        this.form.send_end_cursor = data.send_end_cursor
+        this.form.send_start_cursor = data.send_start_cursor
         // this.form.text = data.text
         if(this.type === 2) {
           this.form.text = data.text
@@ -489,11 +587,12 @@ export default {
       })
       if (res.code === 0) {
         this.dialogVisible = false
+        this.loading = false
         this.selectedRowNameCard = []
         this.selectedRowVideo = []
         this.$message.success('提交成功')
+        this.type = 5
         this.init()
-        
       }
     },
     resetForm() {
@@ -501,7 +600,9 @@ export default {
       // this.form.executives = ''
       this.form.executive_group_name = ''
       // this.form.number = 10
-      this.form.intervals = 10
+      // this.form.intervals = 10
+      this.form.max = 10
+      this.form.min = 3
       this.form.follow_total = 10
       this.form.follow_index = 1
       this.form.follow_note_id = ''

@@ -8,6 +8,7 @@
         <a-form-item>
           <a-button type="primary" style="margin-left:10px;width:88px" @click="init()">查询</a-button>
           <a-button style="margin-left:10px;" type="primary" @click="batchRenewal()">批量端口续费</a-button>
+          <!-- <a-button style="margin-left:10px;" type="primary" @click="batchRenewalTemporary()">批量端口续费(临时)</a-button> -->
           <!-- <a-button v-if="role === 0" style="margin-left: 10px" @click="checkAgency()">查看代理</a-button> -->
           <!-- <a-button v-if="role === 1" style="margin-left:10px;" type="primary" @click="batchBind">批量绑定代理商</a-button>
           <a-button v-if="role == 1" style="margin-left:10px;" type="primary" @click="batchBind2">批量绑定用户</a-button>
@@ -61,11 +62,11 @@
         <span slot="action" slot-scope="text, row">
           <a-button style="margin-left: 10px" type="primary" @click="view(row)">查看账号</a-button>
           <!-- <a-button style="margin-left: 8px" type="warning" @click="edit(row)">{{ row.available ? '封禁' : '解禁' }}</a-button> -->
-          <a-button style="margin-left: 10px" type="primary" @click="renewDayDevice(row)">端口续费(临时)</a-button>
+          <!-- <a-button style="margin-left: 10px" type="primary" @click="renewDayDevice(row)">端口续费(临时)</a-button> -->
           <a-button style="margin-left: 10px" type="primary" @click="renewDevice(row)">端口续费</a-button>
-          <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="handleDelete(row.id)">
+          <!-- <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="handleDelete(row.id)">
             <a-button style="margin-left:10px" type="danger">删除</a-button>
-          </a-popconfirm>
+          </a-popconfirm> -->
         </span>
       </a-table>
 
@@ -83,6 +84,17 @@
           </a-form-item>
         </a-form-model>
       </a-modal>
+      <!-- 批量端口续费 (临时) -->
+      <a-modal v-model="BatchRenewalTemporaryVisible" title="批量续费(临时)" width="450px" ok-text="确认" cancel-text="取消" @ok="BatchHandleRenewTemporary">
+        <a-form-model ref="form" :model="BatchRenewalForm" label-width="100px" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+          <a-form-item label="端口ID">
+            <a-input v-model="BatchRenewalForm.BatchRenewalList" disabled />
+          </a-form-item>
+          <a-form-item label="到期时间">
+            <a-input-number v-model="BatchRenewalForm.day" style="width:100%" :default-value="30" />
+          </a-form-item>
+        </a-form-model>
+      </a-modal>
 
       <!-- 端口续费 -->
       <a-modal v-model="dialogVisible" title="端口续费" width="450px" ok-text="确认" cancel-text="取消" @ok="handleRenew">
@@ -93,10 +105,22 @@
           <a-form-item label="所属用户ID">
             <a-input v-model="form.belong" disabled />
           </a-form-item>
-          <a-form-item label="到期时间">
+          <!-- <a-form-item label="时间">
             <a-input-number v-model="form.day" style="width:100%" :default-value="30" />
-          </a-form-item>
+          </a-form-item> -->
+          <a-form-model-item label="时间">
+            <a-select v-model="form.day" placeholder="请选择时间" allow-clear>
+              <a-select-option :value="1">一个月</a-select-option>
+              <a-select-option :value="3">一个季</a-select-option>
+              <a-select-option :value="6">半年</a-select-option>
+              <a-select-option :value="12">一年</a-select-option>
+            </a-select>
+          </a-form-model-item>
         </a-form-model>
+        <span slot="footer">
+          <a-button style="margin-left:10px;" class="add-btn" type="success" @click="dialogVisible = false">取消</a-button>
+          <a-button style="margin-left:10px;" type="primary" :loading="handleRenewLoading" @click="handleRenew">确定</a-button>
+        </span>
       </a-modal>
 
       <!-- 批量端口续费 batch -->
@@ -109,6 +133,10 @@
             <a-input-number v-model="BatchRenewalForm.day" style="width:100%" :default-value="30" />
           </a-form-item>
         </a-form-model>
+        <span slot="footer">
+          <a-button style="margin-left:10px;" class="add-btn" type="success" @click="BatchRenewalVisible = false">取消</a-button>
+          <a-button style="margin-left:10px;" type="primary" :loading="batchHandleRenewLoading" @click="BatchHandleRenew">确定</a-button>
+        </span>
       </a-modal>
 
       <!-- 查看代理 -->
@@ -227,6 +255,7 @@ export default {
       checkAgencyVisible: false,
       OKbuttonDisplay:{ style: { display: 'none' } },
       dialogVisible: false,
+      handleRenewLoading: false,//端口续费 确定按钮
       dialogGroupId: false,
       dialogBatchUserId: false,
       dialogBatchUserId2: false,
@@ -256,8 +285,10 @@ export default {
       row: {},
       // 批量续费
       BatchRenewalVisible: false,
+      batchHandleRenewLoading: false, // 批量续费 确定按钮
       // 临时
       renewDayVisible: false,
+      BatchRenewalTemporaryVisible: false,
       BatchRenewalForm: {
         BatchRenewalList: [],
         day: 1,
@@ -342,7 +373,7 @@ export default {
         this.$message.error('请先选择要添加的账号')
         return
       }
-      console.log(this.selectDataId.join(','))
+      // console.log(this.selectDataId.join(','))
       this.$router.push({
         name,
         query: {
@@ -399,10 +430,12 @@ export default {
       this.form.belong = row.user_id
       this.dialogVisible = true
     },
+    // 续费（单个）
     handleRenew() {
       if (this.form.day == null) {
         return
       }
+      this.handleRenewLoading = true
       let data = {
         list: [this.form.id],
         day: this.form.day,
@@ -411,6 +444,7 @@ export default {
       api.putAgentPortRenew(data).then(res => {
         if (res.code === 0) {
           this.dialogVisible = false
+          this.handleRenewLoading = false
           this.getTableData()
         }
       })
@@ -427,14 +461,15 @@ export default {
       this.BatchRenewalVisible = true
       this.BatchRenewalForm.user_id = this.selectData[0].user_id
 
-      console.log(this.selectDataId)
-      console.log(this.selectData)
+      /* console.log(this.selectDataId)
+      console.log(this.selectData) */
     },
     // 批量续费
     BatchHandleRenew() {
       if (this.BatchRenewalForm.day == null) {
         return
       }
+      this.batchHandleRenewLoading = true
       const data = {
         list: this.BatchRenewalForm.BatchRenewalList,
         day: this.BatchRenewalForm.day,
@@ -443,12 +478,41 @@ export default {
       api.putAgentPortRenew(data).then(res => {
         if (res.code === 0) {
           this.BatchRenewalVisible = false
+          this.batchHandleRenewLoading = false
           this.selectDataId = []
           this.getTableData()
         }
       })
     },
     // 临时 端口续费
+    batchRenewalTemporary() {
+      if (this.selectDataId.length === 0) {
+        this.$message.error('请先选择需要续费的端口')
+        return
+      }
+      this.BatchRenewalForm.BatchRenewalList = this.selectDataId.map(item => {
+        return item
+      })
+      this.BatchRenewalTemporaryVisible = true
+      this.BatchRenewalForm.user_id = this.selectData[0].user_id
+    },
+    BatchHandleRenewTemporary() {
+      if (this.BatchRenewalForm.day == null) {
+        return
+      }
+      const data = {
+        list: this.BatchRenewalForm.BatchRenewalList,
+        day: this.BatchRenewalForm.day,
+        user_id: this.BatchRenewalForm.user_id
+      }
+      api.postAgentPortRenewDay(data).then(res => {
+        if (res.code === 0) {
+          this.BatchRenewalTemporaryVisible = false
+          this.selectDataId = []
+          this.getTableData()
+        }
+      })
+    },
     // 端口续费 临时
     renewDayDevice(row) {
       this.renewDayForm.id = row.id
@@ -570,32 +634,6 @@ export default {
       }
       this.searchRole = 0
       this.dialogBatchUserId2 = true
-    },
-    async getBatchUserId(id) {
-      const resArr = []
-      this.selectData.forEach(async item => {
-        item.superiors_belong = id
-        item.isMessage = false
-        const res = api.putDevice(item)
-        resArr.push(res)
-      })
-      Promise.allSettled([...resArr]).then(res => {
-        this.$message.success('操作成功')
-        this.getTableData()
-      })
-    },
-    async getBatchUserId2(id) {
-      const resArr = []
-      this.selectData.forEach(async item => {
-        item.belong = id
-        item.isMessage = false
-        const res = api.putDevice(item)
-        resArr.push(res)
-      })
-      Promise.allSettled([...resArr]).then(res => {
-        this.$message.success('操作成功')
-        this.getTableData()
-      })
     },
     async option() {
       if (this.selectDataId.length === 0) {

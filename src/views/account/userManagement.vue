@@ -438,7 +438,7 @@ export default {
       selectedRowKeys.forEach(item => {
         this.form.account_list.push(item)
       })
-      console.log(selectedRowKeys)
+      // console.log(selectedRowKeys)
     },
     async getTableData() {
       let res = ''
@@ -531,7 +531,7 @@ export default {
 
       api.putAcountAssign(data).then((res) => {
         if (res.code === 0) {
-          console.log("分配日志：\n用户ID " + id + "\n账号：" + this.form.account_list)
+          // console.log("分配日志：\n用户ID " + id + "\n账号：" + this.form.account_list)
           message.success('分配成功')
           this.form.account_list = []
           this.getTableData()
@@ -546,7 +546,7 @@ export default {
         this.$message.error('请先选择要添加的账号')
         return
       }
-      console.log(this.form.account_list.join(','))
+      // console.log(this.form.account_list.join(','))
       var downloadParamsList = []
       for (var i = 0; i < this.form.account_list.length; i++) {
         var dataTemp = 'id=' + this.form.account_list[i]
@@ -681,7 +681,7 @@ export default {
     },
     async changeAccountNickname() {
       var dataList = this.changeAccountForm.account_nickname.split('\n')
-      console.log(dataList)
+      // console.log(dataList)
       var changeAccountParam = {
         List: this.form.account_list,
         Param: dataList
@@ -694,7 +694,7 @@ export default {
     },
     async changeAccountSignature() {
       var dataList = this.changeAccountForm.account_signale.split('\n')
-      console.log(dataList)
+      // console.log(dataList)
       var changeAccountParam = {
         List: this.form.account_list,
         Param: dataList
@@ -708,7 +708,7 @@ export default {
     },
     async changeAccountHeadImg() {
       var dataList = this.changeAccountForm.account_headimg.split('\n')
-      console.log(dataList)
+      // console.log(dataList)
       var changeAccountParam = {
         List: this.form.account_list,
         Param: dataList

@@ -2,24 +2,27 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="关注类型">
-          <a-select v-model="searchData.type" placeholder="选择关注类型" style="width:150px" @change="changeSelect">
+        <a-form-item :label="$t('user.concernType')">
+          <a-select v-model="searchData.type" style="width:150px" @change="changeSelect">
             <!-- <a-select-option :value="1">关注 用户的粉丝</a-select-option> -->
             <!-- <a-select-option :value="5">关注 单个用户</a-select-option>
             <a-select-option :value="1">关注 TIKTOK用户</a-select-option> -->
-            <a-select-option :value="3">关注 TIKTOK用户</a-select-option>
+            <a-select-option :value="3">{{this.$t('user.followTKUsers')}}</a-select-option>
             <!-- <a-select-option :value="2">关注 帖子下的用户</a-select-option> -->
           </a-select>
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" @click="init">查询</a-button>
+          <a-button type="primary" @click="init">{{this.$t('admin.Inquire')}}</a-button>
           <!-- <a-button style="margin-left:10px;" type="primary" @click="dialogVisible = true">新增</a-button> -->
-          <a-button style="margin-left:10px;" type="primary"  @click="Attention()">关注</a-button>
+          <a-button style="margin-left:10px;" type="primary"  @click="Attention()">{{this.$t('user.concern')}}</a-button>
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
-      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" :scroll="{ x }" class="tableLimit" :bordered="true" :pagination="false">
+      <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" :scroll="{ x:1200 }" class="tableLimit" :bordered="true" :pagination="false">
+        <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+          <span>{{$t(item.slotName)}}</span>
+        </templete>
         <span slot="created_at" slot-scope="text, row">
           {{ new Date(row.created_at) | getTime }}
         </span>
@@ -30,24 +33,23 @@
           {{ row.tiktok_user }}
         </span>
         <span slot="action" slot-scope="text, row">
-          <a-button @click="view(row)"> 查看</a-button>
-          <a-button v-if="searchData.type != 1" style="margin-left:8px" type="primary" @click="create(row)">创建</a-button>
-          <a-button style="margin-left: 8px;background:#E6A23C;color:white" @click="stop(row.id)">停止</a-button>
-          <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="del(row.id)">
-            <a-button style="margin-left: 8px" type="danger">删除</a-button>
+          <a-button @click="view(row)">{{$t('user.check')}}</a-button>
+          <a-button v-if="searchData.type != 1" style="margin-left:8px" type="primary" @click="create(row)">{{$t('user.create')}}</a-button>
+          <!-- <a-button style="margin-left: 8px;background:#E6A23C;color:white" @click="stop(row.id)">停止</a-button> -->
+          <a-popconfirm :title="$t('admin.deleteOrNot')" :ok-text="$t('admin.Yes')" :cancel-text="$t('admin.No')" @confirm="del(row.id)">
+            <a-button style="margin-left: 8px" type="danger">{{$t('admin.delete')}}</a-button>
           </a-popconfirm>
           <!-- <a-button type="primary" style="margin-left: 8px;" @click="pause(row)">暂停</a-button> -->
-
         </span>
       </a-table>
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :total="total" :current="searchData.page" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100', '200']" show-size-changer :default-current="1" :total="total" :current="searchData.page" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
         </a-pagination>
       </div>
-      <a-modal v-model="dialogVisible" title="新增" ok-text="确认" cancel-text="取消" width="500px" @ok="addTask">
+      <a-modal v-model="dialogVisible" :title="$t('admin.Add')" :ok-text="this.$t('admin.confirm')" :cancel-text="this.$t('admin.cancel')" width="500px" @ok="addTask">
         <a-form-model ref="form" layout="horizontal" :model="form" :rules="form_rule" :label-col="{ span: 5 }" :wrapper-col="{ span: 19 }">
           <!-- <a-form-model-item label="关注类型">
             <a-select v-model="form.type" placeholder="选择关注类型" @change="changeFormSelect">
@@ -59,11 +61,12 @@
           <!-- <a-form-model-item label="任务分组">
             <a-input v-model="form.executive_group_name" @click="dialogGroupId = true" />
           </a-form-model-item> -->
-          <a-form-model-item label="任务分组">
-            <a-input v-model="form.executives" placeholder="(如有多个使用,分割)" @click="dialogGroupId = true" />
+          <a-form-model-item :label="$t('user.taskPort')">
+            <a-input v-model="form.executives" @click="dialogGroupId = true" readOnly/>
           </a-form-model-item>
-          <a-form-model-item label="间隔时间">
-            <a-input v-model="form.intervals" placeholder="间隔时间" />
+          <a-form-model-item :label="$t('user.intervals')">
+            <a-input-number style="width: 165px;" v-model="form.min" :min="0" :max="100"/> ---- <a-input-number style="width: 165px;" v-model="form.max" :min="0" :max="100"/>
+            <!-- <a-input v-model="form.intervals" placeholder="间隔时间" /> -->
           </a-form-model-item>
 
           <!-- <a-form-model-item v-if="form.type == 1 || form.type == 2" :label="numberText[form.type]">
@@ -87,17 +90,17 @@
           </a-form-model-item>
           <a-form-model-item v-if="form.type == 1" label="用户secUid">
             <a-input v-model="form.follow_user_sec_id" placeholder="用户secUid" />
-          </a-form-model-item>
-          <a-form-model-item label="地区">
-            <a-input v-model="form.follow_region" placeholder="地区" />
           </a-form-model-item> -->
-
-          <a-form-model-item label="数量">
-            <a-input v-model="form.follow_user_num" placeholder="数量" />
+          <a-form-model-item :label="$t('user.area')">
+            <a-input v-model="form.follow_region" :placeholder="$t('user.area')" />
           </a-form-model-item>
 
-          <a-form-model-item label="备注">
-            <a-input v-model="form.remark" placeholder="任务备注" />
+          <a-form-model-item :label="$t('admin.quantity')">
+            <a-input v-model="form.follow_user_num" :placeholder="$t('admin.quantity')" />
+          </a-form-model-item>
+
+          <a-form-model-item :label="$t('admin.remark')">
+            <a-input v-model="form.remark" :placeholder="$t('admin.remark')" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
@@ -123,60 +126,79 @@ function debounce(func, wait=1500){
  }
 }
 const columns = [{
-  title: '创建时间',
+  // title: '创建时间',
+  slotName: 'admin.creationTime',
   dataIndex: 'created_at',
   width: '80px',
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'created_at', title:'admin.creationTime' }
 },
 {
-  title: '端口',
+  // title: '端口',
+  slotName: 'user.taskPort',
   dataIndex: 'executive',
   width: '80px',
   align: 'center',
   customRender: (value, row, index) => {
     return value != null ? value.join(',') : value
   },
-  scopedSlots: { customRender: 'executive' }
+  scopedSlots: { customRender: 'executive', title:'user.taskPort' }
 },
 {
-  title: '任务间隔时间',
-  dataIndex: 'intervals',
+  // title: '任务间隔最小时间',
+  slotName: 'user.minimumTimeBetweenTasks',
+  dataIndex: 'min',
   width: '80px',
   align: 'center',
-  scopedSlots: { customRender: 'intervals' }
+  scopedSlots: { customRender: 'min', title:'user.minimumTimeBetweenTasks' }
 },
 {
-  title: '发送数量',
+  // title: '任务间隔最大时间',
+  slotName: 'user.maximumTimeBetweenTasks',
+  dataIndex: 'max',
+  width: '80px',
+  align: 'center',
+  scopedSlots: { customRender: 'max', title:'user.maximumTimeBetweenTasks' }
+},
+{
+  // title: '发送数量',
+  slotName: 'user.quantitySent',
   dataIndex: 'task_execute',
   align: 'center',
   width: '100px',
+  scopedSlots: { customRender: 'max', title:'user.quantitySent' }
 },
 {
-  title: '发送失败',
+  // title: '发送失败',
+  slotName: 'user.failedSend',
   dataIndex: 'task_fail',
   align: 'center',
-  width: '100px'
+  width: '100px',
+  scopedSlots: { customRender: 'max', title:'user.failedSend' }
 },
 {
-  title: '发送成功',
+  // title: '发送成功',
+  slotName: 'user.sentSuccessfully',
   dataIndex: 'task_success',
   align: 'center',
-  width: '100px'
+  width: '100px',
+  scopedSlots: { customRender: 'max', title:'user.sentSuccessfully' }
 },
 {
-  title: '备注',
+  // title: '备注',
+  slotName: 'admin.remark',
   dataIndex: 'remark',
   width: '100px',
   align: 'center',
-  scopedSlots: { customRender: 'remark' }
+  scopedSlots: { customRender: 'remark', title:'admin.remark' }
 },
 {
-  title: '操作',
+  // title: '操作',
+  slotName: 'admin.operate',
   dataIndex: 'action',
   width: '180px',
   align: 'center',
-  scopedSlots: { customRender: 'action' }
+  scopedSlots: { customRender: 'action', title:'admin.operate' }
 },
 ]
 export default {
@@ -207,8 +229,11 @@ export default {
         follow_user_sec_id: '',
         follow_note_id: '',
         follow_user_num: 10,
-        intervals: 3,
+        // intervals: 3,
+        min: 3,
+        max: 10,
         region: '',
+        follow_region: '',
         remark: ''
       },
       form_rule: {}
@@ -231,7 +256,7 @@ export default {
       }
       this.columns.push(item)
     })
-    this.init()
+    // this.init()
   },
   methods: {
     async getTableData() {
@@ -311,7 +336,10 @@ export default {
       form.executive = this.form.executives
       form.remark = this.form.remark
       form.follow_user_num = Number(this.form.follow_user_num)
-      form.intervals = Number(this.form.intervals)
+      form.region = this.form.follow_region === '' ? null : this.form.follow_region
+      // form.intervals = Number(this.form.intervals)
+      form.max = Number(this.form.max)
+      form.min = Number(this.form.min)
       api.postTask(form).then(res => {
         if(res.code === 0) {
           this.dialogVisible = false
@@ -358,7 +386,9 @@ export default {
       this.form.remark = ''
       this.form.executives = ''
       this.form.follow_user_num = 10
-      this.form.intervals = 3
+      // this.form.intervals = 3
+      this.form.Max = 3
+      this.form.Max = 10
     },
     validateForm() {
       switch (this.form.type) {

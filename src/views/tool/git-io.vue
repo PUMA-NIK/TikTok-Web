@@ -1,8 +1,8 @@
 <template>
   <div>
     <div>
-      <a-input-search placeholder="请输入链接" size="large" @search="onSearch">
-        <a-button slot="enterButton">生成</a-button>
+      <a-input-search :placeholder="$t('user.enterLink')" size="large" @search="onSearch">
+        <a-button slot="enterButton">{{$t('user.generate')}}</a-button>
       </a-input-search>
     </div>
     <div v-show="visible">

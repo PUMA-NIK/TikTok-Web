@@ -2,31 +2,34 @@
   <div>
     <div class="search-box">
       <a-form layout="inline" :model="searchData" class="demo-form-inline">
-        <a-form-item label="用户名">
-          <a-input v-model="searchData.username" style="150px" placeholder="用户名" allow-clear />
+        <a-form-item :label="this.$t('agent.username')">
+          <a-input v-model="searchData.username" style="150px" :placeholder="this.$t('agent.username')" allow-clear />
         </a-form-item>
-        <a-form-item label="状态">
-          <a-select v-model="searchData.status" placeholder="选择用户状态" style="width:213px" allow-clear>
-            <a-select-option :value="0">正常</a-select-option>
-            <a-select-option :value="1">封禁</a-select-option>
+        <a-form-item :label="this.$t('agent.state')">
+          <a-select v-model="searchData.status" :placeholder="this.$t('agent.selectState')" style="width:213px" allow-clear>
+            <a-select-option :value="0">{{ $t('agent.normal') }}</a-select-option>
+            <a-select-option :value="1">{{ $t('agent.banned') }}</a-select-option>
             <!-- <a-select-option :value="1">管理员</a-select-option>
             <a-select-option :value="2">代理商</a-select-option> -->
             <!-- <a-select-option :value="3">号商</a-select-option> -->
           </a-select>
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" icon="search" @click="init()">查询</a-button>
-          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="add">新增</a-button>
-          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="purchaseFlow">购买流量</a-button>
+          <a-button type="primary" icon="search" @click="init()">{{ $t('agent.inquire') }}</a-button>
+          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="add">{{ $t('agent.newlyIncreased') }}</a-button>
+          <a-button style="margin-left:10px;" type="primary" icon="plus" @click="purchaseFlow">{{ $t('agent.BuyTraffic') }}</a-button>
         </a-form-item>
       </a-form>
     </div>
     <div class="table-box">
       <a-row>
         <a-col :span="24">
-          <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x: 1500}" :bordered="true" :pagination="false">
+          <a-table :columns="columns" :data-source="tableData" :row-key="record => record.id" class="tableLimit" :scroll="{ x: 1200}" :bordered="true" :pagination="false">
+            <templete v-for="(item, index) in columns" :key="index" :slot="item.slotName">
+              <span>{{ $t(item.slotName) }}</span>
+            </templete>
             <span slot="status" slot-scope="text, row">
-              {{ row.status == 0 ? '正常' : '封禁' }}
+              {{ row.status == 0 ? $t('agent.normal') : $t('agent.banned') }}
             </span>
             <span slot="role" slot-scope="text, row ">
               {{ row.role | getRole }}
@@ -39,17 +42,17 @@
             </span>
             <span slot="action" slot-scope="text, row">
               <!-- <a-button style="margin-left:10px" @click="viewEarnings(row.id)">查看收益</a-button> -->
-              <a-button style="margin-left:10px" type="primary" @click="view(row.id)">查看端口</a-button>
-              <a-button style="margin-left:10px" type="primary" @click="checkAgency(row.id)">查看代理</a-button>
-              <a-button style="margin-left:10px" type="primary" @click="addTraffic(row.id)">添加流量</a-button>
-              <a-button style="margin-left:10px" type="primary" @click="addPort(row.id)">新增端口</a-button>
-              <a-button style="margin-left:10px" type="primary" @click="addDay(row.id)">新增端口(临时)</a-button>
-              <a-button style="margin-left:10px" type="primary" @click="edit(row)">编辑</a-button>
+              <a-button style="margin-left:10px" type="primary" @click="view(row.id)">{{ $t('agent.netstat') }}</a-button>
+              <a-button style="margin-left:10px" type="primary" @click="checkAgency(row.id)">{{ $t('agent.tellAmgrSchedule') }}</a-button>
+              <a-button style="margin-left:10px" type="primary" @click="addTraffic(row.id)">{{ $t('agent.AddTraffic') }}</a-button>
+              <a-button style="margin-left:10px" type="primary" @click="addPort(row.id)">{{ $t('agent.TheNewPort') }}</a-button>
+              <!-- <a-button style="margin-left:10px" type="primary" @click="addDay(row.id)">新增端口(临时)</a-button> -->
+              <a-button style="margin-left:10px" type="primary" @click="edit(row)">{{ $t('agent.edit') }}</a-button>
               <!-- <a-button style="margin-left:10px" @click="addIntegral(row.id)">添加积分</a-button> -->
               <!-- <a-button v-if="role == 1" :disabled="row.role != 0" style="margin-left:10px" type="primary" @click="check(row)">绑定代理商</a-button> -->
               <!-- <a-button v-if="role == 1" style="margin-left:10px" type="primary" @click="configAdv(row)">配置广告</a-button> -->
-              <a-popconfirm title="是否删除?" ok-text="是" cancel-text="否" @confirm="del(row.id)">
-                <a-button style="margin-left:10px" type="danger">删除</a-button>
+              <a-popconfirm :title="$t('agent.Isdelete')" :ok-text="$t('admin.Yes')" :cancel-text="$t('admin.No')" @confirm="del(row.id)">
+                <a-button style="margin-left:10px" type="danger">{{ $t('agent.delete') }}</a-button>
               </a-popconfirm>
             </span>
           </a-table>
@@ -58,42 +61,62 @@
       
       
 
-      <a-modal v-model="dialogVisible" title="新增用户" ok-text="确认" cancel-text="取消" @ok="addUser">
-        <a-form-model ref="form" layout="horizontal" :model="form" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="选择角色" prop="role">
-            <a-select v-model="form.role" placeholder="请选择角色">
+      <a-modal v-model="dialogVisible" :title="this.$t('agent.newUsers')" :ok-text="this.$t('agent.confirm')" :cancel-text="this.$t('agent.cancel')" @ok="addUser">
+        <a-form-model ref="form" layout="horizontal" :model="form" :rules="form_rule" :label-col="{ span: 5 }" :wrapper-col="{ span: 17 }">
+          <a-form-model-item :label="this.$t('agent.selectRole')" prop="role">
+            <a-select v-model="form.role">
               <!-- <a-select-option v-if="role == 1" :value="1">管理员</a-select-option> -->
-              <a-select-option :value="0">用户</a-select-option>
+              <a-select-option :value="0">{{ $t('agent.user') }}</a-select-option>
               <!-- <a-select-option :value="2">代理商</a-select-option> -->
               <!-- <a-select-option :value="3">号商</a-select-option> -->
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="用户名" prop="username">
-            <a-input v-model="form.username" />
+          <a-form-model-item :label="this.$t('agent.username')" prop="username">
+            <a-input v-model="form.username" oninput="value=value.replace(/[^\w\/]/ig,'')" />
           </a-form-model-item>
-          <a-form-model-item label="密码" prop="password">
-            <a-input v-model="form.password" />
+          <!-- <a-form-model-item label="手机号" prop="handset">
+            <a-input v-model="form.handset" />
           </a-form-model-item>
-          <a-form-model-item label="邮箱">
+          <a-form-model-item label="验证码" prop="verification">
+            <a-input-search
+              placeholder="请输入验证码"
+              :enter-button="enterVal"
+              v-model="form.verification"
+              @search="onSearchVerification"
+            />
+          </a-form-model-item>
+          <a-form-model-item label="QQ">
+            <a-input v-model="form.QQemail" />
+          </a-form-model-item> -->
+
+          <a-form-model-item :label="this.$t('agent.password')" prop="password">
+            <a-input-password v-model="form.password" type="password" oninput="value=value.replace(/[^\w\/]/ig,'')" />
+          </a-form-model-item>
+          <a-form-model-item :label="this.$t('agent.mailbox')">
             <a-input v-model="form.email" />
           </a-form-model-item>
+
         </a-form-model>
       </a-modal>
 
-      <a-modal v-model="addPortVisible" title="新增端口" ok-text="确认" width="400px" cancel-text="取消" @ok="addPortApi">
+      <a-modal v-model="addPortVisible" :title="this.$t('agent.TheNewPort')" :ok-text="this.$t('agent.confirm')" width="400px" :cancel-text="this.$t('agent.cancel')" @ok="addPortApi">
         <a-form-model ref="form" layout="horizontal" :model="form" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-          <a-form-model-item label="数量" prop="num">
+          <a-form-model-item :label="this.$t('agent.quantity')" prop="num">
             <a-input v-model="addPortForm.num" />
           </a-form-model-item>
-          <a-form-model-item label="时间">
-            <a-select v-model="addPortForm.day" placeholder="请选择时间" allow-clear>
-              <a-select-option :value="1">一个月</a-select-option>
-              <a-select-option :value="3">一个季</a-select-option>
-              <a-select-option :value="6">半年</a-select-option>
-              <a-select-option :value="12">一年</a-select-option>
+          <a-form-model-item :label="this.$t('agent.time')">
+            <a-select v-model="addPortForm.day" allow-clear>
+              <a-select-option :value="1">{{ $t('agent.oneMonth') }}</a-select-option>
+              <a-select-option :value="3">{{ $t('agent.quarter') }}</a-select-option>
+              <a-select-option :value="6">{{ $t('agent.halfYear') }}</a-select-option>
+              <a-select-option :value="12">{{ $t('agent.year') }}</a-select-option>
             </a-select>
           </a-form-model-item>
         </a-form-model>
+        <span slot="footer">
+          <a-button style="margin-left:10px;" class="add-btn" type="success" @click="addPortVisible = false">{{ $t('agent.cancel') }}</a-button>
+          <a-button style="margin-left:10px;" type="primary" :loading="addPortLoading" @click="addPortApi">{{ $t('agent.confirm') }}</a-button>
+        </span>
       </a-modal>
 
       <a-modal v-model="addDayVisible" title="新增端口(临时)" ok-text="确认" width="400px" cancel-text="取消" @ok="addPortApi">
@@ -107,8 +130,11 @@
         </a-form-model>
       </a-modal>
       <!-- 查看代理  @ok="addAgencyApit" -->
-      <a-modal v-model="checkAgencyVisible" title="查看代理" ok-text="添加代理" :ok-button-props="OKbuttonDisplay"  :width="700" cancel-text="取消" @ok="addAgency">
+      <a-modal v-model="checkAgencyVisible" :title="$t('agent.tellAmgrSchedule')" :ok-text="$t('admin.addAgent')" :ok-button-props="OKbuttonDisplay"  :width="700" cancel-text="取消" @ok="addAgency">
         <a-table :columns="columnsAgency" :data-source="agencyData" :row-key="record => record.user_id" class="tableLimit" :bordered="true" :pagination="false" :scroll="{ x: 600}">
+          <templete v-for="(item, index) in columnsAgency" :key="index" :slot="item.slotName">
+            <span>{{ $t(item.slotName) }}</span>
+          </templete>
           <span slot="created_at" slot-scope="text, row">
           {{ new Date(row.created_at) | getTime }}
         </span>
@@ -116,20 +142,28 @@
       </a-modal>
 
       <!-- 购买流量 -->
-      <a-modal v-model="purchaseFlowVisible" title="购买流量" ok-text="确认" cancel-text="取消" @ok="purchaseFlowApi">
+      <a-modal v-model="purchaseFlowVisible" :title="this.$t('agent.BuyTraffic')" :ok-text="this.$t('agent.confirm')" :cancel-text="this.$t('agent.cancel')" @ok="purchaseFlowApi">
         <a-form-model ref="form" layout="horizontal" :model="FlowForm" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="流量(G)：" prop="flow">
+          <a-form-model-item :label="this.$t('agent.flow')" prop="flow">
             <a-input v-model="FlowForm.flow" />
           </a-form-model-item>
         </a-form-model>
+        <span slot="footer">
+          <a-button style="margin-left:10px;" class="add-btn" type="success" @click="purchaseFlowVisible = false">{{ $t('agent.cancel') }}</a-button>
+          <a-button style="margin-left:10px;" type="primary" :loading="purchaseLoading" @click="purchaseFlowApi">{{ $t('agent.confirm') }}</a-button>
+        </span>
       </a-modal>
       <!-- 添加流量 -->
-      <a-modal v-model="addTrafficVisible" title="添加流量" ok-text="确认" cancel-text="取消" @ok="addTrafficApi">
+      <a-modal v-model="addTrafficVisible" :title="this.$t('agent.AddTraffic')" :ok-text="this.$t('agent.confirm')" :cancel-text="this.$t('agent.cancel')" @ok="addTrafficApi">
         <a-form-model ref="form" layout="horizontal" :model="trafficForm" :rules="form_rule" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="流量(M)：" prop="flow">
+          <a-form-model-item :label="this.$t('agent.flowM')" prop="flow">
             <a-input v-model="trafficForm.flow" />
           </a-form-model-item>
         </a-form-model>
+        <span slot="footer">
+          <a-button style="margin-left:10px;" class="add-btn" type="success" @click="addTrafficVisible = false">{{ $t('agent.cancel') }}</a-button>
+          <a-button style="margin-left:10px;" type="primary" :loading="addTrafficLoading" @click="addTrafficApi">{{ $t('agent.confirm') }}</a-button>
+        </span>
       </a-modal>
       <!-- 添加积分 -->
       <a-modal v-model="addIntegralVisible" title="添加积分" ok-text="确认" cancel-text="取消" @ok="addIntegralApi">
@@ -143,24 +177,25 @@
         </a-form-model>
       </a-modal>
 
-      <a-modal v-model="modifyDialogVisible" title="修改用户" ok-text="确认" cancel-text="取消" @ok="editUser">
-        <a-form-model ref="edit_form" layout="horizontal" :model="modifyForm" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-          <a-form-model-item label="选择角色">
-            <a-select v-model="modifyForm.role" placeholder="请选择角色">
+      <!-- 编辑用户 -->
+      <a-modal v-model="modifyDialogVisible" :title="this.$t('agent.ModifyUser')" :ok-text="this.$t('agent.confirm')" :cancel-text="this.$t('agent.cancel')" @ok="editUser">
+        <a-form-model ref="edit_form" layout="horizontal" :model="modifyForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 13 }">
+          <a-form-model-item :label="this.$t('agent.selectRole')">
+            <a-select v-model="modifyForm.role" :placeholder="this.$t('agent.selectRole')">
               <!-- <a-select-option v-if="role == 1" :value="1">管理员</a-select-option> -->
-              <a-select-option :value="0">用户</a-select-option>
+              <a-select-option :value="0">{{ $t('agent.user') }}</a-select-option>
               <!-- <a-select-option v-if="role == 1" :value="2">代理商</a-select-option> -->
               <!-- <a-select-option :value="3">号商</a-select-option> -->
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="选择状态">
-            <a-select v-model="modifyForm.status" placeholder="请选择状态">
-              <a-select-option :value="1">封禁</a-select-option>
-              <a-select-option :value="0">正常</a-select-option>
+          <a-form-model-item :label="this.$t('agent.selectState')">
+            <a-select v-model="modifyForm.status">
+              <a-select-option :value="1">{{ $t('agent.banned') }}</a-select-option>
+              <a-select-option :value="0">{{ $t('agent.normal') }}</a-select-option>
             </a-select>
           </a-form-model-item>
-          <a-form-model-item label="重置密码">
-            <a-input v-model="modifyForm.password" />
+          <a-form-model-item :label="this.$t('agent.resetPasswrod')">
+            <a-input-password v-model="modifyForm.password" type="password" oninput="value=value.replace(/[^\w\/]/ig,'')" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
@@ -178,7 +213,7 @@
         </a-form-model>
       </a-modal>
       <div class="page">
-        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，总数:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
+        <a-pagination :show-total="(total, range) => `${range[0]}-${range[1]} 条，${$t('admin.total')}:${total} 条`" :page-size-options="['10', '20', '50', '100']" show-size-changer :default-current="1" :current="searchData.page" :total="total" @change="handleCurrentChange" @showSizeChange="handleSizeChange">
           <template slot="buildOptionText" slot-scope="props">
             <span>{{ props.value }}条/页</span>
           </template>
@@ -205,17 +240,19 @@ import user from '@/components/user/user'
 import { number } from 'echarts'
 import { Message } from 'element-ui'
 const columns = [{
-  title: '用户名',
+  // title: '用户名',
+  slotName: 'agent.username',
   dataIndex: 'username',
   width: '180px',
   align: 'center',
-  scopedSlots: { customRender: 'username' }
+  scopedSlots: { customRender: 'username', title: 'agent.username' }
 }, {
-  title: '用户状态',
+  // title: '用户状态',
+  slotName: 'agent.userState',
   dataIndex: 'status',
   width: '100px',
   align: 'center',
-  scopedSlots: { customRender: 'status' }
+  scopedSlots: { customRender: 'status', title: 'agent.userState' }
 },
 /* {
   title: '流量',
@@ -225,62 +262,79 @@ const columns = [{
   scopedSlots: { customRender: 'flow' }
 }, */
 {
-  title: '邮箱',
+  // title: '邮箱',
+  slotName: 'agent.mailbox',
   dataIndex: 'email',
   width: '200px',
   align: 'center',
-  scopedSlots: { customRender: 'email' }
+  scopedSlots: { customRender: 'email', title: 'agent.mailbox' }
 },
 {
-  title: '创建时间',
+  // title: '创建时间',
+  slotName: 'agent.createTime',
   dataIndex: 'created_at',
   width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'created_at' }
+  scopedSlots: { customRender: 'created_at', title: 'agent.createTime' }
 },
 {
-  title: '更新时间',
+  // title: '更新时间',
+  slotName: 'agent.updateTime',
   dataIndex: 'updated_at',
   width: '100',
   align: 'center',
-  scopedSlots: { customRender: 'updated_at' }
+  scopedSlots: { customRender: 'updated_at', title: 'agent.updateTime' }
 },
 {
-  title: '操作',
+  // title: '操作',
+  slotName: 'agent.operation',
   dataIndex: 'action',
-  width: '750px',
+  width: '600px',
   align: 'center',
   fixed: 'right',
-  scopedSlots: { customRender: 'action' }
+  scopedSlots: { customRender: 'action', title: 'agent.operation' }
 }]
 const columnsAgency = [
-{
-  title: '代理用户名',
-  dataIndex: 'username',
-  width: '80px',
-  align: 'center',
-  scopedSlots: { customRender: 'username' }
-},
-{
-  title: '代理密码',
-  dataIndex: 'password',
-  width: '80px',
-  align: 'center',
-  scopedSlots: { customRender: 'password' }
-},
-{
-  title: '创建时间',
-  dataIndex: 'created_at',
-  width: '100px',
-  align: 'center',
-  scopedSlots: { customRender: 'created_at' }
-},
+  {
+    // title: '代理用户名',
+    slotName: 'agent.ProxyUsername',
+    dataIndex: 'username',
+    width: '80px',
+    align: 'center',
+    scopedSlots: { customRender: 'username', title: 'agent.ProxyUsername' }
+  },
+  {
+    // title: '代理密码',
+    slotName: 'agent.ProxyPasswrod',
+    dataIndex: 'password',
+    width: '80px',
+    align: 'center',
+    scopedSlots: { customRender: 'password', title: 'agent.ProxyPasswrod' }
+  },
+  {
+    // title: '创建时间',
+    slotName: 'agent.createTime',
+    dataIndex: 'created_at',
+    width: '100px',
+    align: 'center',
+    scopedSlots: { customRender: 'created_at', title: 'agent.createTime' }
+  }
 ]
 export default {
   components: {
     user
   },
   data() {
+    const validatorHandset = (rule, value, callback) => {
+      let isOk = true
+      var myreg=/^[1][3,4,5,6.7,8,9][0-9]{9}$/
+      console.log(value)
+      if(!myreg.test(value)) {
+        isOk = false
+        callback(new Error('请输入正确的手机号码'))
+      }
+      if (isOk) callback()
+    }
     return {
       earningsRecordData: [],
       dialogTableVisible: false,
@@ -305,11 +359,15 @@ export default {
         status: 0,
         order_created_at: true
       },
+      enterVal: '获取验证码',
+      timeVal: 60,
       tableData: [],
       agencyData: [],
       dialogVisible: false,
       addPortVisible: false,
+      addPortLoading: false,// 新增端口 确定按钮
       addDayVisible: false,
+      purchaseLoading: false, //购买流量
       // 添加流量
       trafficForm: {
         user_id: 0,
@@ -320,6 +378,7 @@ export default {
       },
       addIntegralVisible: false,
       addTrafficVisible: false,
+      addTrafficLoading: false, // 添加流量 确定按钮
       // 查看代理
       checkAgencyVisible: false,
       agencyId: null,
@@ -329,6 +388,9 @@ export default {
         username: '',
         password: '',
         email: '',
+        handset: null,
+        verification: null,
+        QQemail: null,
         role: null
       },
       addPortForm:{
@@ -362,6 +424,13 @@ export default {
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
           { min: 6, max: 100, message: '密码最少六位数', trigger: 'blur' }
+        ],
+        handset: [
+          { required: true, message: '请输入手机号码', trigger: 'blur' },
+          { validator: validatorHandset, trigger: 'blur' }
+        ],
+        verification: [
+          { required: true, message: '请输入验证码', trigger: 'blur' }
         ]
       },
       modifyForm: { role: null, status: 0, rate: 0, password: null }
@@ -454,7 +523,7 @@ export default {
           this.checkAgencyVisible = false
           this.init()
         } else {
-          message.error(res.data.message)
+          this.$message.error(res.data.message)
         }
       })
     },
@@ -462,10 +531,10 @@ export default {
     addTraffic(row) {
       this.trafficForm.user_id = row
       this.addTrafficVisible = true
-       
     },
     
     addTrafficApi() {
+      this.addTrafficLoading = true
       const data = {
         user_id: this.trafficForm.user_id,
         flow: Number(this.trafficForm.flow)
@@ -473,6 +542,7 @@ export default {
       api.postAgencyAddFlow(data).then((res) => {
         if (res.code === 0) {
           this.addTrafficVisible = false
+          this.addTrafficLoading = false
           this.init()
         }
       }).catch((err) => {
@@ -486,12 +556,14 @@ export default {
       this.purchaseFlowVisible = true
     },
     purchaseFlowApi() {
+      this.purchaseLoading = true
       const data = {
         flow: Number(this.FlowForm.flow)
       }
       api.postAgencyBuy(data).then((res) => {
         if (res.code === 0) {
           this.purchaseFlowVisible = false
+          this.purchaseLoading = false
           this.init()
         } else {
           this.$message.error(res.data.message)
@@ -518,6 +590,29 @@ export default {
         }
       })
     },
+    // 获取验证码
+    onSearchVerification() {
+      let myreg=/^[1][3,4,5,6.7,8,9][0-9]{9}$/
+      if(!myreg.test(this.form.handset) ) {
+        this.$message.error('请输入正确手机号码')
+        return
+      }
+      let setVal = setInterval(() =>{
+        this.timeVal--
+        this.enterVal = this.timeVal+'s'
+        if(this.timeVal === 0) {
+        clearInterval(setVal)
+        this.enterVal = '获取验证码'
+        this.timeVal = 60
+      } else if(this.form.verification != '') {
+        clearInterval(setVal)
+        this.enterVal = '获取验证码'
+        this.timeVal = 60
+      }
+      },1000)
+      
+    },
+    // 新增用户
     addUser() {
       this.form.username = this.form.username.trim()
       this.form.password = this.form.password === '' ? null : this.form.password
@@ -612,7 +707,7 @@ export default {
       this.addPortForm.user_id = id
     },
     addPortApi() {
-      console.log(this.addPortForm)
+      this.addPortLoading = true
       var postData = {
         user_id: this.addPortForm.user_id,
         num: Number(this.addPortForm.num),
@@ -620,7 +715,8 @@ export default {
       }
       api.postAgentPort(postData).then(res => {
         if (res.code === 0) {
-          this.addPortVisible = false;
+          this.addPortVisible = false
+          this.addPortLoading = false
           this.getTableData()
         }
       }).catch((err) => {

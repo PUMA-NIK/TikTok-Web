@@ -1,61 +1,61 @@
 <template>
   <div>
-    <a-row :gutter="30">
-      <a-col :span="18" >
+    <a-row :gutter="20">
+      <a-col :span="16" >
         <div style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;">
           <div class="textColor">
-            <img src="../../assets/IntegralIcon.svg">积分充值记录
+            <img src="../../assets/IntegralIcon.svg">{{$t('admin.Integralrecord')}}
           </div>
-          <div ref="integralRecord" class="integralRecord" style="height: 44.2vh;  margin: 0px 0px 30px 0px;"></div>
+          <div ref="integralRecord" class="integralRecord" style="height: 50vh;  margin: 0px 0px 20px 0px;"></div>
         </div>
       </a-col>
-      <a-col :span="6" >
-        <div style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  height: 23vh; margin: 0px 0px 30px 0px;">
+      <a-col :span="8" >
+        <div style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  height: 27vh; margin: 0px 0px 10px 0px;">
           <div class="textColor">
-            <img src="../../assets/userIcon.svg">用户记录
+            <img src="../../assets/userIcon.svg">{{$t('admin.userRecord')}}
           </div>
           <a-row class="adText">
-            <a-col :span="5" >账号总数</a-col>
+            <a-col :span="5" >{{$t('admin.accountsNumber')}}</a-col>
             <a-col :span="16"><a-progress :stroke-color="'#4BA794'" :stroke-width="10" :percent="100" :format="() => ''"/></a-col>
             <a-col :span="3" >{{this.user_record.account_count}}</a-col>
           </a-row>
           <a-row class="adText">
-            <a-col :span="5" >用户总数</a-col>
+            <a-col :span="5" >{{$t('admin.usersNumber')}}</a-col>
             <a-col :span="16"><a-progress :stroke-color="'#FFA86D'" :stroke-width="10" :percent="50" :format="() => ''"/></a-col>
             <a-col :span="3" >{{this.user_record.user_count}}</a-col>
           </a-row>
           <a-row class="adText">
-            <a-col :span="5" >代理总数</a-col>
+            <a-col :span="5" >{{$t('admin.agentsNumber')}}</a-col>
             <a-col :span="16"><a-progress :stroke-color="'#3598F1'" :stroke-width="10" :percent="30" :format="() => ''"/></a-col>
             <a-col :span="3" >{{this.user_record.agent_count}}</a-col>
           </a-row>
           <a-row class="adText">
-            <a-col :span="5" >号商总数</a-col>
+            <a-col :span="5" >{{$t('admin.suppliersNumber')}}</a-col>
             <a-col :span="16"><a-progress :stroke-color="'#F86400'" :stroke-width="10" :percent="20" :format="() => ''"/></a-col>
             <a-col :span="3" >{{this.user_record.dealer_count}}</a-col>
           </a-row>
         </div>
-        <div style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  height: 23vh; margin: 0;">
+        <div style="box-shadow: 0px 3px 10px #00000029; border-radius: 15px;  height: 27vh; margin: 0px 0px 13px 0px;">
           <div class="textColor">
-            <img src="../../assets/addUserIcon.svg">今日后台用户新增
+            <img src="../../assets/addUserIcon.svg">{{$t('admin.AddUsersToday')}}
           </div>
           <a-row class="adText">
-            <a-col :span="5" >账号总数</a-col>
+            <a-col :span="5" >{{$t('admin.accountsNumber')}}</a-col>
             <a-col :span="16"><a-progress :stroke-color="'#4BA794'" :stroke-width="10" :percent="100" :format="() => ''"/></a-col>
             <a-col :span="3" >{{this.user_record.account_new_count}}</a-col>
           </a-row>
           <a-row class="adText">
-            <a-col :span="5" >用户总数</a-col>
+            <a-col :span="5" >{{$t('admin.usersNumber')}}</a-col>
             <a-col :span="16"><a-progress :stroke-color="'#FFA86D'" :stroke-width="10" :percent="50" :format="() => ''"/></a-col>
             <a-col :span="3" >{{this.user_record.user_new_count}}</a-col>
           </a-row>
           <a-row class="adText">
-            <a-col :span="5" >代理总数</a-col>
+            <a-col :span="5" >{{$t('admin.agentsNumber')}}</a-col>
             <a-col :span="16"><a-progress :stroke-color="'#3598F1'" :stroke-width="10" :percent="30" :format="() => ''"/></a-col>
             <a-col :span="3" >{{this.user_record.agent_new_count}}</a-col>
           </a-row>
           <a-row class="adText">
-            <a-col :span="5" >号商总数</a-col>
+            <a-col :span="5" >{{$t('admin.suppliersNumber')}}</a-col>
             <a-col :span="16"><a-progress :stroke-color="'#F86400'" :stroke-width="10" :percent="20" :format="() => ''"/></a-col>
             <a-col :span="3" >{{this.user_record.dealer_new_count}}</a-col>
           </a-row>
@@ -68,19 +68,19 @@
           <a-col :span="12">
             <div>
               <div class="portColor">
-                <img src="../../assets/portIcon.svg">端口记录
+                <img src="../../assets/portIcon.svg">{{$t('admin.portRecord')}}
               </div>
-              <div ref="portCount" class="portCount" style="width: 100%; height: 18vh;"></div>
-              <div class="portTexeColor">端口总数:{{this.port_record.port_count}}</div>
+              <div ref="portCount" class="portCount" style="width: 100%; height: 20vh;"></div>
+              <div class="portTexeColor">{{$t('admin.portNumber')}}:{{this.port_record.port_count}}</div>
             </div>
           </a-col>
           <a-col :span="12">
             <div>
               <div class="portColor">
-                <img src="../../assets/addPortIcon.svg">今日新增
+                <img src="../../assets/addPortIcon.svg">{{$t('admin.addedToday')}}
               </div>
-              <div ref="todayNewPortCount" class="todayNewPortCount" style="width: 100%; height: 18vh;"></div>
-              <div class="portTodayColor">新增总数:{{this.port_record.today_new_port_count}}</div>
+              <div ref="todayNewPortCount" class="todayNewPortCount" style="width: 100%; height: 20vh;"></div>
+              <div class="portTodayColor">{{$t('admin.addedNumber')}}:{{this.port_record.today_new_port_count}}</div>
             </div>
           </a-col>
         </div>
@@ -88,30 +88,30 @@
       <a-col :span="6" >
         <div style="box-shadow: 0px 3px 10px #00000029; height: 29vh; border-radius: 15px;">
           <div class="textColor">
-            <img src="../../assets/auditIcon.svg">资源审核
+            <img src="../../assets/auditIcon.svg">{{$t('admin.resourceReview')}}
           </div>
           <a-row class="adText">
-            <a-col :span="5" >资源总数</a-col>
+            <a-col :span="5" >{{$t('admin.totalResources')}}</a-col>
             <a-col :span="16"><a-progress :stroke-color="'#4BA794'" :stroke-width="10" :percent="100" :format="() => ''"/></a-col>
             <a-col :span="3" >{{this.resource_audit.resource_count}}</a-col>
           </a-row>
           <a-row class="adText">
-            <a-col :span="5" >待审核数</a-col>
+            <a-col :span="5" >{{$t('admin.pendingReview')}}</a-col>
             <a-col :span="16"><a-progress :stroke-color="'#FFA86D'" :stroke-width="10" :percent="parseInt(this.resource_audit.now_audit_resource_count/this.resource_audit.resource_count*100)" :format="() => ''"/></a-col>
             <a-col :span="3" >{{this.resource_audit.now_audit_resource_count}}</a-col>
           </a-row>
           <a-row class="adText">
-            <a-col :span="5" >已审核数</a-col>
+            <a-col :span="5" >{{$t('admin.audited')}}</a-col>
             <a-col :span="16"><a-progress :stroke-color="'#3598F1'" :stroke-width="10" :percent="parseInt(this.resource_audit.audit_resource_count/this.resource_audit.resource_count*100)" :format="() => ''"/></a-col>
             <a-col :span="3">{{this.resource_audit.audit_resource_count}}</a-col>
           </a-row>
         </div>
       </a-col>
       <a-col :span="10">
-        <div style="box-shadow: 0px 3px 10px #00000029; height: 13vh; border-radius: 10px; margin: 0px 0px 30px 0px;">
-          <div class="textColor"><img src="../../assets/trafficIcon.svg">流量信息</div>
+        <div style="box-shadow: 0px 3px 10px #00000029; height: 14vh; border-radius: 10px; margin: 0px 0px 10px 0px;">
+          <div class="textColor"><img src="../../assets/trafficIcon.svg">{{$t('admin.flowInformation')}}</div>
           <div class="usedFlowColor">
-            <div>流量使用</div>
+            <div>{{$t('admin.trafficUsage')}}</div>
             <p>{{this.flow_shop.used_flow}}M</p>
           </div>
           <!-- <a-row>
@@ -123,12 +123,12 @@
             </a-col>
           </a-row> -->
         </div>
-        <div style="box-shadow: 0px 3px 10px #00000029; height: 13vh; border-radius: 10px; margin: 0px 0px 30px 0px;">
+        <div style="box-shadow: 0px 3px 10px #00000029; height: 14vh; border-radius: 10px; margin: 0px 0px 10px 0px;">
           <div class="textColor">
-            <img src="../../assets/putawayIcon.svg">上架商品
+            <img src="../../assets/putawayIcon.svg">{{$t('admin.commodity')}}
           </div>
           <div class="shopsCountColor">
-            <div>商品总数</div>
+            <div>{{$t('admin.commoditysNumber')}}</div>
             <p>{{this.flow_shop.shops_count}}</p>
           </div>
         </div>
@@ -140,11 +140,13 @@
         {{this.affiche}}
       </div>
     </a-modal>
+    <statement-duty/>
   </div>
 </template>
 
 <script>
 import PanelGroup from "./components/PanelGroup";
+import statementDuty from '../../components/statement/index.vue'
 import world from '../../mapData/world.json'
 import * as api from '@/api/index'
 export default {
@@ -168,6 +170,7 @@ export default {
   },
   components: {
     PanelGroup,
+    statementDuty
   },
   mounted() {
     this.getPublish()
@@ -243,11 +246,11 @@ export default {
             y2: 50
           },
           legend: {
-            data: ['代理商充值', '号商充值']
+            data: [this.$t('admin.AgentRecharge'), this.$t('admin.supplierRecharge')]
           },
           series: [
             {
-              name: '代理商充值',
+              name: this.$t('admin.AgentRecharge'),
               data: this.points.agentPoints,
               type: 'line',
               symbolSize: 8,
@@ -263,7 +266,7 @@ export default {
               }
             },
             {
-              name: '号商充值',
+              name: this.$t('admin.supplierRecharge'),
               data: this.points.dealerPoints,
               type: 'line',
               symbolSize: 8,
@@ -301,7 +304,7 @@ export default {
             left: 'center',
             textStyle: {
               color: '#3598F1',
-              fontSize: '22px'
+              fontSize: '16px'
             }
           },
           legend: {
@@ -351,7 +354,7 @@ export default {
             left: 'center',
             textStyle: {
               color: '#FFA86D',
-              fontSize: '22px'
+              fontSize: '16px'
             }
           },
           legend: {

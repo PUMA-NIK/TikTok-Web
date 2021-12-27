@@ -48,10 +48,10 @@
             </a-select>
           </a-form-model-item>
           <a-form-model-item label="用户名" prop="username">
-            <a-input v-model="form.username" />
+            <a-input v-model="form.username" oninput="value=value.replace(/[^\w\/]/ig,'')"/>
           </a-form-model-item>
           <a-form-model-item label="密码" prop="password">
-            <a-input v-model="form.password" />
+            <a-input-password v-model="form.password" type="password" oninput="value=value.replace(/[^\w\/]/ig,'')"/>
           </a-form-model-item>
           <a-form-model-item label="邮箱">
             <a-input v-model="form.email" />
@@ -74,7 +74,7 @@
             </a-select>
           </a-form-model-item>
           <a-form-model-item label="重置密码">
-            <a-input v-model="modifyForm.password" />
+            <a-input-password v-model="modifyForm.password" type="password" oninput="value=value.replace(/[^\w\/]/ig,'')"/>
           </a-form-model-item>
         </a-form-model>
       </a-modal>
@@ -246,7 +246,7 @@ export default {
       }
     },
     onSubmit() {
-      console.log('submit!')
+      // console.log('submit!')
     },
     add() {
       this.dialogVisible = true
@@ -357,7 +357,7 @@ export default {
           'notCashAmount': (res.data.total - res.data.complete) / 100
         }
         this.earningsRecordData = [recordData]
-        console.log(res.data)
+        // console.log(res.data)
       }
     }
   }

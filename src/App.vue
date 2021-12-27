@@ -29,4 +29,5 @@ export default {
 .ant-popover-buttons {
   text-align: center;
 }
+
 </style>

@@ -45,11 +45,11 @@ module.exports = {
           '^/offer': ''
         }
       },
-'/baidu': {
-        target: 'http://api.fanyi.baidu.com/api/trans/vip/translate',
+      '/baidu': {
+        target: 'https://api.fanyi.baidu.com/api/trans/vip/translate',
         changeOrigin: true,
         pathRewrite: {
-          '^/baidu': '',
+          '^/baidu': '/baidu',
         }
       },
       '/phone': {

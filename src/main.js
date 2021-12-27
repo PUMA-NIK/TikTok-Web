@@ -2,6 +2,18 @@ import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
 Vue.use(VueClipboard)
 import 'normalize.css/normalize.css' // A modern alternative to CSS resets
+import { VueJsonp } from 'vue-jsonp'// jsonp 跨域设置
+Vue.use(VueJsonp)
+
+import i18n from './i18n/vue-i18n'
+
+// 有道翻译
+import VueResource from 'vue-resource'
+Vue.use(VueResource)
+import md5 from 'js-md5'
+Vue.prototype.$md5 = md5
+
+
 
 
 import Antd from 'ant-design-vue'
@@ -16,7 +28,7 @@ import '@/styles/index.scss' // global css
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
-import '../src/utils/flexible'
+// import '../src/utils/flexible'
 
 import App from './App'
 import store from './store'
@@ -70,5 +82,6 @@ new Vue({
   el: '#app',
   router,
   store,
+  i18n,
   render: h => h(App)
 })

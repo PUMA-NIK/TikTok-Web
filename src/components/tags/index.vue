@@ -62,11 +62,11 @@ export default {
         onChange: (selectedRowKeys, selectedRows) => {
           // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
           this.tags_arr = []
-          console.log(selectedRowKeys)
+          // console.log(selectedRowKeys)
           selectedRowKeys.forEach(item => {
             this.tags_arr.push(item)
           })
-          console.log(selectedRowKeys)
+          // console.log(selectedRowKeys)
         },
         getCheckboxProps: record => ({
           props: {
@@ -111,7 +111,7 @@ export default {
             value: false
           })
         })
-        console.log(this.radioArr)
+        // console.log(this.radioArr)
         this.total = res.data.count
       }
     },
@@ -121,7 +121,7 @@ export default {
     },
     getCurrentRow(index) {
       const id = this.tableData[index].id
-      console.log(id)
+      // console.log(id)
       this.$emit('getTagId', this.tableData[index].id, this.tableData[index].name)
     },
     handleSizeChange(p, s) {

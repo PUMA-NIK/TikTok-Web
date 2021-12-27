@@ -32,7 +32,7 @@
             <a-input v-model="form.username" />
           </a-form-item>
           <a-form-item label="密码">
-            <a-input v-model="form.password" />
+            <a-input-password v-model="form.password" type="password" oninput="value=value.replace(/[^\w\/]/ig,'')"/>
           </a-form-item>
         </a-form>
       </a-modal>
