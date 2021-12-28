@@ -1,6 +1,6 @@
 <template>
   <div class="send-messge">
-    <p class="send-messge-failText" v-if="display" @click="failTextDisplay">{{"失败原因："+failText+'。发送内容：'+displayvalue+'。'}}</p>
+    <!-- <p class="send-messge-failText" v-if="display" @click="failTextDisplay">{{"失败原因："+failText+'。发送内容：'+displayvalue+'。'}}</p> -->
     <div class="function-class">
       <i class="iconfont icon-400biaoqing_biaoqing"></i>
       <i class="iconfont icon-charutupian">
@@ -179,6 +179,7 @@ export default {
         }
         that.$forceUpdate()
         api.sendMessge(parmes).then((res) => {
+          console.log('-------213123>',res);
           this.$store.commit("fastReplyValue", '')
             if(res.data.server_message_id != ''){
               that.$store.state.msgObj["tiktok"][localStorage.getItem("accountId")][localStorage.getItem("userId")]["msgList"].pop()
@@ -186,7 +187,7 @@ export default {
               res.data.content = `{\"aweType\":0,\"text\":\"${that.displayvalue}\"}`
               that.$store.commit("setDataKey_history", res.data)
               this.$store.commit("fastReplyValue", '')
-            }else {
+            } else {
               that.$store.state.msgObj["tiktok"][localStorage.getItem("accountId")][localStorage.getItem("userId")]["msgList"].pop()
               that.DataList.content = `{\"aweType\":0,\"succeed\":false,\"failureText\":\"${res.data.send_status}\",\"text\":\"${that.displayvalue}\"}`
               let failureData = {}

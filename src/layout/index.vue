@@ -2,7 +2,7 @@
   <div :class="classObj" class="app-wrapper">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
     <sidebar class="sidebar-container" />
-    <div class="main-container">
+    <div :class="this.mainContainer === 1 ? 'main-container':'main-container2'">
       <div :class="{'fixed-header':fixedHeader}">
         <navbar />
       </div>
@@ -22,6 +22,11 @@ export default {
     Sidebar,
     AppMain
   },
+  data() {
+    return {
+      mainContainer:null,
+    }
+  }, 
   mixins: [ResizeMixin],
   computed: {
     sidebar() {
@@ -40,6 +45,13 @@ export default {
         withoutAnimation: this.sidebar.withoutAnimation,
         mobile: this.device === 'mobile'
       }
+    }
+  },
+  mounted() {
+    if(JSON.parse(window.sessionStorage.getItem('userInfo')).data.r != 4) {
+      this.mainContainer = 1
+    }else{
+      this.mainContainer = 0
     }
   },
   methods: {
@@ -82,6 +94,12 @@ export default {
     width: calc(100% - #{$sideBarWidth});
     transition: width 0.28s;
   }
+   .main-container2 {
+    min-height: 100%;
+    transition: margin-left 0.28s;
+    // margin-left: 1.09375rem;
+    position: relative;
+}
 
   .hideSidebar .fixed-header {
     width: calc(100% - 54px)

@@ -46,7 +46,10 @@ export default {
       return this.$store.state.settings.sidebarLogo
     },
     variables() {
-      return variables
+      // console.log()
+      if(JSON.parse(window.sessionStorage.getItem('userInfo')).data.r != 4) {
+        return variables
+      }
     },
     isCollapse() {
       return !this.sidebar.opened
